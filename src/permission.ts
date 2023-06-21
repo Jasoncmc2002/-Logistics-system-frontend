@@ -14,6 +14,12 @@ const whiteList = ["/login"];
 router.beforeEach(async (to, from, next) => {
   NProgress.start();
   const hasToken = localStorage.getItem("accessToken");
+  // //测试用
+  // const hasToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImp0aSI6IjY2ZGIwNGRjYjhjNTQwNzNhNDZiOTNiOTM4YThiNjVmIiwidXNlcklkIjoyLCJ1c2VybmFtZSI6ImFkbWluIiwiZGVwdElkIjoxLCJkYXRhU2NvcGUiOjEsImF1dGhvcml0aWVzIjpbIlJPTEVfQURNSU4iXSwiZXhwIjoxNjg3MzI4ODcxfQ.hH8TJR64WSYB2jd6XEa1BigiOhLgigieEyUKYtnty4k"
+  // localStorage.setItem("accessToken", hasToken);
+  // //测试用
+  console.log("dklsjfdsklfjsdklfjdskfjdsklfjdskfjdsklfjdsklfjskflsdflksdflks");
+  console.log(hasToken);
   if (hasToken) {
     if (to.path === "/login") {
       // 如果已登录，跳转首页

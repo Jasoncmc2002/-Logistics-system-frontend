@@ -1,12 +1,32 @@
 <script setup lang="ts">
 /**
+ * setup ： 语法糖，可以省去子组件在父组件的components中注册的过程，直接import之后就可以使用
+ * lang="ts" ： 表示此文件是TypeScript格式
+ */
+
+/**
  * @see {@link https://vuejs.org/api/sfc-script-setup.html#defineoptions}
  */
+
+/**
+ * defineOptions : 语法糖，定义本文件name
+ */
+
+//TODO: inheritAttrs是干嘛的？
+
 defineOptions({
   name: "User",
   inheritAttrs: false,
 });
+
+/**
+ * 导入UI
+ */
 import { UploadFile } from "element-plus";
+
+/**
+ * 导入需要的user相关API
+ */
 import {
   getUserPage,
   getUserForm,
@@ -19,15 +39,45 @@ import {
   exportUser,
   importUser,
 } from "@/api/user";
+
+/**
+ * 导入需要的dept与role相关的API
+ */
 import { listDeptOptions } from "@/api/dept";
 import { listRoleOptions } from "@/api/role";
 
+/**
+ * 导入API所需要的数据类型
+ */
 import { UserForm, UserQuery, UserPageVO } from "@/api/user/types";
 
+/**
+ * 定义ElementUI组件
+ */
 const deptTreeRef = ref(ElTree); // 部门树
 const queryFormRef = ref(ElForm); // 查询表单
 const userFormRef = ref(ElForm); // 用户表单
 
+/**
+ * ref本质也是reactive，ref(obj)等价于reactive({value: obj}) : 用于定义响应式变量
+ * 定义所需变量
+ * loading : 反馈是否数据加载完成
+ * TODO:
+ * ids : ?
+ * total : ?
+ * dalog : ? 弹窗
+ * queryParams : ?
+ * userList : 对应用户表中的数据
+ * formData : ?
+ * rules : 用来规定表单中各个数据的要求
+ * searchDept : ?
+ * deptList : 存放dept
+ * roleList ：存放role
+ * importDialog : 导入用户时的弹窗
+ * importDeptId : 导入选择的部门ID
+ * excelFile : 用于存储一个Excel文件
+ * excelFileList : 用于存储一堆Excel文件
+ */
 const loading = ref(false);
 const ids = ref([]);
 const total = ref(0);
@@ -81,6 +131,10 @@ const importDeptId = ref<number>();
 const excelFile = ref<File>();
 const excelFilelist = ref<File[]>([]);
 
+/**
+ * watchEffect会监听所引用数据类型的所有属性（这里监听的是seachDeptName）
+ * 满足filter中的value的内容会被保留，其它除去（返回一份新的数据，不影响原来数据）
+ */
 watchEffect(
   () => {
     deptTreeRef.value.filter(searchDeptName.value);
@@ -97,11 +151,13 @@ function handleDeptFilter(value: string, data: any) {
   if (!value) {
     return true;
   }
+  // !==就是!= 这里是在判断，data数据中是否有叫value的部门
   return data.label.indexOf(value) !== -1;
 }
 
 /**
  * 部门树节点
+ * TODO : ?干嘛的
  */
 function handleDeptNodeClick(data: { [key: string]: any }) {
   queryParams.deptId = data.value;
@@ -412,7 +468,7 @@ onMounted(() => {
           ></el-tree>
         </el-card>
       </el-col>
-
+      <!-- 搜索栏 -->
       <el-col :lg="20" :xs="24">
         <div class="search-container">
           <el-form ref="queryFormRef" :model="queryParams" :inline="true">
@@ -488,6 +544,8 @@ onMounted(() => {
               </div>
             </div>
           </template>
+
+          <!-- 表单开始位置 -->
 
           <el-table
             v-loading="loading"
@@ -580,6 +638,8 @@ onMounted(() => {
               </template>
             </el-table-column>
           </el-table>
+
+          <!-- 表单结束位置 -->
 
           <pagination
             v-if="total > 0"
