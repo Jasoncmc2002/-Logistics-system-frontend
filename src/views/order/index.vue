@@ -40,6 +40,9 @@ import {
   importUser,
 } from "@/api/user";
 
+// new api
+import { getOrderPage } from "@/api/order";
+
 /**
  * 导入需要的dept与role相关的API
  */
@@ -50,6 +53,10 @@ import { listRoleOptions } from "@/api/role";
  * 导入API所需要的数据类型
  */
 import { UserForm, UserQuery, UserPageVO } from "@/api/user/types";
+
+// new type
+
+import { OrderForm, OrderPageVO, OrderQuery } from "@/api/order/types";
 
 /**
  * 定义ElementUI组件
@@ -63,7 +70,7 @@ const userFormRef = ref(ElForm); // 用户表单
  * 定义所需变量
  * loading : 反馈是否数据加载完成
  * TODO:
- * ids : ?
+ * ids : 用来存储哪些数据被选中的
  * total : ?
  * dalog : ? 弹窗
  * queryParams : ?
@@ -80,7 +87,17 @@ const userFormRef = ref(ElForm); // 用户表单
  */
 const loading = ref(false);
 const ids = ref([]);
+
+// new ids
+
+const idsOrder = ref([]);
+
 const total = ref(0);
+
+// new total
+
+const totalOrder = ref(0);
+
 const dialog = reactive<DialogOption>({
   visible: false,
 });
@@ -89,11 +106,26 @@ const queryParams = reactive<UserQuery>({
   pageNum: 1,
   pageSize: 10,
 });
+
+// new queryParams
+
+const queryParamsOrder = reactive<OrderQuery>({
+  pageNum: 1,
+  pageSize: 5,
+});
+
 const userList = ref<UserPageVO[]>();
+
+// new pagevo
+const orderList = ref<OrderPageVO[]>();
 
 const formData = reactive<UserForm>({
   status: 1,
 });
+
+// new formData
+
+const formDataOrder = reactive<OrderForm>;
 
 const rules = reactive({
   username: [{ required: true, message: "用户名不能为空", trigger: "blur" }],
@@ -202,9 +234,38 @@ function handleQuery() {
   getUserPage(queryParams)
     .then(({ data }) => {
       userList.value = data.list;
+      console.log(
+        "UserList: ---------------------------------------------------"
+      );
+      console.log(userList);
       total.value = data.total;
     })
     .finally(() => {
+      loading.value = false;
+    });
+}
+
+// new handleQuery
+
+function handleQueryOrder() {
+  loading.value = true;
+  console.log(
+    "sdkjfsdgbflsfjsgldfshnjgbsjhdsbvgkdfshf,gbkhasfgvebdgfs ekgjd,bsoekjdbgkjesdegdksbs"
+  );
+  getOrderPage(queryParamsOrder)
+    .then(({ data }) => {
+      console.log(
+        "OrderList: ---------------------------------------------------"
+      );
+      orderList.value = data.list;
+      console.log(
+        "OrderList: ---------------------------------------------------"
+      );
+      console.log(orderList);
+      totalOrder.value = data.total;
+    })
+    .finally(() => {
+      console.log("false");
       loading.value = false;
     });
 }
@@ -224,6 +285,12 @@ function resetQuery() {
  */
 function handleSelectionChange(selection: any) {
   ids.value = selection.map((item: any) => item.id);
+}
+
+// new selection
+
+function handleSelectionChangeOrder(selection: any) {
+  idsOrder.value = selection.map((item: any) => item.id);
 }
 
 /**
@@ -265,6 +332,21 @@ async function openDialog(userId?: number) {
   } else {
     dialog.title = "新增用户";
   }
+}
+
+// new openDialog
+async function openDialogOrder(orderId?: number) {
+  // await getDeptOptions();
+  // await getRoleOptions();
+  // dialog.visible = true;
+  // if (orderId) {
+  //   dialog.title = "修改订单";
+  //   getOrderForm(orderId).then(({ data }) => {
+  //     Object.assign(formData, data);
+  //   });
+  // } else {
+  //   dialog.title = "新增用户";
+  // }
 }
 
 /**
@@ -441,6 +523,7 @@ function handleUserExport() {
 onMounted(() => {
   getDeptOptions(); // 初始化部门
   handleQuery(); // 初始化用户列表数据
+  handleQueryOrder();
 });
 </script>
 
@@ -641,12 +724,96 @@ onMounted(() => {
 
           <!-- 表单结束位置 -->
 
+          <!-- new table -->
+
+          <!-- 表单开始位置 -->
+
+          <el-table
+            v-loading="loading"
+            :data="orderList"
+            @selection-change="handleSelectionChangeOrder"
+          >
+            <!-- 选中框行 -->
+            <el-table-column type="selection" width="50" align="center" />
+
+            <!-- 具体数据 -->
+            <el-table-column
+              key="id"
+              label="编号"
+              align="center"
+              prop="id"
+              width="100"
+            />
+            <el-table-column
+              key="creater"
+              label="创建者"
+              align="center"
+              prop="creater"
+            />
+            <el-table-column
+              label="货物数量"
+              width="120"
+              align="center"
+              prop="goodSum"
+            />
+
+            <!-- 状态转变按钮 -->
+            <!-- <el-table-column label="状态" align="center" prop="status">
+              <template #default="scope">
+                <el-switch
+                  v-model="scope.row.status"
+                  :inactive-value="0"
+                  :active-value="1"
+                  @change="handleStatusChange(scope.row)"
+                />
+              </template>
+            </el-table-column> -->
+            <!-- <el-table-column
+              label="创建时间"
+              align="center"
+              prop="createTime"
+              width="180"
+            ></el-table-column> -->
+
+            <!-- 一些操作按钮 -->
+            <el-table-column label="操作" fixed="right" width="220">
+              <template #default="scope">
+                <!-- <el-button
+                  v-hasPerm="['sys:user:reset_pwd']"
+                  type="primary"
+                  size="small"
+                  link
+                  @click="resetPassword(scope.row)"
+                  ><i-ep-refresh-left />重置密码</el-button
+                > -->
+                <el-button
+                  v-hasPerm="['order:edit']"
+                  type="primary"
+                  link
+                  size="small"
+                  @click="openDialog(scope.row.id)"
+                  ><i-ep-edit />编辑</el-button
+                >
+                <!-- <el-button
+                  v-hasPerm="['sys:user:delete']"
+                  type="primary"
+                  link
+                  size="small"
+                  @click="handleDelete(scope.row.id)"
+                  ><i-ep-delete />删除</el-button
+                > -->
+              </template>
+            </el-table-column>
+          </el-table>
+
+          <!-- 表单结束位置 -->
+
           <pagination
             v-if="total > 0"
             v-model:total="total"
-            v-model:page="queryParams.pageNum"
-            v-model:limit="queryParams.pageSize"
-            @pagination="handleQuery"
+            v-model:page="queryParamsOrder.pageNum"
+            v-model:limit="queryParamsOrder.pageSize"
+            @pagination="handleQueryOrder"
           />
         </el-card>
       </el-col>
