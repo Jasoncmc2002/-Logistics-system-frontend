@@ -630,7 +630,7 @@ onMounted(() => {
 
           <!-- 表单开始位置 -->
 
-          <el-table
+          <!-- <el-table
             v-loading="loading"
             :data="userList"
             @selection-change="handleSelectionChange"
@@ -720,7 +720,7 @@ onMounted(() => {
                 >
               </template>
             </el-table-column>
-          </el-table>
+          </el-table> -->
 
           <!-- 表单结束位置 -->
 
@@ -745,6 +745,14 @@ onMounted(() => {
               width="100"
             />
             <el-table-column
+              key="id"
+              label="编号"
+              align="center"
+              prop="id"
+              width="100"
+            />
+         
+            <el-table-column
               key="creater"
               label="创建者"
               align="center"
@@ -755,6 +763,27 @@ onMounted(() => {
               width="120"
               align="center"
               prop="goodSum"
+            />
+            <el-table-column
+              key="explain"
+              label="商品说明"
+              align="center"
+              prop="id"
+              width="100"
+            />
+            <el-table-column
+              key="remark"
+              label="备注信息"
+              align="center"
+              prop="id"
+              width="100"
+            />
+            <el-table-column
+              key="id"
+              label="订单日期"
+              align="center"
+              prop="id"
+              width="100"
             />
 
             <!-- 状态转变按钮 -->
