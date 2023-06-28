@@ -1,6 +1,7 @@
 import request from '@/utils/request';
 import { AxiosPromise } from 'axios';
 import { UserForm, UserInfo, UserPageVO, UserQuery } from './types';
+import { CustomerForm } from '../customer/types';
 
 /**
  * 登录成功后获取用户信息（昵称、头像、权限集合和角色集合）
@@ -58,9 +59,9 @@ export function addUser(data: any) {
  * @param id
  * @param data
  */
-export function updateUser(id: number, data: UserForm) {
+export function updateUser( data: CustomerForm) {
   return request({
-    url: '/api/v1/users/' + id,
+    url: '/api/v1/users/' ,
     method: 'put',
     data: data
   });

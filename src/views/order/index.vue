@@ -42,6 +42,7 @@ import {
 
 // new api
 import { getOrderPage } from "@/api/order";
+import { getCustomerPage,getCustomerForm } from "@/api/customer";
 
 /**
  * 导入需要的dept与role相关的API
@@ -56,7 +57,11 @@ import { UserForm, UserQuery, UserPageVO } from "@/api/user/types";
 
 // new type
 
-import { OrderForm, OrderPageVO, OrderQuery } from "@/api/order/types";
+import { GoodQuery,GoodPageVO,GoodForm, OrderForm, OrderPageVO, OrderQuery } from "@/api/order/types";
+import { getGoodPage } from "@/api/order";
+
+import { CustomerQuery ,CustomerPageVO,CustomerForm} from "@/api/customer/types";
+
 
 /**
  * 定义ElementUI组件
@@ -64,7 +69,7 @@ import { OrderForm, OrderPageVO, OrderQuery } from "@/api/order/types";
 const deptTreeRef = ref(ElTree); // 部门树
 const queryFormRef = ref(ElForm); // 查询表单
 const userFormRef = ref(ElForm); // 用户表单
-
+const CustomerFormRef=ref(ElForm);
 /**
  * ref本质也是reactive，ref(obj)等价于reactive({value: obj}) : 用于定义响应式变量
  * 定义所需变量
@@ -97,6 +102,7 @@ const total = ref(0);
 // new total
 
 const totalOrder = ref(0);
+const totalGood= ref(0);
 
 const dialog = reactive<DialogOption>({
   visible: false,
@@ -114,10 +120,26 @@ const queryParamsOrder = reactive<OrderQuery>({
   pageSize: 5,
 });
 
+const queryParamsGood = reactive<GoodQuery>({
+  pageNum: 1,
+  pageSize: 5,
+  
+  
+});
+
+const queryParamsCustomer = reactive<CustomerQuery>({
+
+  pageNum: 1,
+  pageSize: 10,
+
+});
+
 const userList = ref<UserPageVO[]>();
+const customerList=ref<CustomerPageVO[]>();
 
 // new pagevo
 const orderList = ref<OrderPageVO[]>();
+const goodList = ref<GoodPageVO[]>();
 
 const formData = reactive<UserForm>({
   status: 1,
@@ -125,13 +147,20 @@ const formData = reactive<UserForm>({
 
 // new formData
 
-const formDataOrder = reactive<OrderForm>;
+const formDataOrder = reactive<OrderForm>({
+});
+
+const formDataCustomer=reactive<CustomerForm>({
+
+});
 
 const rules = reactive({
-  username: [{ required: true, message: "用户名不能为空", trigger: "blur" }],
-  nickname: [{ required: true, message: "用户昵称不能为空", trigger: "blur" }],
-  deptId: [{ required: true, message: "所属部门不能为空", trigger: "blur" }],
+  name: [{ required: true, message: "用户名不能为空", trigger: "blur" }],
+  idcard: [{ required: true, message: "用户昵称不能为空", trigger: "blur" }],
+  address: [{ required: true, message: "所属部门不能为空", trigger: "blur" }],
   roleIds: [{ required: true, message: "用户角色不能为空", trigger: "blur" }],
+  work: [{ required: true, message: "工作单位不能为空", trigger: "blur" }],
+  postcode: [{ required: true, message: "邮编不能为空", trigger: "blur" }],
   email: [
     {
       pattern: /\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/,
@@ -234,9 +263,7 @@ function handleQuery() {
   getUserPage(queryParams)
     .then(({ data }) => {
       userList.value = data.list;
-      console.log(
-        "UserList: ---------------------------------------------------"
-      );
+     
       console.log(userList);
       total.value = data.total;
     })
@@ -249,20 +276,29 @@ function handleQuery() {
 
 function handleQueryOrder() {
   loading.value = true;
-  console.log(
-    "sdkjfsdgbflsfjsgldfshnjgbsjhdsbvgkdfshf,gbkhasfgvebdgfs ekgjd,bsoekjdbgkjesdegdksbs"
-  );
+ 
   getOrderPage(queryParamsOrder)
     .then(({ data }) => {
-      console.log(
-        "OrderList: ---------------------------------------------------"
-      );
+     
       orderList.value = data.list;
-      console.log(
-        "OrderList: ---------------------------------------------------"
-      );
-      console.log(orderList);
+     
       totalOrder.value = data.total;
+    })
+    .finally(() => {
+      console.log("false");
+      loading.value = false;
+    });
+}
+// new handleQueryGood
+
+function handleQueryGood() {
+  loading.value = true;
+ getGoodPage(queryParamsGood)
+    .then(({ data }) => {
+     
+      goodList.value = data.list;
+     
+      totalGood.value = data.total;
     })
     .finally(() => {
       console.log("false");
@@ -293,6 +329,9 @@ function handleSelectionChangeOrder(selection: any) {
   idsOrder.value = selection.map((item: any) => item.id);
 }
 
+//
+
+
 /**
  * 重置密码
  */
@@ -317,6 +356,19 @@ function resetPassword(row: { [key: string]: any }) {
     .catch(() => {});
 }
 
+
+/**
+ * 显示订单商品信息
+ */
+
+ function displayOrderInfo(row: { [key: string]: any }) {
+      queryParamsGood.keyId=row.id;
+      handleQueryGood()
+      //getGoodPage(queryParamsGood);
+      
+  
+}
+
 /**
  * 打开用户弹窗
  */
@@ -327,7 +379,7 @@ async function openDialog(userId?: number) {
   if (userId) {
     dialog.title = "修改用户";
     getUserForm(userId).then(({ data }) => {
-      Object.assign(formData, data);
+      Object.assign(formDataCustomer, data);
     });
   } else {
     dialog.title = "新增用户";
@@ -372,12 +424,12 @@ function resetForm() {
  * 表单提交
  */
 const handleSubmit = useThrottleFn(() => {
-  userFormRef.value.validate((valid: any) => {
+  CustomerFormRef.value.validate((valid: any) => {
     if (valid) {
-      const userId = formData.id;
+      const CustomerId = formDataCustomer.id;
       loading.value = true;
-      if (userId) {
-        updateUser(userId, formData)
+      if (CustomerId) {
+        updateUser( formDataCustomer)
           .then(() => {
             ElMessage.success("修改用户成功");
             closeDialog();
@@ -524,6 +576,7 @@ onMounted(() => {
   getDeptOptions(); // 初始化部门
   handleQuery(); // 初始化用户列表数据
   handleQueryOrder();
+ // handleQueryGood();
 });
 </script>
 
@@ -551,6 +604,7 @@ onMounted(() => {
           ></el-tree>
         </el-card>
       </el-col>
+
       <!-- 搜索栏 -->
       <el-col :lg="20" :xs="24">
         <div class="search-container">
@@ -565,18 +619,6 @@ onMounted(() => {
               />
             </el-form-item>
 
-            <el-form-item label="状态" prop="status">
-              <el-select
-                v-model="queryParams.status"
-                placeholder="全部"
-                clearable
-                style="width: 200px"
-              >
-                <el-option label="启用" value="1" />
-                <el-option label="禁用" value="0" />
-              </el-select>
-            </el-form-item>
-
             <el-form-item>
               <el-button type="primary" @click="handleQuery"
                 ><i-ep-search />搜索</el-button
@@ -585,52 +627,15 @@ onMounted(() => {
                 <i-ep-refresh />
                 重置</el-button
               >
-            </el-form-item>
-          </el-form>
-        </div>
-
-        <el-card shadow="never">
-          <template #header>
-            <div class="flex justify-between">
-              <div>
-                <el-button
+              <el-button
                   v-hasPerm="['sys:user:add']"
                   type="success"
                   @click="openDialog()"
-                  ><i-ep-plus />新增</el-button
+                  ><i-ep-plus />新增用户</el-button
                 >
-                <el-button
-                  v-hasPerm="['sys:user:delete']"
-                  type="danger"
-                  :disabled="ids.length === 0"
-                  @click="handleDelete()"
-                  ><i-ep-delete />删除</el-button
-                >
-              </div>
-              <div>
-                <el-dropdown split-button>
-                  导入
-                  <template #dropdown>
-                    <el-dropdown-menu>
-                      <el-dropdown-item @click="downloadTemplate">
-                        <i-ep-download />下载模板</el-dropdown-item
-                      >
-                      <el-dropdown-item @click="openImportDialog">
-                        <i-ep-top />导入数据</el-dropdown-item
-                      >
-                    </el-dropdown-menu>
-                  </template>
-                </el-dropdown>
-                <el-button class="ml-3" @click="handleUserExport"
-                  ><template #icon><i-ep-download /></template>导出</el-button
-                >
-              </div>
-            </div>
-          </template>
-
-          <!-- 表单开始位置 -->
-
-          <!-- <el-table
+            </el-form-item>
+          </el-form>
+           <el-table
             v-loading="loading"
             :data="userList"
             @selection-change="handleSelectionChange"
@@ -647,7 +652,7 @@ onMounted(() => {
               key="username"
               label="用户名"
               align="center"
-              prop="username"
+              prop="name"
             />
             <el-table-column
               label="用户昵称"
@@ -657,51 +662,48 @@ onMounted(() => {
             />
 
             <el-table-column
-              label="性别"
+              label="身份证号码"
               width="100"
               align="center"
-              prop="genderLabel"
+              prop="idcard"
             />
 
             <el-table-column
-              label="部门"
+              label="地址"
               width="120"
               align="center"
-              prop="deptName"
+              prop="address"
             />
             <el-table-column
               label="手机号码"
               align="center"
-              prop="mobile"
+              prop="mobilephone"
               width="120"
             />
 
-            <el-table-column label="状态" align="center" prop="status">
-              <template #default="scope">
-                <el-switch
-                  v-model="scope.row.status"
-                  :inactive-value="0"
-                  :active-value="1"
-                  @change="handleStatusChange(scope.row)"
-                />
-              </template>
-            </el-table-column>
             <el-table-column
-              label="创建时间"
+              label="工作单位"
               align="center"
-              prop="createTime"
+              prop="work"
               width="180"
-            ></el-table-column>
+            />
+            <el-table-column
+              label="邮编"
+              align="center"
+              prop="postcode"
+              width="180"
+            />
+            <el-table-column
+              label="email"
+              align="center"
+              prop="email"
+              width="180"
+            >
+          </el-table-column>
+
             <el-table-column label="操作" fixed="right" width="220">
               <template #default="scope">
-                <el-button
-                  v-hasPerm="['sys:user:reset_pwd']"
-                  type="primary"
-                  size="small"
-                  link
-                  @click="resetPassword(scope.row)"
-                  ><i-ep-refresh-left />重置密码</el-button
-                >
+                
                 <el-button
                   v-hasPerm="['sys:user:edit']"
                   type="primary"
@@ -718,19 +720,194 @@ onMounted(() => {
                   @click="handleDelete(scope.row.id)"
                   ><i-ep-delete />删除</el-button
                 >
+                <el-button type="primary" size="small">创建订单</el-button>
               </template>
             </el-table-column>
-          </el-table> -->
+          </el-table>
+        </div>
 
-          <!-- 表单结束位置 -->
+        <el-card shadow="never">
+          <template #header>
+            <div class="flex justify-between">
+              <!-- <div>
+                <el-button
+                  v-hasPerm="['sys:user:add']"
+                  type="success"
+                  @click="openDialog()"
+                  ><i-ep-plus />新增</el-button
+                >
+                <el-button
+                  v-hasPerm="['sys:user:delete']"
+                  type="danger"
+                  :disabled="ids.length === 0"
+                  @click="handleDelete()"
+                  ><i-ep-delete />删除</el-button
+                >
+              </div> -->
 
-          <!-- new table -->
+              <!-- <div>
+                <el-dropdown split-button>
+                  导入
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item @click="downloadTemplate">
+                        <i-ep-download />下载模板</el-dropdown-item
+                      >
+                      <el-dropdown-item @click="openImportDialog">
+                        <i-ep-top />导入数据</el-dropdown-item
+                      >
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
+                <el-button class="ml-3" @click="handleUserExport"
+                  ><template #icon><i-ep-download /></template>导出</el-button
+                >
+              </div> -->
 
-          <!-- 表单开始位置 -->
+            </div>
+          </template>
 
-          <el-table
+          <el-container>
+
+      <el-header>订单信息</el-header>
+      <el-main>
+        <el-table
             v-loading="loading"
             :data="orderList"
+            @selection-change="handleSelectionChangeOrder"
+            
+          >
+          
+            <!-- 选中框行 -->
+            <el-table-column type="selection" width="50" align="center" />
+          
+            <!-- 具体数据 -->
+            <el-table-column
+              key="id"
+              label="编号"
+              align="center"
+              prop="id"
+              width="100"
+            />
+           
+            <el-table-column
+              
+              label="创建者"
+              align="center"
+              prop="creater"
+            />
+            <el-table-column
+              label="货物数量"
+              width="120"
+              align="center"
+              prop="goodSum"
+            />
+            <el-table-column
+              label="商品说明"
+              align="center"
+              prop="explain"
+              width="100"
+            />
+            <el-table-column
+              label="备注信息"
+              align="center"
+              prop="remark"
+              width="100"
+            />
+            <el-table-column 
+              label="订单日期"
+              align="center"
+              prop="orderDate"
+              width="100"
+            />
+            <el-table-column
+              label="订单状态"
+              align="center"
+              prop="orderStatus"
+              width="100"
+            />
+            <el-table-column 
+              label="送货地址"
+              align="center"
+              prop="customerAddress"
+              width="100"
+            />
+            <el-table-column
+              label="客户id"
+              align="center"
+              prop="customerId"
+              width="100"
+            />
+            <el-table-column
+              label="客户姓名"
+              align="center"
+              prop="customerName"
+              width="100"
+            />
+            <el-table-column
+              label="接收人"
+              align="center"
+              prop="receive_name"
+              width="100"
+            /> 
+            <el-table-column
+              label="电话"
+              align="center"
+              prop="mobilephone"
+              width="100"
+            />v <el-table-column
+              label="邮编"
+              align="center"
+              prop="postcode"
+              width="100"
+            />
+            <el-table-column
+              label="是否用发票"
+              align="center"
+              prop="isInvoice"
+              width="100"
+            />
+            <el-table-column
+              label="货物状态"
+              align="center"
+              prop="goodStatus"
+              width="100"
+            />
+            
+            <!-- 一些操作按钮 -->
+            <el-table-column label="操作" fixed="right" width="70">
+              <template #default="scope">
+                <el-button
+                  type="primary"
+                  size="small"
+                  link
+                  @click="displayOrderInfo(scope.row)"
+                  >详细信息</el-button>
+                
+              </template>
+            </el-table-column>
+          </el-table>
+          <pagination
+            v-if="total > 0"
+            v-model:total="total"
+            v-model:page="queryParamsOrder.pageNum"
+            v-model:limit="queryParamsOrder.pageSize"
+            @pagination="handleQueryOrder"
+          /></el-main>
+    </el-container>
+
+        </el-card>
+        
+        <el-col :lg="20" :xs="24"></el-col>
+        <el-container>
+          <el-card>
+            <el-header>Header</el-header>
+      <el-main>
+
+<!--good表单开始-->
+      <el-table
+            v-loading="loading"
+            :data="goodList"
             @selection-change="handleSelectionChangeOrder"
           >
             <!-- 选中框行 -->
@@ -745,106 +922,62 @@ onMounted(() => {
               width="100"
             />
             <el-table-column
-              key="id"
-              label="编号"
+              
+              label="商品类"
               align="center"
-              prop="id"
-              width="100"
-            />
-         
-            <el-table-column
-              key="creater"
-              label="创建者"
-              align="center"
-              prop="creater"
+              prop="goodClass"
             />
             <el-table-column
-              label="货物数量"
+              label="商品子类"
               width="120"
               align="center"
-              prop="goodSum"
+              prop="goodSubclass"
             />
             <el-table-column
-              key="explain"
-              label="商品说明"
+              label="商品名"
               align="center"
-              prop="id"
+              prop="goodName"
               width="100"
             />
             <el-table-column
-              key="remark"
-              label="备注信息"
+              label="商品数量"
               align="center"
-              prop="id"
+              prop="goodNumber"
+              width="100"
+            />
+            <el-table-column 
+              label="商品价格"
+              align="center"
+              prop="goodPrice"
               width="100"
             />
             <el-table-column
-              key="id"
-              label="订单日期"
+              label="商品备注"
               align="center"
-              prop="id"
+              prop="remark"
               width="100"
             />
-
-            <!-- 状态转变按钮 -->
-            <!-- <el-table-column label="状态" align="center" prop="status">
-              <template #default="scope">
-                <el-switch
-                  v-model="scope.row.status"
-                  :inactive-value="0"
-                  :active-value="1"
-                  @change="handleStatusChange(scope.row)"
-                />
-              </template>
-            </el-table-column> -->
-            <!-- <el-table-column
-              label="创建时间"
+            <el-table-column
+              label="客户id"
               align="center"
-              prop="createTime"
-              width="180"
-            ></el-table-column> -->
-
-            <!-- 一些操作按钮 -->
-            <el-table-column label="操作" fixed="right" width="220">
-              <template #default="scope">
-                <!-- <el-button
-                  v-hasPerm="['sys:user:reset_pwd']"
-                  type="primary"
-                  size="small"
-                  link
-                  @click="resetPassword(scope.row)"
-                  ><i-ep-refresh-left />重置密码</el-button
-                > -->
-                <el-button
-                  v-hasPerm="['order:edit']"
-                  type="primary"
-                  link
-                  size="small"
-                  @click="openDialog(scope.row.id)"
-                  ><i-ep-edit />编辑</el-button
-                >
-                <!-- <el-button
-                  v-hasPerm="['sys:user:delete']"
-                  type="primary"
-                  link
-                  size="small"
-                  @click="handleDelete(scope.row.id)"
-                  ><i-ep-delete />删除</el-button
-                > -->
-              </template>
-            </el-table-column>
+              prop="customerId"
+              width="100"
+            />
           </el-table>
-
-          <!-- 表单结束位置 -->
-
           <pagination
             v-if="total > 0"
             v-model:total="total"
-            v-model:page="queryParamsOrder.pageNum"
-            v-model:limit="queryParamsOrder.pageSize"
-            @pagination="handleQueryOrder"
+            v-model:page="queryParamsGood.pageNum"
+            v-model:limit="queryParamsGood.pageSize"
+            @pagination="handleQueryGood"
           />
-        </el-card>
+      </el-main>
+          </el-card>
+      
+    </el-container>
+          
+          <!-- 表单结束位置 -->
+
       </el-col>
     </el-row>
 
@@ -862,46 +995,33 @@ onMounted(() => {
         :rules="rules"
         label-width="80px"
       >
-        <el-form-item label="用户名" prop="username">
+        <el-form-item label="用户名" prop="name">
           <el-input
             v-model="formData.username"
             :readonly="!!formData.id"
             placeholder="请输入用户名"
           />
         </el-form-item>
-
-        <el-form-item label="用户昵称" prop="nickname">
-          <el-input v-model="formData.nickname" placeholder="请输入用户昵称" />
-        </el-form-item>
-
-        <el-form-item label="所属部门" prop="deptId">
-          <el-tree-select
-            v-model="formData.deptId"
-            placeholder="请选择所属部门"
-            :data="deptList"
-            filterable
-            check-strictly
-            :render-after-expand="false"
+        <el-form-item label="身份证号码" prop="username">
+          <el-input
+            v-model="formData.username"
+            :readonly="!!formData.id"
+            placeholder="请输入身份证号码"
           />
         </el-form-item>
-
-        <el-form-item label="性别" prop="gender">
-          <el-select v-model="formData.gender" placeholder="请选择">
-            <el-option label="未知" :value="0" />
-            <el-option label="男" :value="1" />
-            <el-option label="女" :value="2" />
-          </el-select>
+        <el-form-item label="地址" prop="username">
+          <el-input
+            v-model="formData.username"
+            :readonly="!!formData.id"
+            placeholder="请输入地址"
+          />
         </el-form-item>
-
-        <el-form-item label="角色" prop="roleIds">
-          <el-select v-model="formData.roleIds" multiple placeholder="请选择">
-            <el-option
-              v-for="item in roleList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
+        <el-form-item label="固定电话号码" prop="username">
+          <el-input
+            v-model="formData.username"
+            :readonly="!!formData.id"
+            placeholder="请输入固定电话号码"
+          />
         </el-form-item>
 
         <el-form-item label="手机号码" prop="mobile">
@@ -909,6 +1029,21 @@ onMounted(() => {
             v-model="formData.mobile"
             placeholder="请输入手机号码"
             maxlength="11"
+          />
+        </el-form-item>
+
+        <el-form-item label="工作单位" prop="username">
+          <el-input
+            v-model="formData.username"
+            :readonly="!!formData.id"
+            placeholder="请输入工作单位"
+          />
+        </el-form-item>
+        <el-form-item label="邮编" prop="username">
+          <el-input
+            v-model="formData.username"
+            :readonly="!!formData.id"
+            placeholder="请输入邮编"
           />
         </el-form-item>
 
@@ -920,12 +1055,17 @@ onMounted(() => {
           />
         </el-form-item>
 
-        <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="formData.status">
-            <el-radio :label="1">正常</el-radio>
-            <el-radio :label="0">禁用</el-radio>
-          </el-radio-group>
-        </el-form-item>
+        <!-- <el-form-item label="角色" prop="roleIds">
+          <el-select v-model="formData.roleIds" multiple placeholder="请选择">
+            <el-option
+              v-for="item in roleList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item> -->
+        
       </el-form>
       <template #footer>
         <div class="dialog-footer">
