@@ -81,6 +81,7 @@ const queryParams = reactive<SupplyQuery>({
   pageSize: 10,
 	endTime : new Date(2023, 10, 10, 10, 10),
 	startTime : new Date(2021, 10, 11, 10, 10),
+	buyType: "全部",
 });
 
 //日期选择器
@@ -113,7 +114,21 @@ const shortcuts = [
 		},
 	},
 ]
-
+//支付状态选择器
+const options = [
+	{
+		value: '全部',
+		label: '全部',
+	},
+	{
+		value: '已支付',
+		label: '已支付',
+	},
+	{
+		value: '未支付',
+		label: '未支付',
+	},
+]
 const deptList = ref<OptionType[]>();
 const roleList = ref<OptionType[]>();
 const supplyMoneyList = ref<supplyPageVO[]>();
@@ -166,7 +181,7 @@ function Alipay(row: { [key: string]: any }) {
 			}
 	)
 	.then(() => {
-		window.open("http://localhost:8088/financial/alipay/pay?subject=" + row.goodName + "&traceNo=" + row.id + "&totalAmount=" + row.goodSettleMoney)
+		window.open("http://localhost:8088/financial/alipay/pay?subject=" +row.goodName + "&traceNo="+ "aasss"+"_"+row.id + "&totalAmount=" + row.goodSettleMoney)
 		})
 	.catch(() => {
 		ElMessage({
@@ -225,6 +240,16 @@ onMounted(() => {
 									:shortcuts="shortcuts"
 							/>
 						</el-form-item>
+						<el-form-item label="选择支付状态" >
+						<el-select v-model="queryParams.buyType" class="m-2" placeholder="Select">
+							<el-option
+									v-for="item in options"
+									:key="item.value"
+									:label="item.label"
+									:value="item.value"
+							/>
+						</el-select>
+						</el-form-item>
             <el-form-item>
               <el-button type="primary" @click="handleQuery"
                 ><i-ep-search />搜索</el-button
@@ -238,28 +263,6 @@ onMounted(() => {
         </div>
 
         <el-card shadow="never">
-          <template #header>
-            <div class="flex justify-between">
-              <div>
-                <el-dropdown split-button>
-                  导入
-                  <template #dropdown>
-                    <el-dropdown-menu>
-                      <el-dropdown-item @click="downloadTemplate">
-                        <i-ep-download />下载模板</el-dropdown-item
-                      >
-                      <el-dropdown-item @click="openImportDialog">
-                        <i-ep-top />导入数据</el-dropdown-item
-                      >
-                    </el-dropdown-menu>
-                  </template>
-                </el-dropdown>
-                <el-button class="ml-3" @click="handleUserExport"
-                  ><template #icon><i-ep-download /></template>导出</el-button
-                >
-              </div>
-            </div>
-          </template>
 
           <!-- 表单开始位置 -->
 
@@ -320,6 +323,13 @@ onMounted(() => {
 								prop="goodSettleMoney"
 								width="120"
 						/>
+						<el-table-column
+								key="goodType"
+								label="支付状态"
+								align="center"
+								prop="goodType"
+								width="120"
+						/>
             <el-table-column label="操作" fixed="right" width="220">
               <template #default="scope">
                 <el-button
@@ -327,8 +337,8 @@ onMounted(() => {
                   size="small"
                   @click="Alipay(scope.row)"
 									:icon="Check"
-                  >支付</el-button
-                >
+									:disabled="scope.row.goodType=='已支付'"
+                  >支付</el-button>
               </template>
             </el-table-column>
           </el-table>
