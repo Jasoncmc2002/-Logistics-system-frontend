@@ -108,6 +108,10 @@ const dialog = reactive<DialogOption>({
   visible: false,
 });
 
+const CreatOrderdialog = reactive<DialogOption>({
+  visible: false,
+});
+
 const queryParams = reactive<UserQuery>({
   pageNum: 1,
   pageSize: 10,
@@ -170,7 +174,14 @@ const rules = reactive({
       trigger: "blur",
     },
   ],
-  mobile: [
+  mobilephone: [
+    {
+      pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
+      message: "请输入正确的手机号码",
+      trigger: "blur",
+    },
+  ],
+  addressephone: [
     {
       pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
       message: "请输入正确的手机号码",
@@ -328,10 +339,12 @@ function handleQueryGood() {
  */
 function resetQuery() {
   CustomerFormRef.value.resetFields();
+  queryParamsCustomer
   queryParamsCustomer.pageNum = 1;
-  queryParamsCustomer.name = undefined;
-  queryParamsCustomer.idcard = undefined;
-  queryParamsCustomer.mobilephone = undefined;
+  queryParamsCustomer.name= "";
+  queryParamsCustomer.idcard = "";
+  queryParamsCustomer.mobilephone = "";
+
   //handleQuery();
 }
 
@@ -392,8 +405,8 @@ function resetPassword(row: { [key: string]: any }) {
  * 打开用户弹窗
  */
 async function openDialog(userId?: number) {
-  await getDeptOptions();
-  await getRoleOptions();
+  //await getDeptOptions();
+  //await getRoleOptions();
   dialog.visible = true;
   if (userId) {
     dialog.title = "修改用户";
@@ -402,6 +415,22 @@ async function openDialog(userId?: number) {
     });
   } else {
     dialog.title = "新增用户";
+  }
+}
+
+/**
+ * 打开订单创建弹窗
+ */
+  function openCreatOrderDialog(userId?: number) {
+
+  CreatOrderdialog.visible = true;
+  if (userId) {
+  CreatOrderdialog.title = "创建订单";
+    getUserForm(userId).then(({ data }) => {
+      Object.assign(formDataCustomer, data);
+    });
+  } else {
+    CreatOrderdialog.title = "创建订单";
   }
 }
 
@@ -428,6 +457,10 @@ function closeDialog() {
   //resetForm();
 }
 
+function closeCreatOrderDialog() {
+  CreatOrderdialog.visible = false;
+  //resetForm();
+}
 /**
  * 重置表单
  */
@@ -452,6 +485,7 @@ const handleSubmit = useThrottleFn(() => {
             ElMessage.success("新增用户成功");
             closeDialog();
             resetQuery();
+            handleQueryCustomer();
           })
           .finally(() => (loading.value = false));
     }
@@ -592,9 +626,9 @@ onMounted(() => {
 
 <template>
   <div class="app-container">
-    <el-row :gutter="20">
+    <!-- <el-row :gutter="20"> -->
       <!-- 部门树 -->
-      <el-col :lg="4" :xs="24" class="mb-[12px]">
+      <!-- <el-col :lg="4" :xs="24" class="mb-[12px]"> -->
         <el-card shadow="never">
           <el-input v-model="searchDeptName" placeholder="部门名称" clearable>
             <template #prefix>
@@ -613,10 +647,10 @@ onMounted(() => {
             @node-click="handleDeptNodeClick"
           ></el-tree>
         </el-card>
-      </el-col>
+      <!-- </el-col> -->
 
       <!-- 搜索栏 -->
-      <el-col :lg="20" :xs="24">
+      <!-- <el-col :lg="20" :xs="24"> -->
         <div class="search-container">
           <el-form ref="CustomerFormRef" :model="queryParamsCustomer" :inline="true">
             <el-form-item label="用户搜索" prop="keywords">
@@ -664,6 +698,7 @@ onMounted(() => {
             :data="customerList"
             @selection-change="handleSelectionChange"
           >
+          
             <el-table-column
               key="id"
               label="编号"
@@ -742,10 +777,22 @@ onMounted(() => {
                   @click="handleDelete(scope.row.id)"
                   ><i-ep-delete />删除</el-button
                 >
-                <el-button type="primary" size="small">创建订单</el-button>
+              <el-button 
+                type="primary" 
+                size="small"
+                @click="openCreatOrderDialog"
+                
+                >创建订单</el-button>
               </template>
             </el-table-column>
           </el-table>
+          <pagination
+            v-if="total > 0"
+            v-model:total="total"
+            v-model:page="queryParamsCustomer.pageNum"
+            v-model:limit="queryParamsCustomer.pageSize"
+            @pagination="handleQueryCustomer"
+          />
         </div>
 
         <el-card shadow="never">
@@ -920,7 +967,9 @@ onMounted(() => {
 
         </el-card>
         
-        <el-col :lg="20" :xs="24"></el-col>
+        <!-- <el-col :lg="20" :xs="24"> -->
+        
+        <!-- </el-col> -->
         <el-container>
           <el-card>
             <el-header>Header</el-header>
@@ -933,7 +982,7 @@ onMounted(() => {
             @selection-change="handleSelectionChangeOrder"
           >
             <!-- 选中框行 -->
-            <el-table-column type="selection" width="50" align="center" />
+            <!-- <el-table-column type="selection" width="50" align="center" /> -->
 
             <!-- 具体数据 -->
             <el-table-column
@@ -941,49 +990,56 @@ onMounted(() => {
               label="编号"
               align="center"
               prop="id"
-              width="100"
+              width="150"
             />
             <el-table-column
               
               label="商品类"
               align="center"
               prop="goodClass"
+              width="150"
             />
             <el-table-column
               label="商品子类"
-              width="120"
+              width="150"
               align="center"
               prop="goodSubclass"
+              
             />
             <el-table-column
               label="商品名"
               align="center"
               prop="goodName"
-              width="100"
+              width="150"
+              
             />
             <el-table-column
               label="商品数量"
               align="center"
               prop="goodNumber"
-              width="100"
+              width="140"
+              
             />
             <el-table-column 
               label="商品价格"
               align="center"
               prop="goodPrice"
-              width="100"
+              width="140"
+              
             />
             <el-table-column
               label="商品备注"
               align="center"
               prop="remark"
-              width="100"
+              width="140"
+              
             />
             <el-table-column
               label="客户id"
               align="center"
               prop="customerId"
-              width="100"
+              width="140"
+              
             />
           </el-table>
           <pagination
@@ -1000,10 +1056,9 @@ onMounted(() => {
           
           <!-- 表单结束位置 -->
 
-      </el-col>
-    </el-row>
-
-    <!-- 表单弹窗 -->
+    
+    
+    <!-- 表单弹窗1 -->
     <el-dialog
       v-model="dialog.visible"
       :title="dialog.title"
@@ -1095,6 +1150,105 @@ onMounted(() => {
         <div class="dialog-footer">
           <el-button type="primary" @click="handleSubmit">确 定</el-button>
           <el-button @click="closeDialog">取 消</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+
+
+    <!-- 表单弹窗2-creat-order -->
+    <el-dialog
+      v-model="CreatOrderdialog.visible"
+      :title="CreatOrderdialog.title"
+      width="600px"
+      append-to-body
+      @close="closeCreatOrderDialog"
+    >
+   
+    <!--记得写rules-->
+      <el-form
+        ref="CustomerFormRef"
+        :model="formDataCustomer"
+        
+        :rules="rules"
+        label-width="80px"
+      >
+        <el-form-item label="用户名" prop="name">
+          <el-input
+            v-model="formDataCustomer.name"
+            
+            placeholder="请输入用户名"
+          />
+        </el-form-item>
+        <el-form-item label="身份证号码" prop="idcard">
+          <el-input
+            v-model="formDataCustomer.idcard"
+            
+            placeholder="请输入身份证号码"
+          />
+        </el-form-item>
+        <el-form-item label="地址" prop="address">
+          <el-input
+            v-model="formDataCustomer.address"
+            
+            placeholder="请输入地址"
+          />
+        </el-form-item>
+        <el-form-item label="固定电话号码" prop="addressphone">
+          <el-input
+            v-model="formDataCustomer.addressphone"
+            
+            placeholder="请输入固定电话号码"
+          />
+        </el-form-item>
+
+        <el-form-item label="手机号码" prop="mobilephone">
+          <el-input
+            v-model="formDataCustomer.mobilephone"
+            placeholder="请输入手机号码"
+            maxlength="11"
+          />
+        </el-form-item>
+
+        <el-form-item label="工作单位" prop="work">
+          <el-input
+            v-model="formDataCustomer.work"
+            
+            placeholder="请输入工作单位"
+          />
+        </el-form-item>
+        <el-form-item label="邮编" prop="postcode">
+          <el-input
+            v-model="formDataCustomer.postcode"
+            
+            placeholder="请输入邮编"
+          />
+        </el-form-item>
+
+        <el-form-item label="邮箱" prop="email">
+          <el-input
+            v-model="formDataCustomer.email"
+            placeholder="请输入邮箱"
+            maxlength="50"
+          />
+        </el-form-item>
+
+        <!-- <el-form-item label="角色" prop="roleIds">
+          <el-select v-model="formData.roleIds" multiple placeholder="请选择">
+            <el-option
+              v-for="item in roleList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item> -->
+        
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="handleSubmit">确 定</el-button>
+          <el-button @click="closeCreatOrderDialog">取 消</el-button>
         </div>
       </template>
     </el-dialog>
