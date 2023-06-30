@@ -2,6 +2,7 @@ export interface SupplyQuery extends PageQuery {
 	supplyName: string;
 	endTime: Date;
 	startTime: Date;
+	buyType: string;
 }
 /*供应商的结算表单*/
 export interface supplyPageVO {
@@ -14,6 +15,7 @@ export interface supplyPageVO {
 	goodReturnNumber: number;
 	goodSettleNumber: number;
 	goodSettleMoney: number;
+	goodType: string;
 }
 
 export interface supplyData {
