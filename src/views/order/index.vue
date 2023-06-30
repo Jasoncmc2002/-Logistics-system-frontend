@@ -124,13 +124,15 @@ const queryParamsGood = reactive<GoodQuery>({
   pageNum: 1,
   pageSize: 5,
   
-  
 });
 
 const queryParamsCustomer = reactive<CustomerQuery>({
 
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 5,
+  name: "",
+  idcard: "",
+  mobilephone: "",
 
 });
 
@@ -271,6 +273,21 @@ function handleQuery() {
       loading.value = false;
     });
 }
+/**
+ * 查询
+ */
+function handleQueryCustomer() {
+  loading.value = true;
+  getCustomerPage(queryParamsCustomer)
+    .then(({ data }) => {
+      customerList.value = data.list;
+      console.log(customerList);
+      total.value = data.total;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
 
 // new handleQuery
 
@@ -310,10 +327,12 @@ function handleQueryGood() {
  * 重置查询
  */
 function resetQuery() {
-  queryFormRef.value.resetFields();
-  queryParams.pageNum = 1;
-  queryParams.deptId = undefined;
-  handleQuery();
+  CustomerFormRef.value.resetFields();
+  queryParamsCustomer.pageNum = 1;
+  queryParamsCustomer.name = undefined;
+  queryParamsCustomer.idcard = undefined;
+  queryParamsCustomer.mobilephone = undefined;
+  //handleQuery();
 }
 
 /**
@@ -406,7 +425,7 @@ async function openDialogOrder(orderId?: number) {
  */
 function closeDialog() {
   dialog.visible = false;
-  resetForm();
+  //resetForm();
 }
 
 /**
@@ -426,25 +445,15 @@ function resetForm() {
 const handleSubmit = useThrottleFn(() => {
   CustomerFormRef.value.validate((valid: any) => {
     if (valid) {
-      const CustomerId = formDataCustomer.id;
+      //const CustomerId = formDataCustomer.id;
       loading.value = true;
-      if (CustomerId) {
-        updateUser( formDataCustomer)
-          .then(() => {
-            ElMessage.success("修改用户成功");
-            closeDialog();
-            resetQuery();
-          })
-          .finally(() => (loading.value = false));
-      } else {
-        addUser(formData)
+        addUser(formDataCustomer)
           .then(() => {
             ElMessage.success("新增用户成功");
             closeDialog();
             resetQuery();
           })
           .finally(() => (loading.value = false));
-      }
     }
   });
 }, 3000);
@@ -574,9 +583,10 @@ function handleUserExport() {
 
 onMounted(() => {
   getDeptOptions(); // 初始化部门
-  handleQuery(); // 初始化用户列表数据
+  //handleQuery(); // 初始化用户列表数据
   handleQueryOrder();
- // handleQueryGood();
+  //handleQueryCustomer();
+  handleQueryGood();
 });
 </script>
 
@@ -608,19 +618,33 @@ onMounted(() => {
       <!-- 搜索栏 -->
       <el-col :lg="20" :xs="24">
         <div class="search-container">
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="关键字" prop="keywords">
+          <el-form ref="CustomerFormRef" :model="queryParamsCustomer" :inline="true">
+            <el-form-item label="用户搜索" prop="keywords">
               <el-input
-                v-model="queryParams.keywords"
-                placeholder="用户名/昵称/手机号"
+                v-model="queryParamsCustomer.name"
+                placeholder="姓名"
                 clearable
                 style="width: 200px"
-                @keyup.enter="handleQuery"
+                @keyup.enter="handleQueryCustomer"
+              />
+              <el-input
+                v-model="queryParamsCustomer.idcard"
+                placeholder="身份证"
+                clearable
+                style="width: 200px"
+                @keyup.enter="handleQueryCustomer"
+              />
+              <el-input
+                v-model="queryParamsCustomer.mobilephone"
+                placeholder="手机号"
+                clearable
+                style="width: 200px"
+                @keyup.enter="handleQueryCustomer"
               />
             </el-form-item>
 
             <el-form-item>
-              <el-button type="primary" @click="handleQuery"
+              <el-button type="primary" @click="handleQueryCustomer"
                 ><i-ep-search />搜索</el-button
               >
               <el-button @click="resetQuery">
@@ -637,10 +661,9 @@ onMounted(() => {
           </el-form>
            <el-table
             v-loading="loading"
-            :data="userList"
+            :data="customerList"
             @selection-change="handleSelectionChange"
           >
-            <el-table-column type="selection" width="50" align="center" />
             <el-table-column
               key="id"
               label="编号"
@@ -649,18 +672,12 @@ onMounted(() => {
               width="100"
             />
             <el-table-column
-              key="username"
+              key="name"
               label="用户名"
               align="center"
               prop="name"
             />
-            <el-table-column
-              label="用户昵称"
-              width="120"
-              align="center"
-              prop="nickname"
-            />
-
+            
             <el-table-column
               label="身份证号码"
               width="100"
@@ -680,7 +697,12 @@ onMounted(() => {
               prop="mobilephone"
               width="120"
             />
-
+            <el-table-column
+              label="固定电话"
+              width="120"
+              align="center"
+              prop="addressphone"
+            />
             <el-table-column
               label="工作单位"
               align="center"
@@ -989,67 +1011,69 @@ onMounted(() => {
       append-to-body
       @close="closeDialog"
     >
+    <!--记得写rules-->
       <el-form
-        ref="userFormRef"
-        :model="formData"
+        ref="CustomerFormRef"
+        :model="formDataCustomer"
+        
         :rules="rules"
         label-width="80px"
       >
         <el-form-item label="用户名" prop="name">
           <el-input
-            v-model="formData.username"
-            :readonly="!!formData.id"
+            v-model="formDataCustomer.name"
+            
             placeholder="请输入用户名"
           />
         </el-form-item>
-        <el-form-item label="身份证号码" prop="username">
+        <el-form-item label="身份证号码" prop="idcard">
           <el-input
-            v-model="formData.username"
-            :readonly="!!formData.id"
+            v-model="formDataCustomer.idcard"
+            
             placeholder="请输入身份证号码"
           />
         </el-form-item>
-        <el-form-item label="地址" prop="username">
+        <el-form-item label="地址" prop="address">
           <el-input
-            v-model="formData.username"
-            :readonly="!!formData.id"
+            v-model="formDataCustomer.address"
+            
             placeholder="请输入地址"
           />
         </el-form-item>
-        <el-form-item label="固定电话号码" prop="username">
+        <el-form-item label="固定电话号码" prop="addressphone">
           <el-input
-            v-model="formData.username"
-            :readonly="!!formData.id"
+            v-model="formDataCustomer.addressphone"
+            
             placeholder="请输入固定电话号码"
           />
         </el-form-item>
 
-        <el-form-item label="手机号码" prop="mobile">
+        <el-form-item label="手机号码" prop="mobilephone">
           <el-input
-            v-model="formData.mobile"
+            v-model="formDataCustomer.mobilephone"
             placeholder="请输入手机号码"
             maxlength="11"
           />
         </el-form-item>
 
-        <el-form-item label="工作单位" prop="username">
+        <el-form-item label="工作单位" prop="work">
           <el-input
-            v-model="formData.username"
-            :readonly="!!formData.id"
+            v-model="formDataCustomer.work"
+            
             placeholder="请输入工作单位"
           />
         </el-form-item>
-        <el-form-item label="邮编" prop="username">
+        <el-form-item label="邮编" prop="postcode">
           <el-input
-            v-model="formData.username"
-            :readonly="!!formData.id"
+            v-model="formDataCustomer.postcode"
+            
             placeholder="请输入邮编"
           />
         </el-form-item>
 
         <el-form-item label="邮箱" prop="email">
           <el-input
-            v-model="formData.email"
+            v-model="formDataCustomer.email"
             placeholder="请输入邮箱"
             maxlength="50"
           />
