@@ -1,16 +1,23 @@
 export interface CustomerPageVO {
     id?: number;
   
-    creater?: string;
-  
-    goodSum?: number;
+    addressphone?: string;
+    work?: string;
+    address?: string;
+    isDeleted?: number;
+    idcard?: string;
+    mobilephone?: string;
+    name?: string;
+    postcode?: string;
+    email?: string;
+
   }
 
   
   export interface CustomerForm {
     id?: number;
     addressphone?: string;
-    unit?: string;
+    work?: string;
     address?: string;
     is_deleted?: string;
     idcard?: string;
@@ -23,13 +30,14 @@ export interface CustomerPageVO {
   
   }
   
-  export interface CustomerQuery extends PageQuery {
   
-  }
   export interface CustomerQuery extends PageQuery {
-    pageNum: number,
-    pageSize: number,
-    keyId?:number
-  
+    mobilephone?:string;
+    idcard?:string;
+    name?:string;
+
+
+   
+
   }
   

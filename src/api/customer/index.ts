@@ -21,7 +21,7 @@ export function getCustomerForm(userId: number): AxiosPromise<CustomerForm> {
  */
 export function getCustomerPage(queryParams: CustomerQuery): AxiosPromise<PageResult<CustomerPageVO[]>> {
   return request({
-    url: "/customer/getAllOrder",
+    url: "/customer/search",
     method: "post",
     data: queryParams,
   });
