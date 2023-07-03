@@ -14,8 +14,7 @@
 
 //TODO: inheritAttrs是干嘛的？
 
-
-import {moneyPageVO} from "@/api/financial/station/types";
+import {stationPageVO, StationQuery} from "@/api/financial/station/types";
 
 defineOptions({
   name: "User",
@@ -25,18 +24,9 @@ defineOptions({
 /**
  * 导入UI
  */
-import { UploadFile } from "element-plus";
-import {getMoney} from "@/api/financial/station";
-import {getSupplyMoney, pay} from "@/api/financial/supply";
-import {supplyPageVO, SupplyQuery} from "@/api/financial/supply/types";
-import {
-	Check,
-	Delete,
-	Edit,
-	Message,
-	Search,
-	Star,
-} from '@element-plus/icons-vue'
+
+import { getStationMoney} from "@/api/financial/station";
+
 
 /**
  * 定义ElementUI组件
@@ -69,19 +59,14 @@ const userFormRef = ref(ElForm); // 用户表单
 const loading = ref(false);
 const ids = ref([]);
 const total = ref(0);
-const sumMoney = ref(0);
 
-const dialog = reactive<DialogOption>({
-  visible: false,
-});
 
-const queryParams = reactive<SupplyQuery>({
-	supplyName: "红牛供应商",
+const queryParams = reactive<StationQuery>({
   pageNum: 1,
   pageSize: 10,
 	endTime : new Date(2023, 10, 10, 10, 10),
 	startTime : new Date(2021, 10, 11, 10, 10),
-	buyType: "全部",
+	station: "中山分站"
 });
 
 //日期选择器
@@ -114,36 +99,24 @@ const shortcuts = [
 		},
 	},
 ]
-//支付状态选择器
-const options = [
-	{
-		value: '全部',
-		label: '全部',
-	},
-	{
-		value: '已支付',
-		label: '已支付',
-	},
-	{
-		value: '未支付',
-		label: '未支付',
-	},
-]
-const deptList = ref<OptionType[]>();
-const roleList = ref<OptionType[]>();
-const supplyMoneyList = ref<supplyPageVO[]>();
+
+const moneyList = ref<stationPageVO[]>();
+const sumMoney = ref(0);
+const getMoney = ref(0);
+const returnMoney = ref(0);
 
 /**
  * 查询
  */
 function handleQuery() {
   loading.value = true;
-	getSupplyMoney(queryParams)
+	getStationMoney(queryParams)
     .then(({ data }) => {
-			console.warn(data);
-			supplyMoneyList.value = data.pageInfo.list;
-      total.value = data.pageInfo.total;
+			moneyList.value = data.pageInfo.list;
+			total.value = data.pageInfo.total;
 			sumMoney.value=data.sumMoney;
+			getMoney.value=data.getMoney;
+			returnMoney.value=data.returnMoney;
     })
     .finally(() => {
       loading.value = false;
@@ -156,40 +129,9 @@ function handleQuery() {
 function resetQuery() {
   queryFormRef.value.resetFields();
   queryParams.pageNum = 1;
+  queryParams.deptId = undefined;
   handleQuery();
 }
-
-/**
- * 行checkbox change事件
- */
-function handleSelectionChange(selection: any) {
-  ids.value = selection.map((item: any) => item.id);
-}
-
-/**
- * 支付金额
- */
-function Alipay(row: { [key: string]: any }) {
-	ElMessageBox.confirm(
-			'将跳转到支付宝支付，请确认本次支付',
-			'确认支付',
-			{
-				confirmButtonText: '确认',
-				cancelButtonText: '取消',
-				type: 'info',
-			}
-	)
-	.then(() => {
-		window.open("http://localhost:8088/financial/alipay/pay?subject=" +row.goodName + "&traceNo="+ "aasss"+"_"+row.id + "&totalAmount=" + row.goodSettleMoney)
-		})
-	.catch(() => {
-		ElMessage({
-			type: 'info',
-			message: '支付关闭',
-		})
-	})
-}
-
 
 
 /**
@@ -200,6 +142,9 @@ function resetForm() {
   userFormRef.value.clearValidate();
 }
 
+/**
+ * 表单提交
+ */
 
 onMounted(() => {
   handleQuery(); // 初始化用户列表数据
@@ -216,15 +161,16 @@ onMounted(() => {
       <el-col :lg="20" :xs="24">
         <div class="search-container">
           <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="供应商名称" >
+            <el-form-item label="分站名称" >
               <el-input
-                v-model="queryParams.supplyName"
+                v-model="queryParams.station"
                 placeholder="中山分站"
                 clearable
                 style="width: 200px"
                 @keyup.enter="handleQuery"
               />
             </el-form-item>
+
 						<el-form-item label="选择时间段" >
 							<el-date-picker
 									v-model="queryParams.startTime"
@@ -239,16 +185,7 @@ onMounted(() => {
 									:shortcuts="shortcuts"
 							/>
 						</el-form-item>
-						<el-form-item label="选择支付状态" >
-						<el-select v-model="queryParams.buyType" class="m-2" placeholder="Select">
-							<el-option
-									v-for="item in options"
-									:key="item.value"
-									:label="item.label"
-									:value="item.value"
-							/>
-						</el-select>
-						</el-form-item>
+
             <el-form-item>
               <el-button type="primary" @click="handleQuery"
                 ><i-ep-search />搜索</el-button
@@ -262,12 +199,11 @@ onMounted(() => {
         </div>
 
         <el-card shadow="never">
-
           <!-- 表单开始位置 -->
 
           <el-table
             v-loading="loading"
-            :data="supplyMoneyList"
+            :data="moneyList"
             @selection-change="handleSelectionChange">				<!-- 应该是导出用的-->
             <el-table-column type="selection" width="50" align="center" />
             <el-table-column
@@ -278,68 +214,55 @@ onMounted(() => {
               width="100"
             />
             <el-table-column
-								key="goodName"
+              label="商品类别"
+              align="center"
+              prop="goodClass"
+            />
+            <el-table-column
               label="商品名称"
+              width="120"
               align="center"
               prop="goodName"
             />
-            <el-table-column
-              label="商品价格"
-              width="120"
-              align="center"
-              prop="goodPrice"
-            />
 
             <el-table-column
-              label="商品进价"
+              label="送货数量"
               width="100"
               align="center"
-              prop="goodCost"
+              prop="goodGetNumber"
             />
 
             <el-table-column
-              label="商品进货量"
+              label="收款额"
               width="120"
               align="center"
-              prop="goodSupplyNumber"
+              prop="goodGetMoney"
             />
             <el-table-column
-              label="商品退货量"
+              label="退回数量"
               align="center"
               prop="goodReturnNumber"
               width="120"
             />
 						<el-table-column
-								label="结算数量"
+								label="退款额"
 								align="center"
-								prop="goodSettleNumber"
+								prop="goodReturnMoney"
 								width="120"
 						/>
-						<el-table-column
-								key="goodSettleMoney"
-								label="结算额"
-								align="center"
-								prop="goodSettleMoney"
-								width="120"
-						/>
-						<el-table-column
-								key="goodType"
-								label="支付状态"
-								align="center"
-								prop="goodType"
-								width="120"
-						/>
-            <el-table-column label="操作" fixed="right" width="220">
-              <template #default="scope">
-                <el-button
-                  type="primary"
-                  size="small"
-                  @click="Alipay(scope.row)"
-									:icon="Check"
-									:disabled="scope.row.goodType=='已支付'"
-                  >支付</el-button>
-              </template>
-            </el-table-column>
+
+<!--            <el-table-column label="操作" fixed="right" width="220">-->
+<!--              <template #default="scope">-->
+<!--                <el-button-->
+<!--                  v-hasPerm="['sys:user:reset_pwd']"-->
+<!--                  type="primary"-->
+<!--                  size="small"-->
+<!--                  link-->
+<!--                  @click="resetPassword(scope.row)"-->
+<!--                  ><i-ep-refresh-left />支付</el-button-->
+<!--                >-->
+<!--              </template>-->
+<!--            </el-table-column>-->
           </el-table>
 
           <!-- 表单结束位置 -->
@@ -354,7 +277,5 @@ onMounted(() => {
         </el-card>
       </el-col>
     </el-row>
-
-    <!-- 导入弹窗 -->
   </div>
 </template>
