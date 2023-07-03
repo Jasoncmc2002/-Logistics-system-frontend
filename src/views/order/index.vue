@@ -108,7 +108,7 @@ const dialog = reactive<DialogOption>({
   visible: false,
 });
 
-const CreatOrderdialog = reactive<DialogOption>({
+const CreateOrderdialog = reactive<DialogOption>({
   visible: false,
 });
 
@@ -160,6 +160,7 @@ const formDataCustomer=reactive<CustomerForm>({
 
 });
 
+//格式规则
 const rules = reactive({
   name: [{ required: true, message: "用户名不能为空", trigger: "blur" }],
   idcard: [{ required: true, message: "用户昵称不能为空", trigger: "blur" }],
@@ -204,6 +205,56 @@ const importDialog = reactive<DialogOption>({
 const importDeptId = ref<number>();
 const excelFile = ref<File>();
 const excelFilelist = ref<File[]>([]);
+/**
+ * 导入被选择的订单类型
+ */
+const OrderOptions = [
+  {
+    value: '订单类型1',
+    label: '订单类型1',
+  },
+  {
+    value: '订单类型2',
+    label: '订单类型2',
+  },
+  {
+    value: '订单类型3',
+    label: 'Option3',
+  },
+  {
+    value: '订单类型4',
+    label: '订单类型4',
+  },
+  {
+    value: '订单类型5',
+    label: '订单类型5',
+  },
+];
+/**
+ * 导入分站
+ */
+const SubstationOptions = [
+  {
+    value: '分站1',
+    label: '分站1',
+  },
+  {
+    value: '分站2',
+    label: '分站2',
+  },
+  {
+    value: '分站3',
+    label: '分站3',
+  },
+  {
+    value: '分站4',
+    label: '分站4',
+  },
+  {
+    value: '分站5',
+    label: '分站5',
+  },
+];
 
 /**
  * watchEffect会监听所引用数据类型的所有属性（这里监听的是seachDeptName）
@@ -421,17 +472,19 @@ async function openDialog(userId?: number) {
 /**
  * 打开订单创建弹窗
  */
-  function openCreatOrderDialog(userId?: number) {
+  function openCreateOrderDialog(row: { [key: string]: any }) {
 
-  CreatOrderdialog.visible = true;
-  if (userId) {
-  CreatOrderdialog.title = "创建订单";
-    getUserForm(userId).then(({ data }) => {
-      Object.assign(formDataCustomer, data);
+  CreateOrderdialog.visible = true;
+  CreateOrderdialog.title = "创建订单";
+  queryParamsCustomer.idcard=row.idcard;
+  queryParamsCustomer.name=row.name;
+  queryParamsCustomer.mobilephone=row.mobilephone;
+  console.log(queryParamsCustomer);
+    getCustomerPage(queryParamsCustomer).then(({ data }) => {
+      Object.assign(formDataCustomer, data.list[0]);
+      console.log(formDataCustomer);
     });
-  } else {
-    CreatOrderdialog.title = "创建订单";
-  }
+  
 }
 
 // new openDialog
@@ -457,8 +510,8 @@ function closeDialog() {
   //resetForm();
 }
 
-function closeCreatOrderDialog() {
-  CreatOrderdialog.visible = false;
+function closeCreateOrderDialog() {
+  CreateOrderdialog.visible = false;
   //resetForm();
 }
 /**
@@ -615,6 +668,7 @@ function handleUserExport() {
   });
 }
 
+
 onMounted(() => {
   getDeptOptions(); // 初始化部门
   //handleQuery(); // 初始化用户列表数据
@@ -622,6 +676,8 @@ onMounted(() => {
   //handleQueryCustomer();
   handleQueryGood();
 });
+
+
 </script>
 
 <template>
@@ -780,8 +836,7 @@ onMounted(() => {
               <el-button 
                 type="primary" 
                 size="small"
-                @click="openCreatOrderDialog"
-                
+                @click="openCreateOrderDialog(scope.row)"
                 >创建订单</el-button>
               </template>
             </el-table-column>
@@ -1156,99 +1211,241 @@ onMounted(() => {
 
 
 
-    <!-- 表单弹窗2-creat-order -->
+    <!-- 表单弹窗2-create-order -->
     <el-dialog
-      v-model="CreatOrderdialog.visible"
-      :title="CreatOrderdialog.title"
-      width="600px"
+      v-model="CreateOrderdialog.visible"
+      :title="CreateOrderdialog.title"
+      width="1100px"
       append-to-body
-      @close="closeCreatOrderDialog"
+      @close="closeCreateOrderDialog"
     >
-   
+
     <!--记得写rules-->
+
+    <el-steps :active="active" finish-status="success">
+    <el-step title="第一步" />
+    <el-step title="第二步" />
+    <el-step title="第三步" />
+    <el-step title="第四步" />
+</el-steps>
       <el-form
         ref="CustomerFormRef"
         :model="formDataCustomer"
         
         :rules="rules"
-        label-width="80px"
+        label-width="110px"
       >
-        <el-form-item label="用户名" prop="name">
+
+    <!--row1-->
+
+     <el-row >
+        <el-col span="12">
+          <el-form-item label="用户名" prop="customer_name">
           <el-input
-            v-model="formDataCustomer.name"
-            
-            placeholder="请输入用户名"
+          v-model="formDataCustomer.name"
+          :placeholder=formDataCustomer.name
+          readonly="readonly"
           />
         </el-form-item>
-        <el-form-item label="身份证号码" prop="idcard">
-          <el-input
-            v-model="formDataCustomer.idcard"
-            
-            placeholder="请输入身份证号码"
-          />
-        </el-form-item>
-        <el-form-item label="地址" prop="address">
+        </el-col>
+        <el-col span="12">
+          <el-form-item label="地址" prop="customer_address">
           <el-input
             v-model="formDataCustomer.address"
-            
+            readonly="readonly"
             placeholder="请输入地址"
           />
         </el-form-item>
-        <el-form-item label="固定电话号码" prop="addressphone">
+        </el-col>
+        <el-col span="12">
+          <el-form-item label="固定电话" prop="addressphone">
           <el-input
             v-model="formDataCustomer.addressphone"
             
             placeholder="请输入固定电话号码"
+            readonly="readonly"
           />
         </el-form-item>
+        </el-col>
+      </el-row>
 
-        <el-form-item label="手机号码" prop="mobilephone">
+    <!--row2-->
+
+     <el-row>
+       
+        <el-col span="12">
+          <el-form-item label="手机号码" prop="mobilephone">
           <el-input
             v-model="formDataCustomer.mobilephone"
             placeholder="请输入手机号码"
+            readonly="readonly"
             maxlength="11"
           />
         </el-form-item>
+        </el-col>
 
-        <el-form-item label="工作单位" prop="work">
+        <el-col span="12">
+          <el-form-item label="工作单位" prop="work">
           <el-input
             v-model="formDataCustomer.work"
+            readonly="readonly"
             
             placeholder="请输入工作单位"
           />
         </el-form-item>
-        <el-form-item label="邮编" prop="postcode">
+        </el-col>
+        
+        <el-col span="12">
+          <el-form-item label="邮编" prop="postcode">
           <el-input
             v-model="formDataCustomer.postcode"
-            
+            readonly="readonly"
             placeholder="请输入邮编"
           />
         </el-form-item>
+        </el-col>
+      </el-row>
 
-        <el-form-item label="邮箱" prop="email">
+    <!--row3-->  
+
+      <el-row>
+        <el-col span="8">
+          <el-form-item label="接收人" prop="receive_name">
           <el-input
-            v-model="formDataCustomer.email"
-            placeholder="请输入邮箱"
-            maxlength="50"
+            v-model="formDataCustomer.work"
+            
           />
         </el-form-item>
 
-        <!-- <el-form-item label="角色" prop="roleIds">
-          <el-select v-model="formData.roleIds" multiple placeholder="请选择">
-            <el-option
-              v-for="item in roleList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item> -->
+        </el-col>
+
+        <el-col span="16">
+          <el-form-item label="接收人电话" prop="work">
+          <el-input
+            v-model="formDataCustomer.work"
+            
+          />
+        </el-form-item>
+
+        </el-col>
+
+        <el-col span="12">
+          <el-form-item label="订单生成日期" prop="order_date">
+            <el-date-picker
+        v-model="formDataOrder.order_date"
+        type="datetime"
+        placeholder="Select date and time"
+      />
+        </el-form-item>
+
+        </el-col>
+        
+       </el-row>
+        
+    <!--row4-->
+
+      <el-row>
+        <el-col span="8">
+          <el-form-item label="订单类型" prop="order_type" >
+            <el-select v-model="formDataOrder.order_type" class="m-2" placeholder="订单类型" >
+    <el-option
+      v-for="item in OrderOptions"
+      :key="item.value"
+      :label="item.label"
+      :value="item.value"
+    />
+  </el-select>
+        </el-form-item>
+
+        </el-col>
+
+        <el-col span="8">
+          <el-form-item label="投递分站" prop="substation">
+            <el-select v-model="formDataOrder.order_type" class="m-2" placeholder="选择分站" >
+    <el-option
+      v-for="item in SubstationOptions"
+      :key="item.value"
+      :label="item.label"
+      :value="item.value"
+    />
+  </el-select>
+        </el-form-item>
+
+        </el-col>
+
+        <el-col span="12">
+          <el-form-item label="要求完成日期" prop="delivery_date">
+            
+            <el-date-picker
+        v-model="formDataOrder.order_date"
+        type="datetime"
+        placeholder="Select date and time"
+      />
+        </el-form-item>
+
+        </el-col>
+        
+       </el-row>
+
+    <!--row 5-->
+
+      <el-row>
+        <el-col span="12">
+          <el-form-item label="是否索要发票" prop="work">
+            <el-radio-group v-model="formDataOrder.is_invoice" class="ml-4">
+      <el-radio label="1" size="large">是</el-radio>
+      <el-radio label="2" size="large">否</el-radio>
+    </el-radio-group>
+        </el-form-item>
+
+        </el-col>
+        
+
+        <el-col span="12">
+          <el-form-item label="送货地址" prop="work">
+          <el-input
+            v-model="formDataCustomer.work"
+            
+          />
+        </el-form-item>
+
+        </el-col>
+
+        <el-col span="12">
+          <el-form-item label="收件人邮编" prop="work">
+          <el-input
+            v-model="formDataCustomer.work"
+            
+          />
+        </el-form-item>
+
+        </el-col>
+
+       </el-row>
+
+    <!--row 6-->
+      <el-row>
+        <el-col span="12">
+          <el-form-item label="备注信息" prop="explain">
+            <el-input
+            v-model="formDataCustomer.work"
+            
+          />
+        </el-form-item>
+
+        </el-col>
+
+       </el-row>
         
       </el-form>
+
       <template #footer>
         <div class="dialog-footer">
+          <el-button v-if="active < 4" style="margin-top: 12px" @click="next">下一步</el-button>
+<el-button v-if="active > 1" style="margin-top: 12px" @click="pre">上一步</el-button>
+
           <el-button type="primary" @click="handleSubmit">确 定</el-button>
-          <el-button @click="closeCreatOrderDialog">取 消</el-button>
+          <el-button @click="closeCreateOrderDialog">取 消</el-button>
         </div>
       </template>
     </el-dialog>
