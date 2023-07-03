@@ -150,7 +150,24 @@ onMounted(() => {
   handleQuery(); // 初始化用户列表数据
 });
 
+//上传图片
+import { genFileId } from 'element-plus'
+import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus'
+import {consoleLog} from "echarts/types/src/util/log";
 
+const upload = ref<UploadInstance>()
+
+const handleExceed: UploadProps['onExceed'] = (files) => {
+	upload.value!.clearFiles()
+	const file = files[0] as UploadRawFile
+	file.uid = genFileId()
+	upload.value!.handleStart(file)
+}
+
+const submitUpload = () => {
+	upload.value.submit()
+	console.warn(upload.value);
+}
 
 </script>
 
@@ -186,7 +203,7 @@ onMounted(() => {
 							/>
 						</el-form-item>
 
-            <el-form-item>
+						<el-form-item>
               <el-button type="primary" @click="handleQuery"
                 ><i-ep-search />搜索</el-button
               >
@@ -195,6 +212,30 @@ onMounted(() => {
                 重置</el-button
               >
             </el-form-item>
+						<el-form-item>
+							<el-upload
+									ref="upload"
+									class="upload-demo"
+									action="/dev-api/financial/goodAili"
+									:headers="false"
+									:limit="1"
+									method="post"
+									:on-exceed="handleExceed"
+									:auto-upload="false"
+							>
+								<template #trigger>
+									<el-button type="primary">智能商品识别</el-button>
+								</template>
+								<el-button class="ml-3" type="success" @click="submitUpload">
+									upload to server
+								</el-button>
+								<template #tip>
+									<div class="el-upload__tip text-red">
+										limit 1 file, new file will cover the old file
+									</div>
+								</template>
+							</el-upload>
+						</el-form-item>
           </el-form>
         </div>
 
