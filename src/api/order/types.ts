@@ -86,9 +86,20 @@ export interface GoodForm {
 export interface OrderQuery extends PageQuery {
 
 }
+//search by key id
 export interface GoodQuery extends PageQuery {
   pageNum: number,
   pageSize: number,
   keyId?:number
+
+}
+//search by good info
+export interface GoodQuery1 extends PageQuery {
+
+  pageNum: number,
+  pageSize: number,
+  goodClassId:string;
+  goodSubclassId:string;
+  keywords:string;
 
 }

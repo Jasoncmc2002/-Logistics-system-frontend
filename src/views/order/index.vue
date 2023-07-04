@@ -19,6 +19,7 @@ defineOptions({
   inheritAttrs: false,
 });
 
+
 /**
  * 导入UI
  */
@@ -41,7 +42,7 @@ import {
 } from "@/api/user";
 
 // new api
-import { getOrderPage } from "@/api/order";
+import { getOrderPage ,getGoodPage1} from "@/api/order";
 import { getCustomerPage,getCustomerForm } from "@/api/customer";
 
 /**
@@ -57,7 +58,7 @@ import { UserForm, UserQuery, UserPageVO } from "@/api/user/types";
 
 // new type
 
-import { GoodQuery,GoodPageVO,GoodForm, OrderForm, OrderPageVO, OrderQuery } from "@/api/order/types";
+import { GoodQuery,GoodPageVO,GoodForm,GoodQuery1, OrderForm, OrderPageVO, OrderQuery } from "@/api/order/types";
 import { getGoodPage } from "@/api/order";
 
 import { CustomerQuery ,CustomerPageVO,CustomerForm} from "@/api/customer/types";
@@ -66,7 +67,7 @@ import { CustomerQuery ,CustomerPageVO,CustomerForm} from "@/api/customer/types"
 /**
  * 定义ElementUI组件
  */
-const deptTreeRef = ref(ElTree); // 部门树
+
 const queryFormRef = ref(ElForm); // 查询表单
 const userFormRef = ref(ElForm); // 用户表单
 const CustomerFormRef=ref(ElForm);
@@ -103,6 +104,7 @@ const total = ref(0);
 
 const totalOrder = ref(0);
 const totalGood= ref(0);
+const totalGood1= ref(0);
 
 const dialog = reactive<DialogOption>({
   visible: false,
@@ -130,6 +132,16 @@ const queryParamsGood = reactive<GoodQuery>({
   
 });
 
+const queryParamsGood1 = reactive<GoodQuery1>({
+  pageNum: 1,
+  pageSize: 5,
+  goodClassId:"",
+  goodSubclassId:"",
+  keywords:""
+  
+});
+
+
 const queryParamsCustomer = reactive<CustomerQuery>({
 
   pageNum: 1,
@@ -146,7 +158,7 @@ const customerList=ref<CustomerPageVO[]>();
 // new pagevo
 const orderList = ref<OrderPageVO[]>();
 const goodList = ref<GoodPageVO[]>();
-
+const goodList1 = ref<GoodPageVO[]>();
 const formData = reactive<UserForm>({
   status: 1,
 });
@@ -255,39 +267,71 @@ const SubstationOptions = [
     label: '分站5',
   },
 ];
+const GoodClassOptions=[ {
+    value: '1',
+    label: '分类1',
+  },
+  {
+    value: '2',
+    label: '分类2',
+  },
+  {
+    value: '3',
+    label: '分类3',
+  },
+  {
+    value: '4',
+    label: '分类4',
+  },
+  {
+    value: '5',
+    label: '分类5',
+  },]
+  const GoodSubClassOptions=[ {
+    value: '1',
+    label: '分类1',
+  },
+  {
+    value: '2',
+    label: '分类2',
+  },
+  {
+    value: '3',
+    label: '分类3',
+  },
+  {
+    value: '4',
+    label: '分类4',
+  },
+  {
+    value: '5',
+    label: '分类5',
+  },]
+
+import { ref } from 'vue'
+import { number } from "echarts";
+
+const active = ref(1);
+
+const next = () => {
+  if (active.value++ > 3) active.value = 1
+};
+
+const pre = () => {
+  if (active.value-- < 2) active.value = 1
+};
+
+const  num=ref(0);
+    
+    
+
 
 /**
  * watchEffect会监听所引用数据类型的所有属性（这里监听的是seachDeptName）
  * 满足filter中的value的内容会被保留，其它除去（返回一份新的数据，不影响原来数据）
  */
-watchEffect(
-  () => {
-    deptTreeRef.value.filter(searchDeptName.value);
-  },
-  {
-    flush: "post", // watchEffect会在DOM挂载或者更新之前就会触发，此属性控制在DOM元素更新后运行
-  }
-);
 
-/**
- * 部门筛选
- */
-function handleDeptFilter(value: string, data: any) {
-  if (!value) {
-    return true;
-  }
-  // !==就是!= 这里是在判断，data数据中是否有叫value的部门
-  return data.label.indexOf(value) !== -1;
-}
 
-/**
- * 部门树节点
- * TODO : ?干嘛的
- */
-function handleDeptNodeClick(data: { [key: string]: any }) {
-  queryParams.deptId = data.value;
-  handleQuery();
-}
 
 /**
  * 获取角色下拉列表
@@ -360,6 +404,7 @@ function handleQueryOrder() {
     .then(({ data }) => {
      
       orderList.value = data.list;
+      
      
       totalOrder.value = data.total;
     })
@@ -376,6 +421,7 @@ function handleQueryGood() {
     .then(({ data }) => {
      
       goodList.value = data.list;
+      
      
       totalGood.value = data.total;
     })
@@ -385,6 +431,21 @@ function handleQueryGood() {
     });
 }
 
+function handleQueryGood1() {
+  loading.value = true;
+ getGoodPage1(queryParamsGood1)
+    .then(({ data }) => {
+     
+      goodList1.value = data.list;
+    
+     
+      totalGood.value = data.total;
+    })
+    .finally(() => {
+      console.log("false");
+      loading.value = false;
+    });
+}
 /**
  * 重置查询
  */
@@ -669,6 +730,9 @@ function handleUserExport() {
 }
 
 
+
+
+
 onMounted(() => {
   getDeptOptions(); // 初始化部门
   //handleQuery(); // 初始化用户列表数据
@@ -682,31 +746,10 @@ onMounted(() => {
 
 <template>
   <div class="app-container">
-    <!-- <el-row :gutter="20"> -->
-      <!-- 部门树 -->
-      <!-- <el-col :lg="4" :xs="24" class="mb-[12px]"> -->
-        <el-card shadow="never">
-          <el-input v-model="searchDeptName" placeholder="部门名称" clearable>
-            <template #prefix>
-              <i-ep-search />
-            </template>
-          </el-input>
-
-          <el-tree
-            ref="deptTreeRef"
-            class="mt-2"
-            :data="deptList"
-            :props="{ children: 'children', label: 'label', disabled: '' }"
-            :expand-on-click-node="false"
-            :filter-node-method="handleDeptFilter"
-            default-expand-all
-            @node-click="handleDeptNodeClick"
-          ></el-tree>
-        </el-card>
-      <!-- </el-col> -->
+    
 
       <!-- 搜索栏 -->
-      <!-- <el-col :lg="20" :xs="24"> -->
+    
         <div class="search-container">
           <el-form ref="CustomerFormRef" :model="queryParamsCustomer" :inline="true">
             <el-form-item label="用户搜索" prop="keywords">
@@ -749,6 +792,7 @@ onMounted(() => {
                 >
             </el-form-item>
           </el-form>
+
            <el-table
             v-loading="loading"
             :data="customerList"
@@ -853,40 +897,7 @@ onMounted(() => {
         <el-card shadow="never">
           <template #header>
             <div class="flex justify-between">
-              <!-- <div>
-                <el-button
-                  v-hasPerm="['sys:user:add']"
-                  type="success"
-                  @click="openDialog()"
-                  ><i-ep-plus />新增</el-button
-                >
-                <el-button
-                  v-hasPerm="['sys:user:delete']"
-                  type="danger"
-                  :disabled="ids.length === 0"
-                  @click="handleDelete()"
-                  ><i-ep-delete />删除</el-button
-                >
-              </div> -->
 
-              <!-- <div>
-                <el-dropdown split-button>
-                  导入
-                  <template #dropdown>
-                    <el-dropdown-menu>
-                      <el-dropdown-item @click="downloadTemplate">
-                        <i-ep-download />下载模板</el-dropdown-item
-                      >
-                      <el-dropdown-item @click="openImportDialog">
-                        <i-ep-top />导入数据</el-dropdown-item
-                      >
-                    </el-dropdown-menu>
-                  </template>
-                </el-dropdown>
-                <el-button class="ml-3" @click="handleUserExport"
-                  ><template #icon><i-ep-download /></template>导出</el-button
-                >
-              </div> -->
 
             </div>
           </template>
@@ -1189,16 +1200,6 @@ onMounted(() => {
           />
         </el-form-item>
 
-        <!-- <el-form-item label="角色" prop="roleIds">
-          <el-select v-model="formData.roleIds" multiple placeholder="请选择">
-            <el-option
-              v-for="item in roleList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item> -->
         
       </el-form>
       <template #footer>
@@ -1219,6 +1220,9 @@ onMounted(() => {
       append-to-body
       @close="closeCreateOrderDialog"
     >
+    
+ 
+
 
     <!--记得写rules-->
 
@@ -1228,17 +1232,17 @@ onMounted(() => {
     <el-step title="第三步" />
     <el-step title="第四步" />
 </el-steps>
-      <el-form
-        ref="CustomerFormRef"
-        :model="formDataCustomer"
-        
-        :rules="rules"
-        label-width="110px"
-      >
+<div v-show="active == 1">
+  <el-card class="box-card">
+    <template #header>
+      <div class="card-header">
+        <span>送货信息</span>
+        <el-button class="button" text>Operation button</el-button>
+      </div>
+    </template>
+   <!--row1-->
 
-    <!--row1-->
-
-     <el-row >
+   <el-row >
         <el-col span="12">
           <el-form-item label="用户名" prop="customer_name">
           <el-input
@@ -1361,7 +1365,7 @@ onMounted(() => {
 
         <el-col span="8">
           <el-form-item label="投递分站" prop="substation">
-            <el-select v-model="formDataOrder.order_type" class="m-2" placeholder="选择分站" >
+            <el-select v-model="formDataOrder" class="m-2" placeholder="选择分站" >
     <el-option
       v-for="item in SubstationOptions"
       :key="item.value"
@@ -1404,7 +1408,7 @@ onMounted(() => {
         <el-col span="12">
           <el-form-item label="送货地址" prop="work">
           <el-input
-            v-model="formDataCustomer.work"
+            v-model="formDataOrder.customer_address"
             
           />
         </el-form-item>
@@ -1414,7 +1418,7 @@ onMounted(() => {
         <el-col span="12">
           <el-form-item label="收件人邮编" prop="work">
           <el-input
-            v-model="formDataCustomer.work"
+            v-model="formDataOrder.postcode"
             
           />
         </el-form-item>
@@ -1436,13 +1440,217 @@ onMounted(() => {
         </el-col>
 
        </el-row>
+
+    
+
+  </el-card>
+</div>
+
+
+      <el-form
+        ref="CustomerFormRef"
+        :model="formDataCustomer"
+        
+        :rules="rules"
+        label-width="110px"
+      >
+
+ 
+<!--下一步-->
+
+       <div v-show="active >= 2">
+
+        <el-form ref="CustomerFormRef" :model="queryParamsCustomer" :inline="true">
+            <el-form-item label="商品搜索" prop="keywords">
+              <el-select v-model="queryParamsGood1.goodClassId" class="m-2" placeholder="一级分类" >
+                    <el-option
+                      v-for="item in GoodClassOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"/>
+                </el-select>
+
+                <el-select v-model="queryParamsGood1.goodSubclassId" class="m-2" placeholder="二级分类" >
+                    <el-option
+                      v-for="item in GoodSubClassOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"/>
+                </el-select>
+              
+              <el-input
+                v-model="queryParamsGood1.keywords"
+                placeholder="商品名"
+                clearable
+                style="width: 200px"
+                @keyup.enter="handleQueryGood1"
+              />
+
+              <el-button type="primary" @click="handleQueryGood1"
+                ><i-ep-search />搜索</el-button
+              >
+            </el-form-item>
+
+          </el-form>
+          <el-table
+            v-loading="loading"
+            :data="goodList1"
+            @selection-change="handleSelectionChangeOrder"
+          >
+            <!-- 选中框行 -->
+            <!-- <el-table-column type="selection" width="50" align="center" /> -->
+
+            <!-- 具体数据 -->
+            <el-table-column
+              key="id"
+              label="编号"
+              align="center"
+              prop="id"
+              width="100"
+            />
+            <el-table-column
+              
+              label="商品类"
+              align="center"
+              prop="goodClassId"
+              width="100"
+            />
+            <el-table-column
+              label="商品子类"
+              width="100"
+              align="center"
+              prop="goodSubclassId"
+            />
+            <el-table-column
+              label="商品名"
+              align="center"
+              prop="goodName"
+              width="150"
+              
+            />
+            <el-table-column
+              label="商品数量"
+              align="center"
+              prop="goodNumber"
+              width="100"
+              
+            />
+            <el-table-column 
+              label="商品价格"
+              align="center"
+              prop="goodPrice"
+              width="140"
+              
+            />
+            <el-table-column
+              label="商品备注"
+              align="center"
+              prop="remark"
+              width="140"
+              
+              
+            />
+          
+            <el-table-column label="操作" fixed="right" width="150">
+              <template #default="scope">
+                <el-input-number v-model="num" size="small" :min="0" :max="10" label="描述文字"></el-input-number>
+                
+
+              </template>
+
+            </el-table-column>
+
+            <el-table-column  fixed="right" width="100">
+              
+                <el-button type="primary" @click="handleQueryGood1"
+                >添加</el-button>
+              
+
+            </el-table-column>
+            
+
+          </el-table>
+
+          <pagination
+            v-if="total > 0"
+            v-model:total="total"
+            v-model:page="queryParamsGood1.pageNum"
+            v-model:limit="queryParamsGood1.pageSize"
+            @pagination="handleQueryGood"
+          />
+
+          <el-table
+          v-loading="loading"
+            :data="goodList1"
+            @selection-change="handleSelectionChangeOrder">
+          <el-table-column
+              key="id"
+              label="编号"
+              align="center"
+              prop="id"
+              width="100"
+            />
+            <el-table-column
+              
+              label="商品类"
+              align="center"
+              prop="goodClassId"
+              width="100"
+            />
+            <el-table-column
+              label="商品子类"
+              width="100"
+              align="center"
+              prop="goodSubclassId"
+            />
+            <el-table-column
+              label="商品名"
+              align="center"
+              prop="goodName"
+              width="150"
+              
+            />
+            <el-table-column
+              label="商品数量"
+              align="center"
+              prop="goodNumber"
+              width="100"
+              
+            />
+            <el-table-column 
+              label="商品价格"
+              align="center"
+              prop="goodPrice"
+              width="140"
+              
+            />
+            <el-table-column
+              label="商品备注"
+              align="center"
+              prop="remark"
+              width="140"
+              
+            />
+          </el-table>
+          <pagination
+            v-if="total > 0"
+            v-model:total="total"
+            v-model:page="queryParamsGood1.pageNum"
+            v-model:limit="queryParamsGood1.pageSize"
+            @pagination="handleQueryGood"
+          />
+	
+</div>
+
         
       </el-form>
+
+
 
       <template #footer>
         <div class="dialog-footer">
           <el-button v-if="active < 4" style="margin-top: 12px" @click="next">下一步</el-button>
-<el-button v-if="active > 1" style="margin-top: 12px" @click="pre">上一步</el-button>
+          <el-button v-if="active > 1" style="margin-top: 12px" @click="pre">上一步</el-button>
 
           <el-button type="primary" @click="handleSubmit">确 定</el-button>
           <el-button @click="closeCreateOrderDialog">取 消</el-button>
@@ -1450,55 +1658,25 @@ onMounted(() => {
       </template>
     </el-dialog>
 
-    <!-- 导入弹窗 -->
-    <el-dialog
-      v-model="importDialog.visible"
-      :title="importDialog.title"
-      width="600px"
-      append-to-body
-      @close="closeImportDialog"
-    >
-      <el-form label-width="80px">
-        <el-form-item label="部门">
-          <el-tree-select
-            v-model="importDeptId"
-            placeholder="请选择部门"
-            :data="deptList"
-            filterable
-            check-strictly
-          />
-        </el-form-item>
-
-        <el-form-item label="Excel">
-          <el-upload
-            class="upload-demo"
-            action=""
-            drag
-            :auto-upload="false"
-            accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-            :file-list="excelFilelist"
-            :on-change="handleExcelChange"
-            :limit="1"
-          >
-            <el-icon class="el-icon--upload">
-              <i-ep-upload-filled />
-            </el-icon>
-            <div class="el-upload__text">
-              将文件拖到此处，或
-              <em>点击上传</em>
-            </div>
-            <template #tip>
-              <div class="el-upload__tip">xls/xlsx files</div>
-            </template>
-          </el-upload>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleUserImport">确 定</el-button>
-          <el-button @click="closeImportDialog">取 消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+   
   </div>
 </template>
+<style>
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.text {
+  font-size: 14px;
+}
+
+.item {
+  margin-bottom: 14px;
+}
+
+.box-card {
+  width: 1000px;
+}
+</style>
