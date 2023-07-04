@@ -64,9 +64,6 @@ import {SecondaryCategoryPageVO,SecondaryCategoryForm,SecondaryCategoryQuery } f
 import { createEditor } from "@wangeditor/editor";
 
 
-
-
-
 const CentralStationFormRef = ref(ElForm);
 
 const loading = ref(false);
@@ -92,9 +89,12 @@ const userList1 = ref<CentralStationPageVO[]>();
 const formData1 = reactive<CentralStationForm>({
 });
 
-var supplyList =[];
-var firstCategoryList=[];
-var secondaryCategoryList=[];
+var supplyList =reactive<SupplyForm>({});
+var firstCategoryList=reactive<FirstCategoryForm>({});
+var secondaryCategoryList=reactive<SecondaryCategoryForm>({});
+// const supplyList=reactive({});
+// const firstCategoryList=reactive({});
+// const secondaryCategoryList=reactive({});
 
 
 const rules = reactive({
@@ -123,18 +123,7 @@ function handleQuerySupply() {
   loading.value = true;
   getSupplyPage(queryParams2)
     .then(({ data }) => {
-      
-      supplyList = data.list;
-      console.log(supplyList);
-      
-      // console.log(supplyList);
-      // for(var i=0;i<userList2.value.length;i++){
-      //   // for(var a in userList2.value.at(i)){
-      //   //   console.log(a);
-      //   // }
-      //   // console.log(userList2.value.at(i).name);
-      // }
-      //  console.log(userList2.value);
+      supplyList.value = data.list;
     })
 
     .finally(() => {
@@ -145,7 +134,7 @@ function handleQuerySecondaryCategory() {
   loading.value = true;
   getSecondaryCategoryPage(queryParams2)
     .then(({ data }) => {
-      secondaryCategoryList = data.list;
+      secondaryCategoryList.value = data.list;
     })
     .finally(() => {
       loading.value = false;
@@ -156,9 +145,8 @@ function handleQueryFirstCategory() {
   loading.value = true;
   getFirstCategoryPage(queryParams2)
     .then(({ data }) => {
-      firstCategoryList = data.list;
+      firstCategoryList.value = data.list;
     })
-
     .finally(() => {
       loading.value = false;
     });
@@ -168,10 +156,13 @@ function handleQueryFirstCategory() {
 
 
 function resetQuery1() {
-  CentralStationFormRef.value.resetFields();
+  // CentralStationFormRef.value.resetFields();
+  console.log("OK");
+  queryParams1.goodClassId=null;
+	queryParams1.goodSubclassId=null;
+	queryParams1.supplyId=null;
   queryParams1.pageNum = 1;
   handleQuery1();
-
 }
 
 function handleSelectionChange(selection: any) {
@@ -280,7 +271,7 @@ onMounted(() => {
             <el-form-item label="一级分类" prop="goodClassId">
           <el-select v-model="queryParams1.goodClassId" placeholder="请选择一级分类名" clearable >
                 <el-option
-                  v-for="item in firstCategoryList"
+                  v-for="item in firstCategoryList.value"
                   :key="item.id"
                   :label="item.fname"
                   :value="item.id">
@@ -290,7 +281,7 @@ onMounted(() => {
         <el-form-item label="二级分类" prop="goodSubclassId">
           <el-select v-model="queryParams1.goodSubclassId" placeholder="请选择二级分类名" clearable  >
                 <el-option
-                  v-for="item in secondaryCategoryList"
+                  v-for="item in secondaryCategoryList.value"
                   :key="item.id"
                   :label="item.sname"
                   :value="item.id">
@@ -300,7 +291,7 @@ onMounted(() => {
         <el-form-item label="供应商" prop="supplyId">
             <el-select v-model="queryParams1.supplyId" placeholder="请选择供应商" clearable>
                 <el-option
-                  v-for="item in supplyList"
+                  v-for="item in supplyList.value"
                   :key="item.id"
                   :label="item.name"
                   :value="item.id">
@@ -540,7 +531,7 @@ onMounted(() => {
         <el-form-item label="一级分类" prop="goodClassId">
           <el-select v-model="formData1.goodClassId" placeholder="请选择一级分类名">
                 <el-option
-                  v-for="item in firstCategoryList"
+                  v-for="item in firstCategoryList.value"
                   :key="item.id"
                   :label="item.fname"
                   :value="item.id">
@@ -550,7 +541,7 @@ onMounted(() => {
         <el-form-item label="二级分类" prop="goodSubclassId">
           <el-select v-model="formData1.goodSubclassId" placeholder="请选择二级分类名">
                 <el-option
-                  v-for="item in secondaryCategoryList"
+                  v-for="item in secondaryCategoryList.value"
                   :key="item.id"
                   :label="item.sname"
                   :value="item.id">
@@ -572,7 +563,7 @@ onMounted(() => {
          <el-form-item label="供应商" prop="supplyId">
             <el-select v-model="formData1.supplyId" placeholder="请选择供应商">
                 <el-option
-                  v-for="item in supplyList"
+                  v-for="item in supplyList.value"
                   :key="item.id"
                   :label="item.name"
                   :value="item.id">
