@@ -12,7 +12,6 @@
  * defineOptions : 语法糖，定义本文件name
  */
 
-//TODO: inheritAttrs是干嘛的？
 
 
 import {moneyPageVO} from "@/api/financial/station/types";
@@ -50,7 +49,6 @@ const userFormRef = ref(ElForm); // 用户表单
  * ref本质也是reactive，ref(obj)等价于reactive({value: obj}) : 用于定义响应式变量
  * 定义所需变量
  * loading : 反馈是否数据加载完成
- * TODO:
  * ids : ?
  * total : ?
  * dalog : ? 弹窗
