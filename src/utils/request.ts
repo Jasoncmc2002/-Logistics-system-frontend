@@ -26,6 +26,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response: AxiosResponse) => {
     const { code, msg } = response.data;
+    console.log(code);
     if (code === "00000" || code === "666") {
       return response.data;
     }
