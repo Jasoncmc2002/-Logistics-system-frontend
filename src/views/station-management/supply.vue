@@ -75,7 +75,11 @@ function handleQuery1() {
 
 
 function resetQuery1() {
- supplyFormRef.value.resetFields();
+ //supplyFormRef.value.resetFields();
+	queryParams1.nameKeywords=null;
+	queryParams1.addrKeywords=null;
+	queryParams1.adminKeywords=null;
+	queryParams1.telKeywords=null;
   queryParams1.pageNum = 1;
   handleQuery1();
 }
@@ -249,13 +253,13 @@ onMounted(() => {
                   @click="openDialog1()"
                   ><i-ep-plus />新增</el-button
                 >
-                <el-button
-                  v-hasPerm="['sys:user:delete']"
-                  type="danger"
-                  :disabled="ids.length === 0"
-                  @click="handleDelete1()"
-                  ><i-ep-delete />删除</el-button
-                >
+<!--                <el-button-->
+<!--                  v-hasPerm="['sys:user:delete']"-->
+<!--                  type="danger"-->
+<!--                  :disabled="ids.length === 0"-->
+<!--                  @click="handleDelete1()"-->
+<!--                  ><i-ep-delete />删除</el-button-->
+<!--                >-->
               </div>
 
             </div>

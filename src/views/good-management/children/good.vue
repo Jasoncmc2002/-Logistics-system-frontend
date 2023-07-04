@@ -157,7 +157,8 @@ function handleQueryFirstCategory() {
 
 function resetQuery1() {
   // CentralStationFormRef.value.resetFields();
-  console.log("OK");
+  // console.log("OK");
+	queryParams1.keywords=null;
   queryParams1.goodClassId=null;
 	queryParams1.goodSubclassId=null;
 	queryParams1.supplyId=null;
@@ -320,13 +321,13 @@ onMounted(() => {
                   @click="openDialog1()"
                   ><i-ep-plus />新增</el-button
                 >
-                <el-button
-                  v-hasPerm="['sys:user:delete']"
-                  type="danger"
-                  :disabled="ids.length === 0"
-                  @click="handleDelete1()"
-                  ><i-ep-delete />删除</el-button
-                >
+<!--                <el-button-->
+<!--                  v-hasPerm="['sys:user:delete']"-->
+<!--                  type="danger"-->
+<!--                  :disabled="ids.length === 0"-->
+<!--                  @click="handleDelete1()"-->
+<!--                  ><i-ep-delete />删除</el-button-->
+<!--                >-->
               </div>
 
             </div>
@@ -355,17 +356,17 @@ onMounted(() => {
             />
             <el-table-column
               label="一级类别名"
-              key="goodClassId"
+              key="goodClassName"
               width="120"
               align="center"
-              prop="goodClassId"
+              prop="goodClassName"
             />
             <el-table-column
               label="二级类别名"
-              key="goodSubclassId"
+              key="goodSubClassName"
               width="120"
               align="center"
-              prop="goodSubclassId"
+              prop="goodSubClassName"
             />
             <el-table-column
               label="库存量"
@@ -441,10 +442,10 @@ onMounted(() => {
 
             <el-table-column
               label="供货商姓名"
-              key="supplyId"
+              key="supplyName"
               width="120"
               align="center"
-              prop="supplyId"
+              prop="supplyName"
             />
 
             <el-table-column
@@ -457,17 +458,17 @@ onMounted(() => {
 
             <el-table-column
               label="可否退货"
-              key=" isReturn"
+              key=" isReturnName"
               width="120"
               align="center"
-              prop="isReturn"
+              prop="isReturnName"
             />
             <el-table-column
               label="可否换货"
-              key="isChange"
+              key="isChangeName"
               width="120"
               align="center"
-              prop="isChange"
+              prop="isChangeName"
             />
             <el-table-column
               label="描述"

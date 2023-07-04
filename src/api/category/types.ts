@@ -25,14 +25,15 @@ export interface SecondaryCategoryForm {
   id?:number;
   sname?:string;
   fid?:number;
+  fname?:string;
   description?:string;
 }
 export interface CentralStationForm {
   id?:number;
   goodClassId?:number;
-
+  goodClassName?:string;
   goodSubclassId?:number;
-
+  goodSubClassName?:string;
   goodName?:string;
   stock?:number;
   withdrawal?:number;
@@ -45,9 +46,12 @@ export interface CentralStationForm {
   goodCost?:number;
   goodUnit?:string;
   supplyId?:number;
+  supplyName?:number;
   sellDate?:number;
   isReturn?:number;
+  isReturnName?:string;
   isChange?:number;
+  isChangeName?:string;
   remark?:string;
 
 }
@@ -59,7 +63,7 @@ export interface FirstCategoryQuery extends PageQuery {
 export interface SecondaryCategoryQuery extends PageQuery {
   keywords?: string;
   status?: number;
-  sId?: number;
+  fId?: number;
 }
 export interface CentralStationQuery extends PageQuery {
   keywords?: string;
