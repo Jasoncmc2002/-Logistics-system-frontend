@@ -31,7 +31,6 @@ import {
   getUserPage,
   getUserForm,
   deleteUsers,
-  addUser,
   updateUser,
   updateUserStatus,
   updateUserPassword,
@@ -40,9 +39,11 @@ import {
   importUser,
 } from "@/api/user";
 
+
 // new api
 import { getOrderPage ,getGoodPage1} from "@/api/order";
-import { getCustomerPage,getCustomerForm } from "@/api/customer";
+import { getCustomerPage,getCustomerForm ,addCustomer} from "@/api/customer";
+
 
 /**
  * 导入需要的dept与role相关的API
@@ -592,7 +593,7 @@ const handleSubmit = useThrottleFn(() => {
     if (valid) {
       //const CustomerId = formDataCustomer.id;
       loading.value = true;
-        addUser(formDataCustomer)
+        addCustomer(formDataCustomer)
           .then(() => {
             ElMessage.success("新增用户成功");
             closeDialog();
