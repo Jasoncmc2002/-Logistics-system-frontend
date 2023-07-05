@@ -58,12 +58,16 @@ import { UserForm, UserQuery, UserPageVO } from "@/api/user/types";
 
 // new type
 
-import { GoodQuery,GoodPageVO,GoodForm,GoodQuery1, OrderForm, OrderPageVO, OrderQuery } from "@/api/order/types";
+import { GoodQuery,GoodPageVO,GoodForm,GoodQuery1, OrderForm, OrderPageVO, OrderQuery ,CreatOrder} from "@/api/order/types";
 import { getGoodPage } from "@/api/order";
 
 import { CustomerQuery ,CustomerPageVO,CustomerForm} from "@/api/customer/types";
 
+import{getFirstCategoryPage,getSecondaryCategoryForm,getSecondaryCategoryPage,getFirstCategoryForm} from"@/api/category"
 
+import {CentralStationPageVO,CentralStationForm,CentralStationQuery } from "@/api/category/types";
+
+import {FirstCategoryPageVO,FirstCategoryForm,FirstCategoryQuery,SecondaryCategoryForm,SecondaryCategoryPageVO,SecondaryCategoryQuery } from "@/api/category/types";
 /**
  * 定义ElementUI组件
  */
@@ -118,6 +122,17 @@ const queryParams = reactive<UserQuery>({
   pageSize: 10,
 });
 
+
+const queryParams1 = reactive<CentralStationQuery>({
+  pageNum: 1,
+  pageSize: 10,
+});
+//全要查出来
+const queryParams2 = reactive<CentralStationQuery>({
+  pageNum: 1,
+  pageSize: 1000,
+});
+
 // new queryParams
 
 const queryParamsOrder = reactive<OrderQuery>({
@@ -161,6 +176,7 @@ const goodList1 = ref<GoodPageVO[]>();
 const formData = reactive<UserForm>({
   status: 1,
 });
+const CreatOrderData=reactive<CreatOrder>
 
 // new formData
 
@@ -306,6 +322,8 @@ const GoodClassOptions=[ {
     value: '5',
     label: '分类5',
   },]
+  var firstCategoryList=reactive<FirstCategoryForm>({});
+var secondaryCategoryList=reactive<SecondaryCategoryForm>({});
 
 import { ref } from 'vue'
 import { number } from "echarts";
@@ -321,7 +339,8 @@ const pre = () => {
 };
 
 const  num=ref(0);
-    
+
+
     
 
 
@@ -432,10 +451,10 @@ function handleQueryGood() {
 
 function handleQueryGood1() {
   loading.value = true;
- getGoodPage1(queryParamsGood1)
+ getGoodPage1(queryParams1)
     .then(({ data }) => {
      
-      goodList1.value = data.list;
+      goodList.value = data.list;
     
      
       totalGood.value = data.total;
@@ -445,6 +464,56 @@ function handleQueryGood1() {
       loading.value = false;
     });
 }
+//将选中商品添加到数组中
+function AddtoGoodlist(row:any) {
+  loading.value = true;
+  //  goodList1.value?.push({
+  //   "good_price": row.goodPrice,
+  //   "good_cost": 68694.62,
+  //   "good_subclass": row.goodSubclass,
+  //   "key_id": ,
+  //   "class_id": "1",
+  //   "remark": "李浩轩",
+  //   "type": "韦炫明",
+  //   "good_number": "5",
+  //   "supply": "赵峻熙",
+  //   "sell_date": "雷智渊",
+  //   "good_unit": "熊琪",
+  //   "is_return": "0",
+  //   "good_factory": "尹鸿煊",
+  //   "good_class": "雷伟宸",
+  //   "good_sale": "58549.29",
+  //   "is_change": "0",
+  //   "good_name": "侯峻熙",
+  //   "username": "许思源"});
+}
+
+
+
+function handleQuerySecondaryCategory() {
+  loading.value = true;
+  getSecondaryCategoryPage(queryParams2)
+    .then(({ data }) => {
+      secondaryCategoryList.value = data.list;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+function handleQueryFirstCategory() {
+  loading.value = true;
+  getFirstCategoryPage(queryParams2)
+    .then(({ data }) => {
+      firstCategoryList.value = data.list;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+
+
 /**
  * 重置查询
  */
@@ -455,6 +524,7 @@ function resetQuery() {
   queryParamsCustomer.name= "";
   queryParamsCustomer.idcard = "";
   queryParamsCustomer.mobilephone = "";
+
 
   //handleQuery();
 }
@@ -473,8 +543,6 @@ function handleSelectionChangeOrder(selection: any) {
 }
 
 //
-
-
 /**
  * 重置密码
  */
@@ -499,7 +567,6 @@ function resetPassword(row: { [key: string]: any }) {
     .catch(() => {});
 }
 
-
 /**
  * 显示订单商品信息
  */
@@ -516,17 +583,17 @@ function resetPassword(row: { [key: string]: any }) {
  * 打开用户弹窗
  */
 async function openDialog(userId?: number) {
-  //await getDeptOptions();
-  //await getRoleOptions();
+ 
   dialog.visible = true;
-  if (userId) {
-    dialog.title = "修改用户";
-    getUserForm(userId).then(({ data }) => {
-      Object.assign(formDataCustomer, data);
-    });
-  } else {
-    dialog.title = "新增用户";
-  }
+   formDataCustomer.address="";
+   formDataCustomer.addressphone="";
+   formDataCustomer.email="";
+   formDataCustomer.idcard="";
+   formDataCustomer.is_deleted="";
+   formDataCustomer.mobilephone="";
+   formDataCustomer.name="";
+   formDataCustomer.postcode="";
+   formDataCustomer.work="";
 }
 
 /**
@@ -738,6 +805,8 @@ onMounted(() => {
   handleQueryOrder();
   //handleQueryCustomer();
   handleQueryGood();
+  handleQuerySecondaryCategory();
+  handleQueryFirstCategory();
 });
 
 
@@ -784,7 +853,6 @@ onMounted(() => {
                 重置</el-button
               >
               <el-button
-                  v-hasPerm="['sys:user:add']"
                   type="success"
                   @click="openDialog()"
                   ><i-ep-plus />新增用户</el-button
@@ -1459,26 +1527,26 @@ onMounted(() => {
 
        <div v-show="active >= 2">
 
-        <el-form ref="CustomerFormRef" :model="queryParamsCustomer" :inline="true">
+        <el-form ref="CustomerFormRef" :model="queryParams1" :inline="true">
             <el-form-item label="商品搜索" prop="keywords">
-              <el-select v-model="queryParamsGood1.goodClassId" class="m-2" placeholder="一级分类" >
+              <el-select v-model="queryParams1.goodClassId" class="m-2" placeholder="一级分类" >
                     <el-option
-                      v-for="item in GoodClassOptions"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"/>
+                      v-for="item in firstCategoryList.value"
+                      :key="item.id"
+                      :label="item.fname"
+                      :value="item.id"/>
                 </el-select>
 
-                <el-select v-model="queryParamsGood1.goodSubclassId" class="m-2" placeholder="二级分类" >
+                <el-select v-model="queryParams1.goodSubclassId" class="m-2" placeholder="二级分类" >
                     <el-option
-                      v-for="item in GoodSubClassOptions"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"/>
+                      v-for="item in secondaryCategoryList.value"
+                      :key="item.id"
+                      :label="item.sname"
+                      :value="item.id"/>
                 </el-select>
               
               <el-input
-                v-model="queryParamsGood1.keywords"
+                v-model="queryParams1.keywords"
                 placeholder="商品名"
                 clearable
                 style="width: 200px"
@@ -1493,13 +1561,14 @@ onMounted(() => {
           </el-form>
           <el-table
             v-loading="loading"
-            :data="goodList1"
+            :data="goodList"
             @selection-change="handleSelectionChangeOrder"
           >
             <!-- 选中框行 -->
             <!-- <el-table-column type="selection" width="50" align="center" /> -->
 
             <!-- 具体数据 -->
+            
             <el-table-column
               key="id"
               label="编号"
@@ -1527,13 +1596,17 @@ onMounted(() => {
               width="150"
               
             />
+            
             <el-table-column
               label="商品数量"
               align="center"
               prop="goodNumber"
-              width="100"
+              width="150"
               
-            />
+            ><el-input-number v-model="num" size="small" :min="0" :max="10" label="描述文字"></el-input-number></el-table-column>
+
+            
+
             <el-table-column 
               label="商品价格"
               align="center"
@@ -1552,20 +1625,14 @@ onMounted(() => {
           
             <el-table-column label="操作" fixed="right" width="150">
               <template #default="scope">
-                <el-input-number v-model="num" size="small" :min="0" :max="10" label="描述文字"></el-input-number>
                 
-
+                <el-button type="primary" @click="AddtoGoodlist(scope.row)"
+                >添加</el-button>
+              
               </template>
 
             </el-table-column>
 
-            <el-table-column  fixed="right" width="100">
-              
-                <el-button type="primary" @click="handleQueryGood1"
-                >添加</el-button>
-              
-
-            </el-table-column>
             
 
           </el-table>
