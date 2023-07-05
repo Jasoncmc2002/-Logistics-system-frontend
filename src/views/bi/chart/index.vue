@@ -55,12 +55,15 @@ function submit(option) {
     .then(({ data }) => {
       console.warn(data);
       if (data.genChart == null) {
-        ElMessage.warning("请勾选删除项");
+        ElMessage.warning("分析失败");
       } else {
         res.chartId = data.chartId;
         res.genChart = data.genChart;
         res.genResult = data.genResult;
         chartOption = JSON.parse(data.genChart);
+        if (!chartOption) {
+          ElMessage.warning("图表代码解析错误");
+        }
       }
     })
     .finally(() => {
@@ -141,12 +144,12 @@ function submitload() {
         </el-card>
       </el-col>
       <el-col :span="12">
-        <el-card header="分析结论" v-loading="submitting">
-          <div>{{ res.genResult }}</div>
+        <el-card header="分析结论">
+          <div v-loading="submitting">{{ res.genResult }}</div>
         </el-card>
         <el-divider></el-divider>
-        <el-card header="可视化图表" v-loading="submitting">
-          <div>
+        <el-card header="可视化图表" body-style="{ height: '200px' }">
+          <div v-loading="submitting" style="height: 400px">
             <ECharts ref="chart" :option="chartOption" />
           </div>
         </el-card>

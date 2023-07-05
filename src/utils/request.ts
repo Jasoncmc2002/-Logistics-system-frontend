@@ -30,6 +30,7 @@ service.interceptors.response.use(
     if (code === "00000" || code === "666") {
       return response.data;
     }
+    console.log("没有返回数据");
     // 响应数据为二进制流处理(Excel导出)
     if (response.data instanceof ArrayBuffer) {
       return response;
