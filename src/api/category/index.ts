@@ -1,6 +1,6 @@
 import request from "@/utils/request";
 import { AxiosPromise } from "axios";
-import { FirstCategoryForm, FirstCategoryPageVO,FirstCategoryQuery,
+import { StationForm, StationPageVO,StationQuery,
   SecondaryCategoryForm,SecondaryCategoryPageVO ,SecondaryCategoryQuery,
    CentralStationForm,CentralStationQuery,CentralStationPageVO
 } from "./types";
@@ -10,7 +10,7 @@ import { FirstCategoryForm, FirstCategoryPageVO,FirstCategoryQuery,
  *
  * @param userId
  */
-export function getFirstCategoryForm(id: number): AxiosPromise<FirstCategoryForm> {
+export function getFirstCategoryForm(id: number): AxiosPromise<StationForm> {
   return request({
     url: "/distribute/firstcategory/"+id,
     method: "post",
@@ -23,8 +23,8 @@ export function getFirstCategoryForm(id: number): AxiosPromise<FirstCategoryForm
  * @param queryParams
  */
 export function getFirstCategoryPage(
-  queryParams: FirstCategoryQuery
-): AxiosPromise<PageResult<FirstCategoryPageVO[]>> {
+  queryParams: StationQuery
+): AxiosPromise<PageResult<StationPageVO[]>> {
   return request({
     url: "/distribute/firstcategory/getList",
     method: "post",
@@ -40,14 +40,14 @@ export function deleteFirstCategoryForm(id: number) {
   });
 }
 
-export function insertFirstCategoryForm(params:FirstCategoryForm) {
+export function insertFirstCategoryForm(params:StationForm) {
   return request({
     url: "/distribute/firstcategory/create",
     method: "post",
     data:params,
   });
 }
-export function updateFirstCategoryForm(params:FirstCategoryForm) {
+export function updateFirstCategoryForm(params:StationForm) {
   return request({
     url: "/distribute/firstcategory/update",
     method: "post",
@@ -143,9 +143,16 @@ export function insertCentralStationForm(params:CentralStationForm) {
   });
 }
 export function updateCentralStationForm(params:CentralStationForm) {
-  return request({
-    url: "/distribute/central-station/update",
-    method: "post",
-    data:params,
-  });
+	return request({
+		url: "/distribute/central-station/update",
+		method: "post",
+		data: params,
+	});
+}
+  export function updateCentralStationFormList(params: { warn: any; max: any; idList: any }) {
+		return request({
+			url: "/distribute/central-station/updateList",
+			method: "post",
+			data: params,
+		});
 }

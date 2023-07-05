@@ -1,4 +1,4 @@
-export interface FirstCategoryPageVO {
+export interface StationPageVO {
   id?: number;
 
   firstCategorySum?: number;
@@ -15,7 +15,7 @@ export interface CentralStationPageVO {
   centralStationSum?: number;
 }
 
-export interface FirstCategoryForm {
+export interface StationForm {
   id?:number;
   fname?:string;
   description?:string;
@@ -53,10 +53,11 @@ export interface CentralStationForm {
   isChange?:number;
   isChangeName?:string;
   remark?:string;
-
+  stationId?:number;
+  stationName?:string;
 }
 
-export interface FirstCategoryQuery extends PageQuery {
+export interface StationQuery extends PageQuery {
   keywords?: string;
   status?: number;
 }

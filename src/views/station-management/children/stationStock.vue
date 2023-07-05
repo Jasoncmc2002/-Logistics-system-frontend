@@ -1,19 +1,8 @@
  <script setup lang="ts">
-/**
- * setup ： 语法糖，可以省去子组件在父组件的components中注册的过程，直接import之后就可以使用
- * lang="ts" ： 表示此文件是TypeScript格式
- */
 
-/**
- * @see {@link https://vuejs.org/api/sfc-script-setup.html#defineoptions}
- */
-
-/**
- * defineOptions : 语法糖，定义本文件name
- */
 
 defineOptions({
-  name: "good",
+  name: "stationStock",
   inheritAttrs: false,
 });
 
@@ -24,7 +13,8 @@ import {
   deleteCentralStationForm,
   getCentralStationPage,
   getCentralStationForm,
-  updateCentralStationForm
+  updateCentralStationForm,
+	updateCentralStationFormList
 } from "@/api/category";
 
 
@@ -79,10 +69,14 @@ const queryParams1 = reactive<CentralStationQuery>({
   pageNum: 1,
   pageSize: 10,
 });
+
 //全要查出来
 const queryParams2 = reactive<CentralStationQuery>({
   pageNum: 1,
   pageSize: 1000,
+});
+const queryParams3 = reactive<CentralStationForm>({
+
 });
 const userList1 = ref<CentralStationPageVO[]>();
 
@@ -118,6 +112,29 @@ function handleQuery1() {
     .finally(() => {
       loading.value = false;
     });
+}
+function handleQuery2() {
+	// console.log(ids.value);
+	// loading.value = true;
+	// for(var i=0;i<ids.value.length;i++){
+	// 	console.log(ids.value[i]);
+	// }
+	// console.log(queryParams3.max);
+	// console.log(queryParams3.warn);
+	const queryParams4={
+		 "idList":ids.value,
+			"max":queryParams3.max,
+			"warn":queryParams3.warn,
+	}
+  // console.log(queryParams4);
+	// console.log(queryParams4.idList);
+	updateCentralStationFormList(queryParams4)
+		.then(({ data }) => {
+     resetQuery1();
+		})
+		.finally(() => {
+			loading.value = false;
+		});
 }
 function handleQuerySupply() {
   loading.value = true;
@@ -158,6 +175,9 @@ function handleQueryFirstCategory() {
 function resetQuery1() {
   // CentralStationFormRef.value.resetFields();
   // console.log("OK");
+		queryParams3.max=null;
+		queryParams3.warn=null;
+
 	queryParams1.keywords=null;
   queryParams1.goodClassId=null;
 	queryParams1.goodSubclassId=null;
@@ -168,6 +188,7 @@ function resetQuery1() {
 
 function handleSelectionChange(selection: any) {
   ids.value = selection.map((item: any) => item.id);
+  // console.log(ids.value);
 }
 
 
@@ -257,7 +278,7 @@ onMounted(() => {
   <div class="app-container">
     <el-row>
       <!-- 搜索栏 -->
-      <el-col :lg="12" :xs="24">
+      <el-col :lg="18" :xs="24">
         <div class="search-container">
           <el-form ref="queryFormRef1" :model="queryParams1" :inline="true">
             
@@ -289,16 +310,7 @@ onMounted(() => {
                 </el-option>
             </el-select> 
         </el-form-item>
-        <el-form-item label="供应商" prop="supplyId">
-            <el-select v-model="queryParams1.supplyId" placeholder="请选择供应商" clearable>
-                <el-option
-                  v-for="item in supplyList.value"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-            </el-select> 
-        </el-form-item>
+
             <el-form-item>
               <el-button type="primary" @click="handleQuery1"
                 ><i-ep-search />搜索</el-button
@@ -310,17 +322,41 @@ onMounted(() => {
             </el-form-item>
           </el-form>
         </div>
+		  <div class="search-container">
+			  <el-form ref="queryFormRef2" :model="queryParams3" :inline="true">
+				  <el-form-item label="最大库存量" prop="max">
+					  <el-input
+							  v-model="queryParams3.max"
+							  placeholder="输入最大库存量"
+							  clearable
+							  style="width: 200px"
+					  />
+				  </el-form-item>
+			   <el-form-item label="预警值" prop="warn">
+				  <el-input
+						v-model="queryParams3.warn"
+						placeholder="输入预警值"
+						clearable
+						style="width: 200px"
+				/>
+			</el-form-item>
+				  <el-form-item>
+					  <el-button type="primary" @click="handleQuery2">批量设置</el-button>
+				  </el-form-item>
+			  </el-form>
+		  </div>
+
 
         <el-card shadow="never">
           <template #header>
             <div class="flex justify-between">
               <div>
-                <el-button
-                  v-hasPerm="['sys:user:add']"
-                  type="success"
-                  @click="openDialog1()"
-                  ><i-ep-plus />新增</el-button
-                >
+<!--                <el-button-->
+<!--                  v-hasPerm="['sys:user:add']"-->
+<!--                  type="success"-->
+<!--                  @click="openDialog1()"-->
+<!--                  ><i-ep-plus />新增</el-button-->
+<!--                >-->
 <!--                <el-button-->
 <!--                  v-hasPerm="['sys:user:delete']"-->
 <!--                  type="danger"-->
@@ -341,7 +377,7 @@ onMounted(() => {
             @selection-change="handleSelectionChange"
 			      style="width: 100%"
           >
-<!--            <el-table-column type="selection" width="50" align="center" />-->
+            <el-table-column type="selection" width="50" align="center" />
             <el-table-column
               key="id"
               label="编号"
@@ -369,13 +405,27 @@ onMounted(() => {
               align="center"
               prop="goodSubClassName"
             />
+			  <el-table-column
+					  label="库房名称"
+					  key="stationName"
+					  width="120"
+					  align="center"
+					  prop="stationName"
+			  />
             <el-table-column
-              label="库存量"
-              key="stock"
+              label="最大库存量"
+              key="max"
               width="120"
               align="center"
-              prop="stock"
+              prop="max"
             />
+			  <el-table-column
+					  label="警戒值"
+					  key="warn"
+					  width="120"
+					  align="center"
+					  prop="warn"
+			  />
             <el-table-column
               label="退货量"
               key="withdrawal"
@@ -397,87 +447,7 @@ onMounted(() => {
               align="center"
               prop="doneAllo"
             />
-            <el-table-column
-              label="警戒值"
-              key="warn"
-              width="120"
-              align="center"
-              prop="warn"
-            />
-            <el-table-column
-              label="最大值"
-              key="max"
-              width="120"
-              align="center"
-              prop="max"
-            />
-            <el-table-column
-              label="商品价格"
-              key="goodPrice"
-              width="120"
-              align="center"
-              prop="goodPrice"
-            />
-            <el-table-column
-              label="进货成本价"
-              key="goodCost"
-              width="120"
-              align="center"
-              prop="goodCost"
-            />
-            <el-table-column
-              label="商品折扣"
-              key="goodSale"
-              width="120"
-              align="center"
-              prop="goodSale"
-            />
 
-            <el-table-column
-              label="计量单位"
-              key="goodUnit"
-              width="120"
-              align="center"
-              prop="goodUnit"
-            />
-
-            <el-table-column
-              label="供货商姓名"
-              key="supplyName"
-              width="120"
-              align="center"
-              prop="supplyName"
-            />
-
-            <el-table-column
-              label="保质期"
-              key="sellDate"
-              width="120"
-              align="center"
-              prop="sellDate"
-            />
-
-            <el-table-column
-              label="可否退货"
-              key=" isReturnName"
-              width="120"
-              align="center"
-              prop="isReturnName"
-            />
-            <el-table-column
-              label="可否换货"
-              key="isChangeName"
-              width="120"
-              align="center"
-              prop="isChangeName"
-            />
-            <el-table-column
-              label="描述"
-              key="remark"
-              width="120"
-              align="center"
-              prop="remark"
-            />
 
             <el-table-column label="操作" fixed="right" width="220">
               <template #default="scope">
@@ -527,72 +497,12 @@ onMounted(() => {
         :rules="rules"
         label-width="80px"
       >
-        <el-form-item label="商品名称" prop="goodNname">
-          <el-input v-model="formData1.goodName" placeholder="请输入商品名" />
+        <el-form-item label="最大库存量" prop="max">
+          <el-input v-model="formData1.max" placeholder="请输入最大库存量" />
         </el-form-item>
-        <el-form-item label="一级分类" prop="goodClassId">
-          <el-select v-model="formData1.goodClassId" placeholder="请选择一级分类名">
-                <el-option
-                  v-for="item in firstCategoryList.value"
-                  :key="item.id"
-                  :label="item.fname"
-                  :value="item.id">
-                </el-option>
-            </el-select> 
-        </el-form-item>
-        <el-form-item label="二级分类" prop="goodSubclassId">
-          <el-select v-model="formData1.goodSubclassId" placeholder="请选择二级分类名">
-                <el-option
-                  v-for="item in secondaryCategoryList.value"
-                  :key="item.id"
-                  :label="item.sname"
-                  :value="item.id">
-                </el-option>
-            </el-select> 
-        </el-form-item>
-        <el-form-item label="计量单位" prop="goodUnit">
-          <el-input v-model="formData1.goodUnit" placeholder="请输入计量单位" />
-        </el-form-item>
-        <el-form-item label="售价" prop="goodPrice">
-          <el-input v-model="formData1.goodPrice" placeholder="请输入售价" />
-        </el-form-item>
-        <el-form-item label="商品折扣" prop="goodSale">
-          <el-input v-model="formData1.goodSale" placeholder="请输入折扣" />
-        </el-form-item>
-        <el-form-item label="成本价" prop="goodCost">
-          <el-input v-model="formData1.goodCost" placeholder="请输入成本价" />
-        </el-form-item>
-         <el-form-item label="供应商" prop="supplyId">
-            <el-select v-model="formData1.supplyId" placeholder="请选择供应商">
-                <el-option
-                  v-for="item in supplyList.value"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-            </el-select> 
-        </el-form-item>
-        <el-form-item label="保质期" prop="sellDate">
-           <el-input v-model="formData1.sellDate" placeholder="请输入保质期" />
-        </el-form-item>
-        <el-form-item label="可否退货" prop="isReturn">
-          <el-radio-group v-model="formData1.isReturn">
-          <el-radio label="1">是</el-radio>
-          <el-radio label="0">否</el-radio>
-        </el-radio-group>
-        </el-form-item>
-        <el-form-item label="可否换货" prop="isChange">
-          <el-radio-group v-model="formData1.isChange">
-          <el-radio label="1">是</el-radio>
-          <el-radio label="0">否</el-radio>
-        </el-radio-group>
-        </el-form-item>
-        <!-- <el-form-item label="库存量" prop="stock">
-          <el-input v-model="formData1.stock" placeholder="请输入库存量" />
-        </el-form-item> -->
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="formData1.remark" placeholder="请输入备注" />
-        </el-form-item>
+		  <el-form-item label="预警值" prop="warn">
+			  <el-input v-model="formData1.warn" placeholder="请输入预警值" />
+		  </el-form-item>
 
       </el-form>
       <template #footer>
