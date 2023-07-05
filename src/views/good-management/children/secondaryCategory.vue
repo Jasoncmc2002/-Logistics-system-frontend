@@ -32,7 +32,7 @@ import {
 	SecondaryCategoryPageVO,
 	SecondaryCategoryForm,
 	SecondaryCategoryQuery,
-	FirstCategoryForm, CentralStationQuery
+	StationForm, CentralStationQuery
 } from "@/api/category/types";
 /**
  * 定义ElementUI组件
@@ -82,7 +82,7 @@ const userList1 = ref<SecondaryCategoryPageVO[]>();
 
 const formData1 = reactive<SecondaryCategoryForm>({
 });
-var firstCategoryList=reactive<FirstCategoryForm>({});
+var firstCategoryList=reactive<StationForm>({});
 
 const rules = reactive({
   sname: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
@@ -210,9 +210,9 @@ onMounted(() => {
 <template>
 
   <div class="app-container">
-    <el-row :gutter="20">
+    <el-row>
       <!-- 搜索栏 -->
-      <el-col :lg="20" :xs="24">
+      <el-col :lg="24" :xs="24">
         <div class="search-container">
           <el-form ref="queryFormRef1" :model="queryParams1" :inline="true">
             
@@ -289,21 +289,23 @@ onMounted(() => {
               label="二级分类名"
               align="center"
               prop="sname"
+			       width="250"
             />
-            <el-table-column
-              label="描述"
-              key="description"
-              width="120"
-              align="center"
-              prop="description"
-            />
+
             <el-table-column
               label="一级商品名称"
               key="fname"
-              width="120"
+              width="250"
               align="center"
               prop="fname"
             />
+			  <el-table-column
+					  label="描述"
+					  key="description"
+					  width="250"
+					  align="center"
+					  prop="description"
+			  />
 
             <el-table-column label="操作" fixed="right" width="220">
               <template #default="scope">

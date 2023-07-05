@@ -188,9 +188,9 @@ onMounted(() => {
 <template>
 
   <div class="app-container">
-    <el-row :gutter="20">
+    <el-row type="flex" justify="center">
       <!-- 搜索栏 -->
-      <el-col :lg="20" :xs="24">
+      <el-col >
         <div class="search-container">
           <el-form ref="queryFormRef1" :model="queryParams1" :inline="true">
             

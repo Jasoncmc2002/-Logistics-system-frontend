@@ -49,7 +49,7 @@ import {
 } from "@/api/category";
 
 
-import {FirstCategoryPageVO,FirstCategoryForm,FirstCategoryQuery } from "@/api/category/types";
+import {StationPageVO,StationForm,StationQuery } from "@/api/category/types";
 
 import {
   insertSecondaryCategoryForm,
@@ -90,7 +90,7 @@ const formData1 = reactive<CentralStationForm>({
 });
 
 var supplyList =reactive<SupplyForm>({});
-var firstCategoryList=reactive<FirstCategoryForm>({});
+var firstCategoryList=reactive<StationForm>({});
 var secondaryCategoryList=reactive<SecondaryCategoryForm>({});
 // const supplyList=reactive({});
 // const firstCategoryList=reactive({});
@@ -255,9 +255,9 @@ onMounted(() => {
 <template>
 
   <div class="app-container">
-    <el-row :gutter="20">
+    <el-row>
       <!-- 搜索栏 -->
-      <el-col :lg="20" :xs="24">
+      <el-col :lg="12" :xs="24">
         <div class="search-container">
           <el-form ref="queryFormRef1" :model="queryParams1" :inline="true">
             
@@ -339,8 +339,9 @@ onMounted(() => {
             v-loading="loading"
             :data="userList1"
             @selection-change="handleSelectionChange"
+			      style="width: 100%"
           >
-            <el-table-column type="selection" width="50" align="center" />
+<!--            <el-table-column type="selection" width="50" align="center" />-->
             <el-table-column
               key="id"
               label="编号"

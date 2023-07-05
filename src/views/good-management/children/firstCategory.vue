@@ -29,33 +29,11 @@ import {
 } from "@/api/category";
 
 
-import {FirstCategoryPageVO,FirstCategoryForm,FirstCategoryQuery } from "@/api/category/types";
-/**
- * 定义ElementUI组件
- */
+import {StationPageVO,StationForm,StationQuery } from "@/api/category/types";
 
 
 const firstCategoryFormRef = ref(ElForm);
-/**
- * ref本质也是reactive，ref(obj)等价于reactive({value: obj}) : 用于定义响应式变量
- * 定义所需变量
- * loading : 反馈是否数据加载完成
 
- * ids : ?
- * total : ?
- * dalog : ? 弹窗
- * queryParams : ?
- * userList : 对应用户表中的数据
- * formData : ?
- * rules : 用来规定表单中各个数据的要求
- * searchDept : ?
- * deptList : 存放dept
- * roleList ：存放role
- * importDialog : 导入用户时的弹窗
- * importDeptId : 导入选择的部门ID
- * excelFile : 用于存储一个Excel文件
- * excelFileList : 用于存储一堆Excel文件
- */
 const loading = ref(false);
 const ids = ref([]);
 const total = ref(0);
@@ -65,40 +43,21 @@ const dialog = reactive<DialogOption>({
 
 
 
-const queryParams1 = reactive<FirstCategoryQuery>({
+const queryParams1 = reactive<StationQuery>({
   pageNum: 1,
   pageSize: 10,
 });
-const userList1 = ref<FirstCategoryPageVO[]>();
+const userList1 = ref<StationPageVO[]>();
 
-const formData1 = reactive<FirstCategoryForm>({
+const formData1 = reactive<StationForm>({
 });
 
 const rules = reactive({
-  fname: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
+  name: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
   // description: [{ required: true, message: "描述不能为空", trigger: "blur" }],
 
 });
 
-
-
-/**
- * watchEffect会监听所引用数据类型的所有属性（这里监听的是seachDeptName）
- * 满足filter中的value的内容会被保留，其它除去（返回一份新的数据，不影响原来数据）
- */
-// watchEffect(
-//   () => {
-//     deptTreeRef.value.filter(searchDeptName.value);
-//   },
-//   {
-//     flush: "post", // watchEffect会在DOM挂载或者更新之前就会触发，此属性控制在DOM元素更新后运行
-//   }
-// );
-
-
-/**
- * 查询
- */
 
 function handleQuery1() {
   loading.value = true;
@@ -125,17 +84,10 @@ function resetQuery1() {
   handleQuery1();
 }
 
-/**
- * 行checkbox change事件
- */
 function handleSelectionChange(selection: any) {
   ids.value = selection.map((item: any) => item.id);
 }
 
-
-/**
- * 打开用户弹窗
- */
 
 async function openDialog1(id?: number) {
   dialog.visible = true;
@@ -227,11 +179,10 @@ onMounted(() => {
 </script>
 
 <template>
-
-  <div class="app-container">
-    <el-row :gutter="20">
+  <div class="app-container" >
+    <el-row >
       <!-- 搜索栏 -->
-      <el-col :lg="20" :xs="24">
+		<el-col :lg="24" :xs="24">
         <div class="search-container">
           <el-form ref="queryFormRef1" :model="queryParams1" :inline="true">
             
@@ -286,30 +237,26 @@ onMounted(() => {
             :data="userList1"
             @selection-change="handleSelectionChange"
           >
-            <el-table-column type="selection" width="50" align="center" />
+<!--            <el-table-column type="selection" width="100" />-->
             <el-table-column
               key="id"
               label="编号"
-              align="center"
               prop="id"
-              width="100"
+              width="200"
             />
             <el-table-column
               key="fname"
               label="一级分类名"
-              align="center"
               prop="fname"
+			        width="300"
             />
             <el-table-column
               label="描述"
               key="description"
-              width="120"
-              align="center"
+              width="300"
               prop="description"
             />
-
-
-            <el-table-column label="操作" fixed="right" width="220">
+            <el-table-column label="操作" fixed="right" width="300">
               <template #default="scope">
                 <el-button
                   v-hasPerm="['sys:user:edit']"
