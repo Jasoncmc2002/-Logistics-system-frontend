@@ -12,7 +12,6 @@
  * defineOptions : 语法糖，定义本文件name
  */
 
-//TODO: inheritAttrs是干嘛的？
 
 defineOptions({
   name: "User",
@@ -75,7 +74,6 @@ const CustomerFormRef=ref(ElForm);
  * ref本质也是reactive，ref(obj)等价于reactive({value: obj}) : 用于定义响应式变量
  * 定义所需变量
  * loading : 反馈是否数据加载完成
- * TODO:
  * ids : 用来存储哪些数据被选中的
  * total : ?
  * dalog : ? 弹窗
