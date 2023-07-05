@@ -18,21 +18,21 @@ import {
 } from "@/api/station";
 
 
-import {StationInOutPageVO,StationInOutForm,StationInOutQuery } from "@/api/station/types";
+import {StationInOutPageVO, StationInOutForm, StationInOutQuery, StationForm} from "@/api/station/types";
 /**
  * 定义ElementUI组件
  */
 
-var stationInOutClassList =reactive<StationInOutForm>({});
-stationInOutClassList.value=[
-{
-	id:1,
+var stationClassList =reactive<StationForm>({});
+stationClassList.value=[
+	{
+		id:1,
 		name:"中心库房"
-},
-{
-	id:2,
+	},
+	{
+		id:2,
 		name:"分站库房"
-}
+	}
 ]
 
 const stationInOutFormRef = ref(ElForm);
@@ -79,9 +79,11 @@ function handleQuery1() {
 function resetQuery1() {
 	// firstCategoryFormRef.value.resetFields();
 
-	queryParams1.nameKeyword=null;
-	queryParams1.addrKeyword=null;
-	queryParams1.stationInOutClass=null;
+	queryParams1.stationKeyword=null;
+	queryParams1.goodKeyword=null;
+	queryParams1.typeKeyword=null;
+	queryParams1.startTime=null;
+	queryParams1.endTime=null;
 	queryParams1.pageNum = 1;
 	handleQuery1();
 }
@@ -185,24 +187,8 @@ onMounted(() => {
 				<div class="search-container">
 					<el-form ref="queryFormRef1" :model="queryParams1" :inline="true">
 
-						<el-form-item label="库房名称" prop="nameKeyword">
-							<el-input
-									v-model="queryParams1.nameKeyword"
-									placeholder="库房名称"
-									clearable
-									style="width: 200px"
-							/>
-						</el-form-item>
-			   <el-form-item label="库房地址" prop="addrKeyword">
-				  <el-input
-						  v-model="queryParams1.addrKeyword"
-						  placeholder="库房地址"
-						  clearable
-						  style="width: 200px"
-				  />
-			   </el-form-item>
-			  <el-form-item label="库房级别" prop="stationInOutClass">
-				  <el-select v-model="queryParams1.stationClass" placeholder="请选择库房级别" clearable>
+			  <el-form-item label="库房名称" prop="stationClass">
+				  <el-select v-model="queryParams1.stationKeyword" placeholder="请选择库房类别名" clearable>
 					  <el-option
 							  v-for="item in stationClassList.value"
 							  :key="item.id"
@@ -211,6 +197,50 @@ onMounted(() => {
 					  </el-option>
 				  </el-select>
 			  </el-form-item>
+			   <el-form-item label="出库类型" prop="typeKeyword">
+				  <el-input
+						  v-model="queryParams1.typeKeyword"
+						  placeholder="出库类型"
+						  clearable
+						  style="width: 200px"
+				  />
+			   </el-form-item>
+			  <el-form-item label="起始时间" prop="startTime">
+<!--				  <el-input-->
+<!--						  v-model="queryParams1.startTime"-->
+<!--						  placeholder="起始时间"-->
+<!--						  clearable-->
+<!--						  style="width: 200px"-->
+<!--				  />-->
+			<el-date-picker v-model="queryParams1.startTime"
+											placeholder="选择起始时间"
+											clearable
+					            type="datetime"
+											style="width: 200px"/>
+
+			  </el-form-item>
+			  <el-form-item label="结束时间" prop="endTime">
+<!--				  <el-input-->
+<!--						  v-model="queryParams1.endTime"-->
+<!--						  placeholder="结束时间"-->
+<!--						  clearable-->
+<!--						  style="width: 200px"-->
+<!--				  />-->
+			<el-date-picker v-model="queryParams1.endTime"
+							placeholder="选择结束时间"
+							clearable
+							type="datetime"
+							style="width: 200px"/>
+			  </el-form-item>
+			  <el-form-item label="商品名称" prop="goodKeyword">
+				  <el-input
+						  v-model="queryParams1.goodKeyword"
+						  placeholder="商品名称"
+						  clearable
+						  style="width: 200px"
+				  />
+			  </el-form-item>
+
 
 						<el-form-item>
 							<el-button type="primary" @click="handleQuery1"
@@ -262,31 +292,52 @@ onMounted(() => {
 								width="100"
 						/>
 						<el-table-column
-								key="name"
+								key="stationName"
 								label="库房名"
 								align="center"
-								prop="name"
+								prop="stationName"
 						/>
 						<el-table-column
-								label="地址"
-								key="address"
+								label="商品名称"
+								key="goodName"
 								width="120"
 								align="center"
-								prop="address"
+								prop="goodName"
 						/>
 			  <el-table-column
-					  label="管理人"
-					  key="admin"
+					  label="单位"
+					  key="goodUnit"
 					  width="120"
 					  align="center"
-					  prop="admin"
+					  prop="goodUnit"
 			  />
 			  <el-table-column
-					  label="库房级别"
-					  key="stationClassName"
+					  label="单价"
+					  key="goodPrice"
 					  width="120"
 					  align="center"
-					  prop="stationClassName"
+					  prop="goodPrice"
+			  />
+			  <el-table-column
+					  label="出入库数量"
+					  key="number"
+					  width="120"
+					  align="center"
+					  prop="number"
+			  />
+			  <el-table-column
+					  label="出入库类型"
+					  key="type"
+					  width="120"
+					  align="center"
+					  prop="type"
+			  />
+			  <el-table-column
+					  label="备注"
+					  key="remark"
+					  width="120"
+					  align="center"
+					  prop="remark"
 			  />
 						<el-table-column label="操作" fixed="right" width="220">
 							<template #default="scope">

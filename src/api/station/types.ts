@@ -34,6 +34,7 @@ export interface StationInOutForm {
 	// stationClassName?:string;
 	alloId?:number;
 	stationId?:number;
+	stationName?:string;
     taskId?:number;
     goodId?:number;
     goodName?:string;
@@ -48,9 +49,11 @@ export interface StationInOutForm {
 
 
 export interface StationInOutQuery extends PageQuery {
-	nameKeyword?: string;
-	addrKeyword?: string;
-	stationClass?:number;
+	stationKeyword?: number;
+	goodKeyword?: string;
+	typeKeyword?:string;
+	startTime?:string;
+	endTime?:string;
 	status?: number;
 }
 

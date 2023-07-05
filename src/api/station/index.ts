@@ -66,7 +66,7 @@ export function getStationInOutPage(
 	queryParams: StationInOutQuery
 ): AxiosPromise<PageResult<StationInOutPageVO[]>> {
 	return request({
-		url: "/distribute/stationInOut/getList",
+		url: "/distribute/stationInOut/getListByConditions",
 		method: "post",
 		data: queryParams,
 	});
