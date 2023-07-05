@@ -22,3 +22,35 @@ export interface StationQuery extends PageQuery {
   status?: number;
 }
 
+export interface StationInOutPageVO {
+	id?: number;
+	StationInOutSum?: number;
+}
+
+
+export interface StationInOutForm {
+	id?:number;
+	stationClass?:number;
+	// stationClassName?:string;
+	alloId?:number;
+	stationId?:number;
+    taskId?:number;
+    goodId?:number;
+    goodName?:string;
+    goodPrice?:number;
+    goodUnit?:string;
+    goodFactory?:string;
+    number?:number;
+    date?:string;
+	remark?:string;
+	type?:string;
+}
+
+
+export interface StationInOutQuery extends PageQuery {
+	nameKeyword?: string;
+	addrKeyword?: string;
+	stationClass?:number;
+	status?: number;
+}
+

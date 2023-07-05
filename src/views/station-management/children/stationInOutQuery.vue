@@ -1,43 +1,30 @@
 <script setup lang="ts">
-/**
- * setup ： 语法糖，可以省去子组件在父组件的components中注册的过程，直接import之后就可以使用
- * lang="ts" ： 表示此文件是TypeScript格式
- */
-
-/**
- * @see {@link https://vuejs.org/api/sfc-script-setup.html#defineoptions}
- */
-
-/**
- * defineOptions : 语法糖，定义本文件name
- */
 
 
-import {SupplyForm} from "@/api/supply/types";
 
 defineOptions({
-	name: "station",
+	name: "stationInOutQuery",
 	inheritAttrs: false,
 });
 
 
 
 import {
-	insertStationForm,
-	deleteStationForm,
-	getStationPage,
-	getStationForm,
-	updateStationForm
+	insertStationInOutForm,
+	deleteStationInOutForm,
+	getStationInOutPage,
+	getStationInOutForm,
+	updateStationInOutForm
 } from "@/api/station";
 
 
-import {StationPageVO,StationForm,StationQuery } from "@/api/station/types";
+import {StationInOutPageVO,StationInOutForm,StationInOutQuery } from "@/api/station/types";
 /**
  * 定义ElementUI组件
  */
 
-var stationClassList =reactive<StationForm>({});
-stationClassList.value=[
+var stationInOutClassList =reactive<StationInOutForm>({});
+stationInOutClassList.value=[
 {
 	id:1,
 		name:"中心库房"
@@ -48,7 +35,7 @@ stationClassList.value=[
 }
 ]
 
-const stationFormRef = ref(ElForm);
+const stationInOutFormRef = ref(ElForm);
 
 const loading = ref(false);
 const ids = ref([]);
@@ -59,13 +46,13 @@ const dialog = reactive<DialogOption>({
 
 
 
-const queryParams1 = reactive<StationQuery>({
+const queryParams1 = reactive<StationInOutQuery>({
 	pageNum: 1,
 	pageSize: 10,
 });
-const userList1 = ref<StationPageVO[]>();
+const userList1 = ref<StationInOutPageVO[]>();
 
-const formData1 = reactive<StationForm>({
+const formData1 = reactive<StationInOutForm>({
 });
 
 const rules = reactive({
@@ -77,7 +64,7 @@ const rules = reactive({
 
 function handleQuery1() {
 	loading.value = true;
-	getStationPage(queryParams1)
+	getStationInOutPage(queryParams1)
 		.then(({ data }) => {
 			userList1.value = data.list;
 			total.value = data.total;
@@ -94,7 +81,7 @@ function resetQuery1() {
 
 	queryParams1.nameKeyword=null;
 	queryParams1.addrKeyword=null;
-	queryParams1.stationClass=null;
+	queryParams1.stationInOutClass=null;
 	queryParams1.pageNum = 1;
 	handleQuery1();
 }
@@ -110,7 +97,7 @@ async function openDialog1(id?: number) {
 	dialog.visible = true;
 	if (id) {
 		dialog.title = "修改";
-		getStationForm(id).then(({ data }) => {
+		getStationInOutForm(id).then(({ data }) => {
 
 			Object.assign(formData1, data);
 		});
@@ -127,19 +114,19 @@ function closeDialog1() {
 
 
 function resetForm1() {
-	stationFormRef.value.resetFields();
-	stationFormRef.value.clearValidate();
+	stationInOutFormRef.value.resetFields();
+	stationInOutFormRef.value.clearValidate();
 	formData1.id = undefined;
 }
 
 
 const handleSubmit1 = useThrottleFn(() => {
-	stationFormRef.value.validate((valid: any) => {
+	stationInOutFormRef.value.validate((valid: any) => {
 		if (valid) {
 			const userId = formData1.id;
 			loading.value = true;
 			if (userId) {
-				updateStationForm(formData1)
+				updateStationInOutForm(formData1)
 					.then(() => {
 						ElMessage.success("修改成功");
 						closeDialog1();
@@ -147,7 +134,7 @@ const handleSubmit1 = useThrottleFn(() => {
 					})
 					.finally(() => (loading.value = false));
 			} else {
-				insertStationForm(formData1)
+				insertStationInOutForm(formData1)
 					.then(() => {
 						ElMessage.success("新增成功");
 						closeDialog1();
@@ -174,7 +161,7 @@ function handleDelete1(id?: number) {
 		cancelButtonText: "取消",
 		type: "warning",
 	}).then(function () {
-		deleteStationForm(id).then(() => {
+		deleteStationInOutForm(id).then(() => {
 			ElMessage.success("删除成功");
 			resetQuery1();
 		})
@@ -214,7 +201,7 @@ onMounted(() => {
 						  style="width: 200px"
 				  />
 			   </el-form-item>
-			  <el-form-item label="库房级别" prop="stationClass">
+			  <el-form-item label="库房级别" prop="stationInOutClass">
 				  <el-select v-model="queryParams1.stationClass" placeholder="请选择库房级别" clearable>
 					  <el-option
 							  v-for="item in stationClassList.value"
@@ -344,7 +331,7 @@ onMounted(() => {
 				@close="closeDialog1"
 		>
 			<el-form
-					ref="stationFormRef"
+					ref="stationInOutFormRef"
 					:model="formData1"
 					:rules="rules"
 					label-width="80px"
@@ -358,7 +345,7 @@ onMounted(() => {
 		  <el-form-item label="管理人" prop="admin">
 			  <el-input v-model="formData1.admin" placeholder="请输入管理人" />
 		  </el-form-item>
-		  <el-form-item label="库房级别" prop="stationClass">
+		  <el-form-item label="库房级别" prop="stationInOutClass">
 			  <el-select v-model="formData1.stationClass" placeholder="请选择库房级别" clearable>
 				  <el-option
 						  v-for="item in stationClassList.value"

@@ -1,6 +1,6 @@
 import request from "@/utils/request";
 import { AxiosPromise } from "axios";
-import {StationForm,StationQuery,StationPageVO
+import {StationForm,StationQuery,StationPageVO,StationInOutForm,StationInOutQuery,StationInOutPageVO
 } from "./types";
 
 
@@ -51,4 +51,45 @@ export function updateStationForm(params:StationForm) {
     method: "post",
     data:params,
   });
+}
+
+
+
+export function getStationInOutForm(id: number): AxiosPromise<StationInOutForm> {
+	return request({
+		url: "/distribute/stationInOut/"+id,
+		method: "post",
+	});
+}
+
+export function getStationInOutPage(
+	queryParams: StationInOutQuery
+): AxiosPromise<PageResult<StationInOutPageVO[]>> {
+	return request({
+		url: "/distribute/stationInOut/getList",
+		method: "post",
+		data: queryParams,
+	});
+}
+
+export function deleteStationInOutForm(id: number) {
+	return request({
+		url: "/distribute/stationInOut/delete/"+id,
+		method: "post"
+	});
+}
+
+export function insertStationInOutForm(params:StationInOutForm) {
+	return request({
+		url: "/distribute/stationInOut/create",
+		method: "post",
+		data:params,
+	});
+}
+export function updateStationInOutForm(params:StationInOutForm) {
+	return request({
+		url: "/distribute/stationInOut/update",
+		method: "post",
+		data:params,
+	});
 }

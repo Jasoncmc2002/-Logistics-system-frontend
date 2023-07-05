@@ -242,6 +242,7 @@ onMounted(() => {
               key="id"
               label="编号"
               prop="id"
+			        align="center"
               width="200"
             />
             <el-table-column
@@ -249,12 +250,14 @@ onMounted(() => {
               label="一级分类名"
               prop="fname"
 			        width="300"
+			       align="center"
             />
             <el-table-column
               label="描述"
               key="description"
               width="300"
               prop="description"
+			          align="center"
             />
             <el-table-column label="操作" fixed="right" width="300">
               <template #default="scope">

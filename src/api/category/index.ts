@@ -143,9 +143,16 @@ export function insertCentralStationForm(params:CentralStationForm) {
   });
 }
 export function updateCentralStationForm(params:CentralStationForm) {
-  return request({
-    url: "/distribute/central-station/update",
-    method: "post",
-    data:params,
-  });
+	return request({
+		url: "/distribute/central-station/update",
+		method: "post",
+		data: params,
+	});
+}
+  export function updateCentralStationFormList(params: { warn: any; max: any; idList: any }) {
+		return request({
+			url: "/distribute/central-station/updateList",
+			method: "post",
+			data: params,
+		});
 }
