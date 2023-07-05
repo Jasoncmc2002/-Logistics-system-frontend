@@ -176,7 +176,9 @@ const goodList1 = ref<GoodPageVO[]>();
 const formData = reactive<UserForm>({
   status: 1,
 });
-const CreatOrderData=reactive<CreatOrder>
+const CreatOrderData=reactive<CreatOrder>({
+  
+});
 
 // new formData
 
@@ -1200,6 +1202,7 @@ onMounted(() => {
       @close="closeDialog"
     >
     <!--记得写rules-->
+    
       <el-form
         ref="CustomerFormRef"
         :model="formDataCustomer"
@@ -1298,8 +1301,12 @@ onMounted(() => {
     <el-step title="第二步" />
     <el-step title="第三步" />
     <el-step title="第四步" />
-</el-steps>
-<div v-show="active == 1">
+    </el-steps>
+
+  <div
+    :model="CreatOrderData">
+  
+    <div v-show="active == 1">
   <el-card class="box-card">
     <template #header>
       <div class="card-header">
@@ -1308,14 +1315,15 @@ onMounted(() => {
       </div>
     </template>
    <!--row1-->
-
    <el-row >
         <el-col span="12">
           <el-form-item label="用户名" prop="customer_name">
           <el-input
+          
           v-model="formDataCustomer.name"
           :placeholder=formDataCustomer.name
           readonly="readonly"
+          
           />
         </el-form-item>
         </el-col>
@@ -1514,15 +1522,6 @@ onMounted(() => {
 </div>
 
 
-      <el-form
-        ref="CustomerFormRef"
-        :model="formDataCustomer"
-        
-        :rules="rules"
-        label-width="110px"
-      >
-
- 
 <!--下一步-->
 
        <div v-show="active >= 2">
@@ -1559,6 +1558,7 @@ onMounted(() => {
             </el-form-item>
 
           </el-form>
+
           <el-table
             v-loading="loading"
             :data="goodList"
@@ -1707,9 +1707,10 @@ onMounted(() => {
           />
 	
 </div>
+  </div>
+
 
         
-      </el-form>
 
 
 

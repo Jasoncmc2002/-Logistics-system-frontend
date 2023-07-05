@@ -139,24 +139,24 @@ export interface Good{
 
 export interface CreatOrder {
 
-  Orders:{
-    explain: string,
-    order_type: string,
-    customer_address: string,
-    order_status: string,
-    postcode: string,
-    remark: string,
-    good_sum: string,
-    good_status: string,
-    order_date: string,
-    delivery_date: string,
-    substation: string,
-    mobilephone: string,
-    creater: string,
-    customer_name: string,
-    receive_name:string,
-    is_invoice: string,
-    customer_id: string
+  Orders?:{
+    explain?: string,
+    order_type?: string,
+    customer_address?: string,
+    order_status?: string,
+    postcode?: string,
+    remark?: string,
+    good_sum?: string,
+    good_status?: string,
+    order_date?: string,
+    delivery_date?: string,
+    substation?: string,
+    mobilephone?: string,
+    creater?: string,
+    customer_name?: string,
+    receive_name?:string,
+    is_invoice?: string,
+    customer_id?: string
   },
-  Goods:Good[]
+  Goods?:Good[]
 }
