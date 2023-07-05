@@ -63,7 +63,11 @@ function handleQuery1() {
  */
 
 function resetQuery1() {
-  supplyFormRef.value.resetFields();
+  //supplyFormRef.value.resetFields();
+  queryParams1.nameKeywords = null;
+  queryParams1.addrKeywords = null;
+  queryParams1.adminKeywords = null;
+  queryParams1.telKeywords = null;
   queryParams1.pageNum = 1;
   handleQuery1();
 }
@@ -167,9 +171,9 @@ onMounted(() => {
 
 <template>
   <div class="app-container">
-    <el-row :gutter="20">
+    <el-row type="flex" justify="center">
       <!-- 搜索栏 -->
-      <el-col :lg="20" :xs="24">
+      <el-col>
         <div class="search-container">
           <el-form ref="queryFormRef1" :model="queryParams1" :inline="true">
             <el-form-item label="供应商名称" prop="nameKeywords">
@@ -227,13 +231,13 @@ onMounted(() => {
                   @click="openDialog1()"
                   ><i-ep-plus />新增</el-button
                 >
-                <el-button
-                  v-hasPerm="['sys:user:delete']"
-                  type="danger"
-                  :disabled="ids.length === 0"
-                  @click="handleDelete1()"
-                  ><i-ep-delete />删除</el-button
-                >
+                <!--                <el-button-->
+                <!--                  v-hasPerm="['sys:user:delete']"-->
+                <!--                  type="danger"-->
+                <!--                  :disabled="ids.length === 0"-->
+                <!--                  @click="handleDelete1()"-->
+                <!--                  ><i-ep-delete />删除</el-button-->
+                <!--                >-->
               </div>
             </div>
           </template>
@@ -245,7 +249,7 @@ onMounted(() => {
             :data="userList1"
             @selection-change="handleSelectionChange"
           >
-            <el-table-column type="selection" width="50" align="center" />
+            <!--            <el-table-column type="selection" width="50" align="center" />-->
             <el-table-column
               key="id"
               label="编号"

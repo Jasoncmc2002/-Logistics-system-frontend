@@ -1,63 +1,40 @@
 <script setup lang="ts">
-/**
- * setup ： 语法糖，可以省去子组件在父组件的components中注册的过程，直接import之后就可以使用
- * lang="ts" ： 表示此文件是TypeScript格式
- */
-
-/**
- * @see {@link https://vuejs.org/api/sfc-script-setup.html#defineoptions}
- */
-
-/**
- * defineOptions : 语法糖，定义本文件name
- */
-
 defineOptions({
-  name: "secondaryCategory",
+  name: "stationInOutQuery",
   inheritAttrs: false,
 });
 
 import {
-  insertSecondaryCategoryForm,
-  deleteSecondaryCategoryForm,
-  getSecondaryCategoryPage,
-  getSecondaryCategoryForm,
-  updateSecondaryCategoryForm,
-  getFirstCategoryPage,
-} from "@/api/category";
+  insertStationInOutForm,
+  deleteStationInOutForm,
+  getStationInOutPage,
+  getStationInOutForm,
+  updateStationInOutForm,
+} from "@/api/station";
 
 import {
-  SecondaryCategoryPageVO,
-  SecondaryCategoryForm,
-  SecondaryCategoryQuery,
-  StationForm,
-  CentralStationQuery,
-} from "@/api/category/types";
+  StationInOutPageVO,
+  StationInOutForm,
+  StationInOutQuery,
+} from "@/api/station/types";
 /**
  * 定义ElementUI组件
  */
 
-const SecondaryCategoryFormRef = ref(ElForm);
-/**
- * ref本质也是reactive，ref(obj)等价于reactive({value: obj}) : 用于定义响应式变量
- * 定义所需变量
- * loading : 反馈是否数据加载完成
+var stationInOutClassList = reactive<StationInOutForm>({});
+stationInOutClassList.value = [
+  {
+    id: 1,
+    name: "中心库房",
+  },
+  {
+    id: 2,
+    name: "分站库房",
+  },
+];
 
- * ids : ?
- * total : ?
- * dalog : ? 弹窗
- * queryParams : ?
- * userList : 对应用户表中的数据
- * formData : ?
- * rules : 用来规定表单中各个数据的要求
- * searchDept : ?
- * deptList : 存放dept
- * roleList ：存放role
- * importDialog : 导入用户时的弹窗
- * importDeptId : 导入选择的部门ID
- * excelFile : 用于存储一个Excel文件
- * excelFileList : 用于存储一堆Excel文件
- */
+const stationInOutFormRef = ref(ElForm);
+
 const loading = ref(false);
 const ids = ref([]);
 const total = ref(0);
@@ -65,55 +42,38 @@ const dialog = reactive<DialogOption>({
   visible: false,
 });
 
-const queryParams1 = reactive<SecondaryCategoryQuery>({
+const queryParams1 = reactive<StationInOutQuery>({
   pageNum: 1,
   pageSize: 10,
 });
-//全要查出来
-const queryParams2 = reactive<CentralStationQuery>({
-  pageNum: 1,
-  pageSize: 1000,
-});
-const userList1 = ref<SecondaryCategoryPageVO[]>();
+const userList1 = ref<StationInOutPageVO[]>();
 
-const formData1 = reactive<SecondaryCategoryForm>({});
-var firstCategoryList = reactive<StationForm>({});
+const formData1 = reactive<StationInOutForm>({});
 
 const rules = reactive({
-  sname: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
+  // fname: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
   // description: [{ required: true, message: "描述不能为空", trigger: "blur" }],
 });
 
 function handleQuery1() {
   loading.value = true;
-  getSecondaryCategoryPage(queryParams1)
+  getStationInOutPage(queryParams1)
     .then(({ data }) => {
       userList1.value = data.list;
       total.value = data.total;
-      handleQueryFirstCategory();
     })
-    .catch((err) => {
-      console.log(err);
-    })
-    .finally(() => {
-      loading.value = false;
-    });
-}
-function handleQueryFirstCategory() {
-  loading.value = true;
-  getFirstCategoryPage(queryParams2)
-    .then(({ data }) => {
-      firstCategoryList.value = data.list;
-    })
+
     .finally(() => {
       loading.value = false;
     });
 }
 
 function resetQuery1() {
-  // SecondaryCategoryFormRef.value.resetFields();
-  queryParams1.keywords = null;
-  queryParams1.fId = null;
+  // firstCategoryFormRef.value.resetFields();
+
+  queryParams1.nameKeyword = null;
+  queryParams1.addrKeyword = null;
+  queryParams1.stationInOutClass = null;
   queryParams1.pageNum = 1;
   handleQuery1();
 }
@@ -126,7 +86,7 @@ async function openDialog1(id?: number) {
   dialog.visible = true;
   if (id) {
     dialog.title = "修改";
-    getSecondaryCategoryForm(id).then(({ data }) => {
+    getStationInOutForm(id).then(({ data }) => {
       Object.assign(formData1, data);
     });
   } else {
@@ -140,18 +100,18 @@ function closeDialog1() {
 }
 
 function resetForm1() {
-  SecondaryCategoryFormRef.value.resetFields();
-  SecondaryCategoryFormRef.value.clearValidate();
+  stationInOutFormRef.value.resetFields();
+  stationInOutFormRef.value.clearValidate();
   formData1.id = undefined;
 }
 
 const handleSubmit1 = useThrottleFn(() => {
-  SecondaryCategoryFormRef.value.validate((valid: any) => {
+  stationInOutFormRef.value.validate((valid: any) => {
     if (valid) {
       const userId = formData1.id;
       loading.value = true;
       if (userId) {
-        updateSecondaryCategoryForm(formData1)
+        updateStationInOutForm(formData1)
           .then(() => {
             ElMessage.success("修改成功");
             closeDialog1();
@@ -159,7 +119,7 @@ const handleSubmit1 = useThrottleFn(() => {
           })
           .finally(() => (loading.value = false));
       } else {
-        insertSecondaryCategoryForm(formData1)
+        insertStationInOutForm(formData1)
           .then(() => {
             ElMessage.success("新增成功");
             closeDialog1();
@@ -186,7 +146,7 @@ function handleDelete1(id?: number) {
     cancelButtonText: "取消",
     type: "warning",
   }).then(function () {
-    deleteSecondaryCategoryForm(id)
+    deleteStationInOutForm(id)
       .then(() => {
         ElMessage.success("删除成功");
         resetQuery1();
@@ -202,35 +162,43 @@ onMounted(() => {
 
 <template>
   <div class="app-container">
-    <el-row>
+    <el-row type="flex" justify="center">
       <!-- 搜索栏 -->
-      <el-col :lg="24" :xs="24">
+      <el-col>
         <div class="search-container">
           <el-form ref="queryFormRef1" :model="queryParams1" :inline="true">
-            <el-form-item label="关键字" prop="keywords">
+            <el-form-item label="库房名称" prop="nameKeyword">
               <el-input
-                v-model="queryParams1.keywords"
-                placeholder="查询二级商品分类"
+                v-model="queryParams1.nameKeyword"
+                placeholder="库房名称"
                 clearable
                 style="width: 200px"
-                @keyup.enter="handleQuery1"
               />
             </el-form-item>
-            <el-form-item label="一级分类" prop="fid">
+            <el-form-item label="库房地址" prop="addrKeyword">
+              <el-input
+                v-model="queryParams1.addrKeyword"
+                placeholder="库房地址"
+                clearable
+                style="width: 200px"
+              />
+            </el-form-item>
+            <el-form-item label="库房级别" prop="stationInOutClass">
               <el-select
-                v-model="queryParams1.fId"
-                placeholder="请选择一级分类名"
+                v-model="queryParams1.stationClass"
+                placeholder="请选择库房级别"
                 clearable
               >
                 <el-option
-                  v-for="item in firstCategoryList.value"
+                  v-for="item in stationClassList.value"
                   :key="item.id"
-                  :label="item.fname"
+                  :label="item.name"
                   :value="item.id"
                 >
                 </el-option>
               </el-select>
             </el-form-item>
+
             <el-form-item>
               <el-button type="primary" @click="handleQuery1"
                 ><i-ep-search />搜索</el-button
@@ -271,7 +239,7 @@ onMounted(() => {
             :data="userList1"
             @selection-change="handleSelectionChange"
           >
-            <!--            <el-table-column type="selection" width="50" align="center" />-->
+            <!--						<el-table-column type="selection" width="50" align="center" />-->
             <el-table-column
               key="id"
               label="编号"
@@ -280,28 +248,32 @@ onMounted(() => {
               width="100"
             />
             <el-table-column
-              key="sname"
-              label="二级分类名"
+              key="name"
+              label="库房名"
               align="center"
-              prop="sname"
-              width="250"
-            />
-
-            <el-table-column
-              label="一级商品名称"
-              key="fname"
-              width="250"
-              align="center"
-              prop="fname"
+              prop="name"
             />
             <el-table-column
-              label="描述"
-              key="description"
-              width="250"
+              label="地址"
+              key="address"
+              width="120"
               align="center"
-              prop="description"
+              prop="address"
             />
-
+            <el-table-column
+              label="管理人"
+              key="admin"
+              width="120"
+              align="center"
+              prop="admin"
+            />
+            <el-table-column
+              label="库房级别"
+              key="stationClassName"
+              width="120"
+              align="center"
+              prop="stationClassName"
+            />
             <el-table-column label="操作" fixed="right" width="220">
               <template #default="scope">
                 <el-button
@@ -323,9 +295,6 @@ onMounted(() => {
               </template>
             </el-table-column>
           </el-table>
-
-          <!-- 表单结束位置 -->
-
           <pagination
             v-if="total > 0"
             v-model:total="total"
@@ -346,35 +315,41 @@ onMounted(() => {
       @close="closeDialog1"
     >
       <el-form
-        ref="SecondaryCategoryFormRef"
+        ref="stationInOutFormRef"
         :model="formData1"
         :rules="rules"
         label-width="80px"
       >
-        <el-form-item label="类别名" prop="sname">
-          <el-input v-model="formData1.sname" placeholder="请输入二级类别名" />
+        <el-form-item label="库房名" prop="name">
+          <el-input v-model="formData1.name" placeholder="请输入库房名" />
         </el-form-item>
-        <!--        <el-form-item label="一级商品id" prop="fid">-->
-        <!--          <el-input v-model="formData1.fid" placeholder="请输入一级类别ID" />-->
-        <!--        </el-form-item>-->
-        <el-form-item label="一级分类名称" prop="fid">
+        <el-form-item label="地址" prop="description">
+          <el-input v-model="formData1.address" placeholder="请输入地址" />
+        </el-form-item>
+        <el-form-item label="管理人" prop="admin">
+          <el-input v-model="formData1.admin" placeholder="请输入管理人" />
+        </el-form-item>
+        <el-form-item label="库房级别" prop="stationInOutClass">
           <el-select
-            v-model="formData1.fid"
-            placeholder="请选择一级分类名"
+            v-model="formData1.stationClass"
+            placeholder="请选择库房级别"
             clearable
           >
             <el-option
-              v-for="item in firstCategoryList.value"
+              v-for="item in stationClassList.value"
               :key="item.id"
-              :label="item.fname"
+              :label="item.name"
               :value="item.id"
             >
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="描述" prop="description">
-          <el-input v-model="formData1.description" placeholder="请输入描述" />
-        </el-form-item>
+        <!--		  <el-form-item label="级别" prop="grade">-->
+        <!--			  <el-input v-model="formData1.grade" placeholder="请输入级别" />-->
+        <!--		  </el-form-item>-->
+        <!--		  <el-form-item label="级别" prop="stationClass">-->
+        <!--			  <el-input v-model="formData1.stationClass" placeholder="请输入描述" />-->
+        <!--		  </el-form-item>-->
       </el-form>
       <template #footer>
         <div class="dialog-footer">
