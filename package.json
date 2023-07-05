@@ -78,7 +78,7 @@
     "eslint-plugin-vue": "^9.13.0",
     "fast-glob": "^3.2.11",
     "husky": "^8.0.3",
-    "lint-staged": "^13.2.2",
+    "lint-staged": "^13.2.3",
     "postcss": "^8.4.23",
     "postcss-html": "^1.5.0",
     "postcss-scss": "^4.0.6",
