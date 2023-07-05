@@ -1,22 +1,18 @@
 <script setup lang="ts">
-
 defineOptions({
   name: "supply",
   inheritAttrs: false,
 });
-
 
 import {
   insertSupplyForm,
   deleteSupplyForm,
   getSupplyPage,
   getSupplyForm,
-  updateSupplyForm
+  updateSupplyForm,
 } from "@/api/supply";
 
-
-import {SupplyPageVO,SupplyForm,SupplyQuery } from "@/api/supply/types";
-
+import { SupplyPageVO, SupplyForm, SupplyQuery } from "@/api/supply/types";
 
 const supplyFormRef = ref(ElForm);
 
@@ -27,16 +23,13 @@ const dialog = reactive<DialogOption>({
   visible: false,
 });
 
-
-
 const queryParams1 = reactive<SupplyQuery>({
   pageNum: 1,
   pageSize: 10,
 });
 const userList1 = ref<SupplyPageVO[]>();
 
-const formData1 = reactive<SupplyForm>({
-});
+const formData1 = reactive<SupplyForm>({});
 
 const rules = reactive({
   name: [{ required: true, message: "名字不能为空", trigger: "blur" }],
@@ -50,11 +43,7 @@ const rules = reactive({
   legalPerson: [{ required: true, message: "法人不能为空", trigger: "blur" }],
   remark: [{ required: true, message: "备注不能为空", trigger: "blur" }],
   // description: [{ required: true, message: "描述不能为空", trigger: "blur" }],
-
 });
-
-
-
 
 function handleQuery1() {
   loading.value = true;
@@ -73,9 +62,8 @@ function handleQuery1() {
  * 重置查询
  */
 
-
 function resetQuery1() {
- supplyFormRef.value.resetFields();
+  supplyFormRef.value.resetFields();
   queryParams1.pageNum = 1;
   handleQuery1();
 }
@@ -86,7 +74,6 @@ function resetQuery1() {
 function handleSelectionChange(selection: any) {
   ids.value = selection.map((item: any) => item.id);
 }
-
 
 /**
  * 打开用户弹窗
@@ -117,16 +104,14 @@ function closeDialog1() {
  * 重置表单
  */
 
-
 function resetForm1() {
- supplyFormRef.value.resetFields();
- supplyFormRef.value.clearValidate();
+  supplyFormRef.value.resetFields();
+  supplyFormRef.value.clearValidate();
   formData1.id = undefined;
 }
 
-
 const handleSubmit1 = useThrottleFn(() => {
- supplyFormRef.value.validate((valid: any) => {
+  supplyFormRef.value.validate((valid: any) => {
     if (valid) {
       const userId = formData1.id;
       loading.value = true;
@@ -139,7 +124,7 @@ const handleSubmit1 = useThrottleFn(() => {
           })
           .finally(() => (loading.value = false));
       } else {
-       insertSupplyForm(formData1)
+        insertSupplyForm(formData1)
           .then(() => {
             ElMessage.success("新增成功");
             closeDialog1();
@@ -166,15 +151,14 @@ function handleDelete1(id?: number) {
     cancelButtonText: "取消",
     type: "warning",
   }).then(function () {
-    deleteSupplyForm(id).then(() => {
-      ElMessage.success("删除成功");
-      resetQuery1();
-    })
-    .finally(() => (loading.value = false));
+    deleteSupplyForm(id)
+      .then(() => {
+        ElMessage.success("删除成功");
+        resetQuery1();
+      })
+      .finally(() => (loading.value = false));
   });
 }
-
-
 
 onMounted(() => {
   handleQuery1();
@@ -182,21 +166,18 @@ onMounted(() => {
 </script>
 
 <template>
-
   <div class="app-container">
     <el-row :gutter="20">
       <!-- 搜索栏 -->
       <el-col :lg="20" :xs="24">
         <div class="search-container">
           <el-form ref="queryFormRef1" :model="queryParams1" :inline="true">
-            
             <el-form-item label="供应商名称" prop="nameKeywords">
               <el-input
                 v-model="queryParams1.nameKeywords"
                 placeholder="输入供应商名称"
                 clearable
                 style="width: 200px"
-      
               />
             </el-form-item>
             <el-form-item label="地址" prop="addrKeywords">
@@ -205,7 +186,6 @@ onMounted(() => {
                 placeholder="输入地址"
                 clearable
                 style="width: 200px"
-          
               />
             </el-form-item>
             <el-form-item label="联系人" prop="adminKeywords">
@@ -214,7 +194,6 @@ onMounted(() => {
                 placeholder="输入联系人"
                 clearable
                 style="width: 200px"
-              
               />
             </el-form-item>
             <el-form-item label="电话号码" prop="telKeywords">
@@ -223,7 +202,6 @@ onMounted(() => {
                 placeholder="输入电话号码"
                 clearable
                 style="width: 200px"
-              
               />
             </el-form-item>
 
@@ -257,7 +235,6 @@ onMounted(() => {
                   ><i-ep-delete />删除</el-button
                 >
               </div>
-
             </div>
           </template>
 
@@ -346,7 +323,6 @@ onMounted(() => {
               prop="remark"
             />
 
-
             <el-table-column label="操作" fixed="right" width="220">
               <template #default="scope">
                 <el-button
@@ -367,16 +343,14 @@ onMounted(() => {
                 >
               </template>
             </el-table-column>
-
           </el-table>
-            <pagination
+          <pagination
             v-if="total > 0"
             v-model:total="total"
             v-model:page="queryParams1.pageNum"
             v-model:limit="queryParams1.pageSize"
             @pagination="handleQuery1"
           />
-
         </el-card>
       </el-col>
     </el-row>
@@ -411,7 +385,10 @@ onMounted(() => {
           <el-input v-model="formData1.bank" placeholder="开户银行" />
         </el-form-item>
         <el-form-item label="银行账号" prop="bankNumer">
-          <el-input v-model="formData1.bankNumer" placeholder="请输入银行账号" />
+          <el-input
+            v-model="formData1.bankNumer"
+            placeholder="请输入银行账号"
+          />
         </el-form-item>
         <el-form-item label="传真" prop="fax">
           <el-input v-model="formData1.fax" placeholder="请输入传真" />
@@ -425,8 +402,6 @@ onMounted(() => {
         <el-form-item label="备注" prop="remark">
           <el-input v-model="formData1.remark" placeholder="请输入备注" />
         </el-form-item>
-
-
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -435,7 +410,5 @@ onMounted(() => {
         </div>
       </template>
     </el-dialog>
-
   </div>
 </template>
-
