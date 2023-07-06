@@ -18,3 +18,14 @@ export function getTaskListByCriteria(
     data: queryParams,
   });
 }
+
+/**
+ * 按照id更改/添加任务单的配送人员
+ */
+export function updateTaskPostmanById(task: TaskPageVO): void {
+  request({
+    url: "/substation/task/updateTaskPostmanById",
+    method: "post",
+    data: task,
+  });
+}

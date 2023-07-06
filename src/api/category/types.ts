@@ -53,11 +53,9 @@ export interface CentralStationForm {
   isChange?: number;
   isChangeName?: string;
   remark?: string;
-  stationId?: number;
-  stationName?: string;
 }
 
-export interface StationQuery extends PageQuery {
+export interface FirstCategoryQuery extends PageQuery {
   keywords?: string;
   status?: number;
 }

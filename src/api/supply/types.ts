@@ -4,22 +4,22 @@ export interface SupplyPageVO {
 }
 
 export interface SupplyQuery extends PageQuery {
-  nameKeywords?: string;
-  addrKeywords?: string;
-  adminKeywords?: string;
-  telKeywords?: string;
-  status?: number;
+  nameKeywords?: string | null;
+  addrKeywords?: string | null;
+  adminKeywords?: string | null;
+  telKeywords?: string | null;
+  status?: number | null;
 }
-export interface SupplyForm{
-    id?:number;
-    name?:string;
-    address?:string;
-    adminName?:string;
-    phone?:string;
-    bank?:string;
-    bankNumer?:string;
-    fax?:string;
-    postcode?:string;
-    legalPerson?:string;
-    remark?:string;
-  }
+export interface SupplyForm {
+  id?: number;
+  name?: string;
+  address?: string;
+  adminName?: string;
+  phone?: string;
+  bank?: string;
+  bankNumer?: string;
+  fax?: string;
+  postcode?: string;
+  legalPerson?: string;
+  remark?: string;
+}
