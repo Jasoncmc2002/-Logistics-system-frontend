@@ -7,21 +7,40 @@ export interface OrderPageVO {
 }
 export interface GoodPageVO {
   
-  id:number;
+  goodPrice: string;
 
-  classId:number;
-  
-  keyId:number;
+  goodCost: string;
 
-  goodDate:string;
+  goodClassName: string;
 
-  goodClass:string;
+  goodSubClassName: string;
+
+  goodFactory:string;
+
+  goodSale:string;
+
+  goodUnit:string;
 
   goodSubclass:string;
 
   goodName:string;
 
   goodNumber:number;
+
+
+  classId: string;
+
+  goodDate: string;
+
+  remark:string;
+
+  type:string;
+
+  supplyName:string;
+  
+  isReturn:string;
+
+  isChange:string;
 
 
 
@@ -102,4 +121,49 @@ export interface GoodQuery1 extends PageQuery {
   goodSubclassId:string;
   keywords:string;
 
+}
+
+export interface Good {
+  goodPrice?: string;
+  goodCost?: string;
+  
+  goodSubclass?: string;
+  keyId?: string;
+  classId?: string;
+  remark?: string;
+  type?: string;
+  goodNumber?: string;
+  supply?: string;
+  sellDate?: string;
+  goodUnit?: string;
+  isReturn?: string;
+  goodFactory?: string;
+  goodClass?: string;
+  goodSale?: string;
+  isChange?: string;
+  goodName?: string;
+  username?: string;
+}
+
+export interface CreatOrder {
+  Orders: {
+    explain?: string;
+    orderType?: string;
+    customerAddress?: string;
+    orderStatus?: string;
+    postcode?: string;
+    remark?: string;
+    goodSum?: string;
+    goodStatus?: string;
+    orderDate?: string;
+    deliveryDate?: string;
+    substation?: string;
+    mobilephone?: string;
+    creater?: string;
+    customerName?: string;
+    receiveName?: string;
+    isInvoice?: string;
+    customerId?: string;
+  };
+  Goods: Good[];
 }

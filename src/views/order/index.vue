@@ -46,12 +46,6 @@ import { getCustomerPage,getCustomerForm ,addCustomer} from "@/api/customer";
 
 
 /**
- * 导入需要的dept与role相关的API
- */
-import { listDeptOptions } from "@/api/dept";
-import { listRoleOptions } from "@/api/role";
-
-/**
  * 导入API所需要的数据类型
  */
 import { UserForm, UserQuery, UserPageVO } from "@/api/user/types";
@@ -63,7 +57,11 @@ import { getGoodPage } from "@/api/order";
 
 import { CustomerQuery ,CustomerPageVO,CustomerForm} from "@/api/customer/types";
 
+import{getFirstCategoryPage,getSecondaryCategoryForm,getSecondaryCategoryPage,getFirstCategoryForm} from"@/api/category"
 
+import {CentralStationPageVO,CentralStationForm,CentralStationQuery } from "@/api/category/types";
+
+import {FirstCategoryPageVO,FirstCategoryForm,FirstCategoryQuery,SecondaryCategoryForm,SecondaryCategoryPageVO,SecondaryCategoryQuery } from "@/api/category/types";
 /**
  * 定义ElementUI组件
  */
@@ -118,6 +116,17 @@ const queryParams = reactive<UserQuery>({
   pageSize: 10,
 });
 
+
+const queryParams1 = reactive<CentralStationQuery>({
+  pageNum: 1,
+  pageSize: 10,
+});
+//全要查出来
+const queryParams2 = reactive<CentralStationQuery>({
+  pageNum: 1,
+  pageSize: 1000,
+});
+
 // new queryParams
 
 const queryParamsOrder = reactive<OrderQuery>({
@@ -160,6 +169,11 @@ const goodList = ref<GoodPageVO[]>();
 const goodList1 = ref<GoodPageVO[]>();
 const formData = reactive<UserForm>({
   status: 1,
+});
+import type { CreatOrder } from "@/api/order/types";
+const CreatOrderData=reactive<CreatOrder>({
+  Orders:{},
+  Goods:[]
 });
 
 // new formData
@@ -205,6 +219,7 @@ const rules = reactive({
 const searchDeptName = ref();
 const deptList = ref<OptionType[]>();
 const roleList = ref<OptionType[]>();
+
 const importDialog = reactive<DialogOption>({
   title: "用户导入",
   visible: false,
@@ -266,46 +281,10 @@ const SubstationOptions = [
     label: '分站5',
   },
 ];
-const GoodClassOptions=[ {
-    value: '1',
-    label: '分类1',
-  },
-  {
-    value: '2',
-    label: '分类2',
-  },
-  {
-    value: '3',
-    label: '分类3',
-  },
-  {
-    value: '4',
-    label: '分类4',
-  },
-  {
-    value: '5',
-    label: '分类5',
-  },]
-  const GoodSubClassOptions=[ {
-    value: '1',
-    label: '分类1',
-  },
-  {
-    value: '2',
-    label: '分类2',
-  },
-  {
-    value: '3',
-    label: '分类3',
-  },
-  {
-    value: '4',
-    label: '分类4',
-  },
-  {
-    value: '5',
-    label: '分类5',
-  },]
+
+
+  var firstCategoryList=reactive<FirstCategoryForm>({});
+var secondaryCategoryList=reactive<SecondaryCategoryForm>({});
 
 import { ref } from 'vue'
 import { number } from "echarts";
@@ -313,7 +292,7 @@ import { number } from "echarts";
 const active = ref(1);
 
 const next = () => {
-  if (active.value++ > 3) active.value = 1
+  if (active.value++ > 2) active.value = 1
 };
 
 const pre = () => {
@@ -321,7 +300,8 @@ const pre = () => {
 };
 
 const  num=ref(0);
-    
+
+
     
 
 
@@ -330,37 +310,6 @@ const  num=ref(0);
  * 满足filter中的value的内容会被保留，其它除去（返回一份新的数据，不影响原来数据）
  */
 
-
-
-/**
- * 获取角色下拉列表
- */
-async function getRoleOptions() {
-  listRoleOptions().then((response) => {
-    roleList.value = response.data;
-  });
-}
-
-/**
- * 修改用户状态
- */
-function handleStatusChange(row: { [key: string]: any }) {
-  const text = row.status === 1 ? "启用" : "停用";
-  ElMessageBox.confirm("确认要" + text + row.username + "用户吗?", "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
-  })
-    .then(() => {
-      return updateUserStatus(row.id, row.status);
-    })
-    .then(() => {
-      ElMessage.success(text + "成功");
-    })
-    .catch(() => {
-      row.status = row.status === 1 ? 0 : 1;
-    });
-}
 
 /**
  * 查询
@@ -432,10 +381,10 @@ function handleQueryGood() {
 
 function handleQueryGood1() {
   loading.value = true;
- getGoodPage1(queryParamsGood1)
+ getGoodPage1(queryParams1)
     .then(({ data }) => {
      
-      goodList1.value = data.list;
+      goodList.value = data.list;
     
      
       totalGood.value = data.total;
@@ -445,6 +394,72 @@ function handleQueryGood1() {
       loading.value = false;
     });
 }
+//将选中商品添加到数组中
+function AddtoGoodlist(row:any) {
+  loading.value = true;
+  queryParams1.goodClassId=row.goodClassId;
+   queryParams1.goodSubclassId=row.goodSubclassId;
+   queryParams1.keywords=row.goodName;
+   getGoodPage1(queryParams1)
+   .then(({data})=>{
+       goodList.value=data.list;
+       
+    CreatOrderData.Goods.push(
+     {  goodPrice:goodList.value[0].goodPrice,
+        goodClass:goodList.value[0].goodClassName,
+        goodName:goodList.value[0].goodName,
+        goodSubclass:goodList.value[0].goodSubClassName,
+        goodCost:goodList.value[0].goodCost,
+        goodFactory:goodList.value[0].goodFactory,
+
+        keyId:CreatOrderData.Orders.customerId,
+        goodNumber:row.goodNumber,
+        goodSale:goodList.value[0].goodSale,
+        goodUnit:goodList.value[0].goodUnit,
+        supply:goodList.value[0].supplyName,
+        remark:goodList.value[0].remark,
+        type:goodList.value[0].type,
+        isReturn:goodList.value[0].isReturn,
+        isChange:goodList.value[0].isChange,
+        //username:goodList.value[0].username,
+
+     });
+      
+
+   }).finally(()=>{
+    console.log("false");
+    console.log(CreatOrderData);
+       
+      loading.value = false;
+   });
+}
+
+
+
+function handleQuerySecondaryCategory() {
+  loading.value = true;
+  getSecondaryCategoryPage(queryParams2)
+    .then(({ data }) => {
+      secondaryCategoryList.value = data.list;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+function handleQueryFirstCategory() {
+  loading.value = true;
+  getFirstCategoryPage(queryParams2)
+    .then(({ data }) => {
+      firstCategoryList.value = data.list;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
+
+
 /**
  * 重置查询
  */
@@ -455,6 +470,7 @@ function resetQuery() {
   queryParamsCustomer.name= "";
   queryParamsCustomer.idcard = "";
   queryParamsCustomer.mobilephone = "";
+
 
   //handleQuery();
 }
@@ -472,34 +488,6 @@ function handleSelectionChangeOrder(selection: any) {
   idsOrder.value = selection.map((item: any) => item.id);
 }
 
-//
-
-
-/**
- * 重置密码
- */
-function resetPassword(row: { [key: string]: any }) {
-  ElMessageBox.prompt(
-    "请输入用户「" + row.username + "」的新密码",
-    "重置密码",
-    {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-    }
-  )
-    .then(({ value }) => {
-      if (!value) {
-        ElMessage.warning("请输入新密码");
-        return false;
-      }
-      updateUserPassword(row.id, value).then(() => {
-        ElMessage.success("密码重置成功，新密码是：" + value);
-      });
-    })
-    .catch(() => {});
-}
-
-
 /**
  * 显示订单商品信息
  */
@@ -516,17 +504,17 @@ function resetPassword(row: { [key: string]: any }) {
  * 打开用户弹窗
  */
 async function openDialog(userId?: number) {
-  //await getDeptOptions();
-  //await getRoleOptions();
+ 
   dialog.visible = true;
-  if (userId) {
-    dialog.title = "修改用户";
-    getUserForm(userId).then(({ data }) => {
-      Object.assign(formDataCustomer, data);
-    });
-  } else {
-    dialog.title = "新增用户";
-  }
+   formDataCustomer.address="";
+   formDataCustomer.addressphone="";
+   formDataCustomer.email="";
+   formDataCustomer.idcard="";
+   formDataCustomer.is_deleted="";
+   formDataCustomer.mobilephone="";
+   formDataCustomer.name="";
+   formDataCustomer.postcode="";
+   formDataCustomer.work="";
 }
 
 /**
@@ -546,20 +534,9 @@ async function openDialog(userId?: number) {
     });
   
 }
+function CreatOrder(){
+  
 
-// new openDialog
-async function openDialogOrder(orderId?: number) {
-  // await getDeptOptions();
-  // await getRoleOptions();
-  // dialog.visible = true;
-  // if (orderId) {
-  //   dialog.title = "修改订单";
-  //   getOrderForm(orderId).then(({ data }) => {
-  //     Object.assign(formData, data);
-  //   });
-  // } else {
-  //   dialog.title = "新增用户";
-  // }
 }
 
 /**
@@ -605,139 +582,14 @@ const handleSubmit = useThrottleFn(() => {
   });
 }, 3000);
 
-/**
- * 删除用户
- */
-function handleDelete(id?: number) {
-  const userIds = [id || ids.value].join(",");
-  if (!userIds) {
-    ElMessage.warning("请勾选删除项");
-    return;
-  }
-
-  ElMessageBox.confirm("确认删除用户?", "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
-  }).then(function () {
-    deleteUsers(userIds).then(() => {
-      ElMessage.success("删除成功");
-      resetQuery();
-    });
-  });
-}
-
-/**
- * 获取部门下拉项
- */
-async function getDeptOptions() {
-  listDeptOptions().then((response) => {
-    deptList.value = response.data;
-  });
-}
-
-/**
- * 下载导入模板
- */
-function downloadTemplate() {
-  downloadTemplateApi().then((response: any) => {
-    const blob = new Blob([response.data], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8",
-    });
-    const a = document.createElement("a");
-    const href = window.URL.createObjectURL(blob); // 下载链接
-    a.href = href;
-    a.download = decodeURI(
-      response.headers["content-disposition"].split(";")[1].split("=")[1]
-    ); // 获取后台设置的文件名称
-    document.body.appendChild(a);
-    a.click(); // 点击下载
-    document.body.removeChild(a); // 下载完成移除元素
-    window.URL.revokeObjectURL(href); // 释放掉blob对象
-  });
-}
-
-/**
- * 打开导入弹窗
- */
-async function openImportDialog() {
-  await getDeptOptions();
-  importDeptId.value = undefined;
-  importDialog.visible = true;
-}
-
-/**
- * Excel文件change事件
- *
- * @param file
- */
-function handleExcelChange(file: UploadFile) {
-  if (!/\.(xlsx|xls|XLSX|XLS)$/.test(file.name)) {
-    ElMessage.warning("上传Excel只能为xlsx、xls格式");
-    excelFile.value = undefined;
-    excelFilelist.value = [];
-    return false;
-  }
-  excelFile.value = file.raw;
-}
-
-/**
- * 导入用户提交
- */
-function handleUserImport() {
-  if (importDeptId.value) {
-    if (!excelFile.value) {
-      ElMessage.warning("上传Excel文件不能为空");
-      return false;
-    }
-    importUser(importDeptId.value, excelFile.value).then((response) => {
-      ElMessage.success(response.data);
-      closeImportDialog();
-      resetQuery();
-    });
-  }
-}
-
-/**
- * 关闭导入弹窗
- */
-function closeImportDialog() {
-  importDialog.visible = false;
-  excelFile.value = undefined;
-  excelFilelist.value = [];
-}
-
-/**
- * 导出用户
- */
-function handleUserExport() {
-  exportUser(queryParams).then((response: any) => {
-    const blob = new Blob([response.data], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8",
-    });
-    const a = document.createElement("a");
-    const href = window.URL.createObjectURL(blob); // 下载的链接
-    a.href = href;
-    a.download = decodeURI(
-      response.headers["content-disposition"].split(";")[1].split("=")[1]
-    ); // 获取后台设置的文件名称
-    document.body.appendChild(a);
-    a.click(); // 点击导出
-    document.body.removeChild(a); // 下载完成移除元素
-    window.URL.revokeObjectURL(href); // 释放掉blob对象
-  });
-}
-
-
-
 
 
 onMounted(() => {
-  getDeptOptions(); // 初始化部门
-  //handleQuery(); // 初始化用户列表数据
+  
   handleQueryOrder();
-  //handleQueryCustomer();
   handleQueryGood();
+  handleQuerySecondaryCategory();
+  handleQueryFirstCategory();
 });
 
 
@@ -784,7 +636,6 @@ onMounted(() => {
                 重置</el-button
               >
               <el-button
-                  v-hasPerm="['sys:user:add']"
                   type="success"
                   @click="openDialog()"
                   ><i-ep-plus />新增用户</el-button
@@ -860,22 +711,8 @@ onMounted(() => {
             <el-table-column label="操作" fixed="right" width="220">
               <template #default="scope">
                 
-                <el-button
-                  v-hasPerm="['sys:user:edit']"
-                  type="primary"
-                  link
-                  size="small"
-                  @click="openDialog(scope.row.id)"
-                  ><i-ep-edit />编辑</el-button
-                >
-                <el-button
-                  v-hasPerm="['sys:user:delete']"
-                  type="primary"
-                  link
-                  size="small"
-                  @click="handleDelete(scope.row.id)"
-                  ><i-ep-delete />删除</el-button
-                >
+                
+              
               <el-button 
                 type="primary" 
                 size="small"
@@ -912,8 +749,6 @@ onMounted(() => {
             
           >
           
-            <!-- 选中框行 -->
-            <el-table-column type="selection" width="50" align="center" />
           
             <!-- 具体数据 -->
             <el-table-column
@@ -921,7 +756,7 @@ onMounted(() => {
               label="编号"
               align="center"
               prop="id"
-              width="100"
+              width="80"
             />
            
             <el-table-column
@@ -932,7 +767,7 @@ onMounted(() => {
             />
             <el-table-column
               label="货物数量"
-              width="120"
+              width="100"
               align="center"
               prop="goodSum"
             />
@@ -1132,6 +967,7 @@ onMounted(() => {
       @close="closeDialog"
     >
     <!--记得写rules-->
+    
       <el-form
         ref="CustomerFormRef"
         :model="formDataCustomer"
@@ -1230,8 +1066,12 @@ onMounted(() => {
     <el-step title="第二步" />
     <el-step title="第三步" />
     <el-step title="第四步" />
-</el-steps>
-<div v-show="active == 1">
+    </el-steps>
+
+  <div
+    :model="CreatOrderData">
+  
+    <div v-show="active == 1">
   <el-card class="box-card">
     <template #header>
       <div class="card-header">
@@ -1240,14 +1080,15 @@ onMounted(() => {
       </div>
     </template>
    <!--row1-->
-
    <el-row >
         <el-col span="12">
           <el-form-item label="用户名" prop="customer_name">
           <el-input
+          
           v-model="formDataCustomer.name"
           :placeholder=formDataCustomer.name
           readonly="readonly"
+          
           />
         </el-form-item>
         </el-col>
@@ -1309,136 +1150,107 @@ onMounted(() => {
         </el-col>
       </el-row>
 
-    <!--row3-->  
+<!--row3-->  
 
-      <el-row>
-        <el-col span="8">
-          <el-form-item label="接收人" prop="receive_name">
-          <el-input
-            v-model="formDataCustomer.work"
-            
-          />
-        </el-form-item>
+<el-row>
+              <el-col span="12">
+                <el-form-item label="接收人姓名" prop="receiveName">
+                  <el-input v-model="CreatOrderData.Orders.receiveName" />
+                </el-form-item>
+              </el-col>
 
-        </el-col>
+              <el-col span="12">
+                <el-form-item label="接收人电话" prop="mobilephone">
+                  <el-input v-model="CreatOrderData.Orders.mobilephone" />
+                </el-form-item>
+              </el-col>
 
-        <el-col span="16">
-          <el-form-item label="接收人电话" prop="work">
-          <el-input
-            v-model="formDataCustomer.work"
-            
-          />
-        </el-form-item>
+            </el-row>
 
-        </el-col>
+            <!--row4-->
 
-        <el-col span="12">
-          <el-form-item label="订单生成日期" prop="order_date">
-            <el-date-picker
-        v-model="formDataOrder.order_date"
-        type="datetime"
-        placeholder="Select date and time"
-      />
-        </el-form-item>
+            <el-row>
+              <el-col span="8">
+                <el-form-item label="订单类型" prop="order_type">
+                  <el-select
+                    v-model="CreatOrderData.Orders.orderType"
+                    class="m-2"
+                    placeholder="订单类型"
+                  >
+                    <el-option
+                      v-for="item in OrderOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                </el-form-item>
+              </el-col>
 
-        </el-col>
-        
-       </el-row>
-        
-    <!--row4-->
+              <el-col span="8">
+                <el-form-item label="投递分站" prop="substation">
+                  <el-select
+                    v-model="CreatOrderData.Orders.substation"
+                    class="m-2"
+                    placeholder="选择分站"
+                  >
+                    <el-option
+                      v-for="item in SubstationOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                </el-form-item>
+              </el-col>
 
-      <el-row>
-        <el-col span="8">
-          <el-form-item label="订单类型" prop="order_type" >
-            <el-select v-model="formDataOrder.order_type" class="m-2" placeholder="订单类型" >
-    <el-option
-      v-for="item in OrderOptions"
-      :key="item.value"
-      :label="item.label"
-      :value="item.value"
-    />
-  </el-select>
-        </el-form-item>
-
-        </el-col>
-
-        <el-col span="8">
-          <el-form-item label="投递分站" prop="substation">
-            <el-select v-model="formDataOrder" class="m-2" placeholder="选择分站" >
-    <el-option
-      v-for="item in SubstationOptions"
-      :key="item.value"
-      :label="item.label"
-      :value="item.value"
-    />
-  </el-select>
-        </el-form-item>
-
-        </el-col>
-
-        <el-col span="12">
-          <el-form-item label="要求完成日期" prop="delivery_date">
-            
-            <el-date-picker
-        v-model="formDataOrder.order_date"
-        type="datetime"
-        placeholder="Select date and time"
-      />
-        </el-form-item>
-
-        </el-col>
-        
-       </el-row>
+              <el-col span="12">
+                <el-form-item label="要求完成日期" prop="delivery_date">
+                  <el-date-picker
+                    v-model="CreatOrderData.Orders.deliveryDate"
+                    type="datetime"
+                    placeholder="Select date and time"
+                  />
+                </el-form-item>
+              </el-col>
+            </el-row>
 
     <!--row 5-->
 
-      <el-row>
-        <el-col span="12">
-          <el-form-item label="是否索要发票" prop="work">
-            <el-radio-group v-model="formDataOrder.is_invoice" class="ml-4">
-      <el-radio label="1" size="large">是</el-radio>
-      <el-radio label="2" size="large">否</el-radio>
-    </el-radio-group>
-        </el-form-item>
+            <el-row>
+              <el-col span="12">
+                <el-form-item label="是否索要发票" prop="work">
+                  <el-radio-group
+                    v-model="CreatOrderData.Orders.isInvoice"
+                    class="ml-4"
+                  >
+                    <el-radio label="1" size="large">是</el-radio>
+                    <el-radio label="2" size="large">否</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
 
-        </el-col>
-        
+              <el-col span="12">
+                <el-form-item label="送货地址" prop="work">
+                  <el-input v-model="CreatOrderData.Orders.customerAddress" />
+                </el-form-item>
+              </el-col>
 
-        <el-col span="12">
-          <el-form-item label="送货地址" prop="work">
-          <el-input
-            v-model="formDataOrder.customer_address"
-            
-          />
-        </el-form-item>
+              <el-col span="12">
+                <el-form-item label="收件人邮编" prop="work">
+                  <el-input v-model="CreatOrderData.Orders.postcode" />
+                </el-form-item>
+              </el-col>
+            </el-row>
 
-        </el-col>
-
-        <el-col span="12">
-          <el-form-item label="收件人邮编" prop="work">
-          <el-input
-            v-model="formDataOrder.postcode"
-            
-          />
-        </el-form-item>
-
-        </el-col>
-
-       </el-row>
-
-    <!--row 6-->
-      <el-row>
-        <el-col span="12">
-          <el-form-item label="备注信息" prop="explain">
-            <el-input
-            v-model="formDataCustomer.work"
-            
-          />
-        </el-form-item>
-
-        </el-col>
-
-       </el-row>
+            <!--row 6-->
+            <el-row>
+              <el-col span="12">
+                <el-form-item label="备注信息" prop="explain">
+                  <el-input v-model="CreatOrderData.Orders.explain" />
+                </el-form-item>
+              </el-col>
+            </el-row>
 
     
 
@@ -1446,39 +1258,30 @@ onMounted(() => {
 </div>
 
 
-      <el-form
-        ref="CustomerFormRef"
-        :model="formDataCustomer"
-        
-        :rules="rules"
-        label-width="110px"
-      >
-
- 
 <!--下一步-->
 
        <div v-show="active >= 2">
 
-        <el-form ref="CustomerFormRef" :model="queryParamsCustomer" :inline="true">
+        <el-form ref="CustomerFormRef" :model="queryParams1" :inline="true">
             <el-form-item label="商品搜索" prop="keywords">
-              <el-select v-model="queryParamsGood1.goodClassId" class="m-2" placeholder="一级分类" >
+              <el-select v-model="queryParams1.goodClassId" class="m-2" placeholder="一级分类" >
                     <el-option
-                      v-for="item in GoodClassOptions"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"/>
+                      v-for="item in firstCategoryList.value"
+                      :key="item.id"
+                      :label="item.fname"
+                      :value="item.id"/>
                 </el-select>
 
-                <el-select v-model="queryParamsGood1.goodSubclassId" class="m-2" placeholder="二级分类" >
+                <el-select v-model="queryParams1.goodSubclassId" class="m-2" placeholder="二级分类" >
                     <el-option
-                      v-for="item in GoodSubClassOptions"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value"/>
+                      v-for="item in secondaryCategoryList.value"
+                      :key="item.id"
+                      :label="item.sname"
+                      :value="item.id"/>
                 </el-select>
               
               <el-input
-                v-model="queryParamsGood1.keywords"
+                v-model="queryParams1.keywords"
                 placeholder="商品名"
                 clearable
                 style="width: 200px"
@@ -1491,15 +1294,17 @@ onMounted(() => {
             </el-form-item>
 
           </el-form>
+
           <el-table
             v-loading="loading"
-            :data="goodList1"
+            :data="goodList"
             @selection-change="handleSelectionChangeOrder"
           >
             <!-- 选中框行 -->
             <!-- <el-table-column type="selection" width="50" align="center" /> -->
 
             <!-- 具体数据 -->
+            
             <el-table-column
               key="id"
               label="编号"
@@ -1527,13 +1332,17 @@ onMounted(() => {
               width="150"
               
             />
+            
             <el-table-column
               label="商品数量"
               align="center"
               prop="goodNumber"
-              width="100"
+              width="150"
               
-            />
+            ><el-input-number v-model="num" size="small" :min="0" :max="10" label="描述文字"></el-input-number></el-table-column>
+
+            
+
             <el-table-column 
               label="商品价格"
               align="center"
@@ -1552,20 +1361,14 @@ onMounted(() => {
           
             <el-table-column label="操作" fixed="right" width="150">
               <template #default="scope">
-                <el-input-number v-model="num" size="small" :min="0" :max="10" label="描述文字"></el-input-number>
                 
-
+                <el-button type="primary" @click="AddtoGoodlist(scope.row)"
+                >添加</el-button>
+              
               </template>
 
             </el-table-column>
 
-            <el-table-column  fixed="right" width="100">
-              
-                <el-button type="primary" @click="handleQueryGood1"
-                >添加</el-button>
-              
-
-            </el-table-column>
             
 
           </el-table>
@@ -1640,19 +1443,30 @@ onMounted(() => {
           />
 	
 </div>
+  </div>
+
 
         
-      </el-form>
 
 
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button v-if="active < 4" style="margin-top: 12px" @click="next">下一步</el-button>
-          <el-button v-if="active > 1" style="margin-top: 12px" @click="pre">上一步</el-button>
-
-          <el-button type="primary" @click="handleSubmit">确 定</el-button>
-          <el-button @click="closeCreateOrderDialog">取 消</el-button>
+          <el-row >
+            
+            <el-button v-if="active < 2" style="margin-top: 12px" @click="next"
+                >下一步</el-button
+              >
+            <el-button v-if="active > 1" style="margin-top: 12px" @click="pre"
+                >上一步</el-button
+              >
+            <el-button style="margin-top: 12px" @click="closeCreateOrderDialog">取 消</el-button>
+                
+                
+            <el-button type="primary"  v-show="active >= 2"  style="margin-top: 12px;"  @click="CreatOrder">创建订单</el-button>
+                
+              
+          </el-row>
         </div>
       </template>
     </el-dialog>
