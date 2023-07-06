@@ -6,7 +6,7 @@ export interface PostmanForm {
   /**
    * 配送人员名称
    */
-  postmanName?: string;
+  postmanName: string;
   /**
    * 配送人员电话号
    */

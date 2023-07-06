@@ -12,10 +12,6 @@
  * defineOptions : 语法糖，定义本文件name
  */
 
-
-
-import {moneyPageVO} from "@/api/financial/station/types";
-
 defineOptions({
   name: "User",
   inheritAttrs: false,
@@ -25,17 +21,16 @@ defineOptions({
  * 导入UI
  */
 import { UploadFile } from "element-plus";
-import {getMoney} from "@/api/financial/station";
-import {getSupplyMoney, pay} from "@/api/financial/supply";
-import {supplyPageVO, SupplyQuery} from "@/api/financial/supply/types";
+import { getSupplyMoney, pay } from "@/api/financial/supply";
+import { supplyPageVO, SupplyQuery } from "@/api/financial/supply/types";
 import {
-	Check,
-	Delete,
-	Edit,
-	Message,
-	Search,
-	Star,
-} from '@element-plus/icons-vue'
+  Check,
+  Delete,
+  Edit,
+  Message,
+  Search,
+  Star,
+} from "@element-plus/icons-vue";
 
 /**
  * 定义ElementUI组件
@@ -74,52 +69,52 @@ const dialog = reactive<DialogOption>({
 });
 
 const queryParams = reactive<SupplyQuery>({
-	supplyName: "红牛供应商",
+  supplyName: "红牛供应商",
   pageNum: 1,
   pageSize: 10,
-	endTime : new Date(2023, 10, 10, 10, 10),
-	startTime : new Date(2021, 10, 11, 10, 10),
-	buyType: "全部",
+  endTime: new Date(2023, 10, 10, 10, 10),
+  startTime: new Date(2021, 10, 11, 10, 10),
+  buyType: "全部",
 });
 
 //日期选择器
 const shortcuts = [
-	{
-		text: 'Today',
-		value: new Date(),
-	},
-	{
-		text: 'Yesterday',
-		value: () => {
-			const date = new Date()
-			date.setTime(date.getTime() - 3600 * 1000 * 24)
-			return date
-		},
-	},
-	{
-		text: 'A week ago',
-		value: () => {
-			const date = new Date()
-			date.setTime(date.getTime() - 3600 * 1000 * 24 * 7)
-			return date
-		},
-	},
-]
+  {
+    text: "Today",
+    value: new Date(),
+  },
+  {
+    text: "Yesterday",
+    value: () => {
+      const date = new Date();
+      date.setTime(date.getTime() - 3600 * 1000 * 24);
+      return date;
+    },
+  },
+  {
+    text: "A week ago",
+    value: () => {
+      const date = new Date();
+      date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+      return date;
+    },
+  },
+];
 //支付状态选择器
 const options = [
-	{
-		value: '全部',
-		label: '全部',
-	},
-	{
-		value: '已支付',
-		label: '已支付',
-	},
-	{
-		value: '未支付',
-		label: '未支付',
-	},
-]
+  {
+    value: "全部",
+    label: "全部",
+  },
+  {
+    value: "已支付",
+    label: "已支付",
+  },
+  {
+    value: "未支付",
+    label: "未支付",
+  },
+];
 const deptList = ref<OptionType[]>();
 const roleList = ref<OptionType[]>();
 const supplyMoneyList = ref<supplyPageVO[]>();
@@ -129,12 +124,12 @@ const supplyMoneyList = ref<supplyPageVO[]>();
  */
 function handleQuery() {
   loading.value = true;
-	getSupplyMoney(queryParams)
+  getSupplyMoney(queryParams)
     .then(({ data }) => {
-			console.warn(data);
-			supplyMoneyList.value = data.pageInfo.list;
+      console.warn(data);
+      supplyMoneyList.value = data.pageInfo.list;
       total.value = data.pageInfo.total;
-			sumMoney.value=data.sumMoney;
+      sumMoney.value = data.sumMoney;
     })
     .finally(() => {
       loading.value = false;
@@ -161,27 +156,30 @@ function handleSelectionChange(selection: any) {
  * 支付金额
  */
 function Alipay(row: { [key: string]: any }) {
-	ElMessageBox.confirm(
-			'将跳转到支付宝支付，请确认本次支付',
-			'确认支付',
-			{
-				confirmButtonText: '确认',
-				cancelButtonText: '取消',
-				type: 'info',
-			}
-	)
-	.then(() => {
-		window.open("http://localhost:8088/financial/alipay/pay?subject=" +row.goodName + "&traceNo="+ "aasss"+"_"+row.id + "&totalAmount=" + row.goodSettleMoney)
-		})
-	.catch(() => {
-		ElMessage({
-			type: 'info',
-			message: '支付关闭',
-		})
-	})
+  ElMessageBox.confirm("将跳转到支付宝支付，请确认本次支付", "确认支付", {
+    confirmButtonText: "确认",
+    cancelButtonText: "取消",
+    type: "info",
+  })
+    .then(() => {
+      window.open(
+        "http://localhost:8088/financial/alipay/pay?subject=" +
+          row.goodName +
+          "&traceNo=" +
+          "aasss" +
+          "_" +
+          row.id +
+          "&totalAmount=" +
+          row.goodSettleMoney
+      );
+    })
+    .catch(() => {
+      ElMessage({
+        type: "info",
+        message: "支付关闭",
+      });
+    });
 }
-
-
 
 /**
  * 重置表单
@@ -191,13 +189,9 @@ function resetForm() {
   userFormRef.value.clearValidate();
 }
 
-
 onMounted(() => {
   handleQuery(); // 初始化用户列表数据
 });
-
-
-
 </script>
 
 <template>
@@ -207,7 +201,7 @@ onMounted(() => {
       <el-col :lg="20" :xs="24">
         <div class="search-container">
           <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="供应商名称" >
+            <el-form-item label="供应商名称">
               <el-input
                 v-model="queryParams.supplyName"
                 placeholder="中山分站"
@@ -216,30 +210,34 @@ onMounted(() => {
                 @keyup.enter="handleQuery"
               />
             </el-form-item>
-						<el-form-item label="选择时间段" >
-							<el-date-picker
-									v-model="queryParams.startTime"
-									type="datetime"
-									placeholder="开始时间"
-									:shortcuts="shortcuts"
-							/>
-							<el-date-picker
-									v-model="queryParams.endTime"
-									type="datetime"
-									placeholder="结束时间"
-									:shortcuts="shortcuts"
-							/>
-						</el-form-item>
-						<el-form-item label="选择支付状态" >
-						<el-select v-model="queryParams.buyType" class="m-2" placeholder="Select">
-							<el-option
-									v-for="item in options"
-									:key="item.value"
-									:label="item.label"
-									:value="item.value"
-							/>
-						</el-select>
-						</el-form-item>
+            <el-form-item label="选择时间段">
+              <el-date-picker
+                v-model="queryParams.startTime"
+                type="datetime"
+                placeholder="开始时间"
+                :shortcuts="shortcuts"
+              />
+              <el-date-picker
+                v-model="queryParams.endTime"
+                type="datetime"
+                placeholder="结束时间"
+                :shortcuts="shortcuts"
+              />
+            </el-form-item>
+            <el-form-item label="选择支付状态">
+              <el-select
+                v-model="queryParams.buyType"
+                class="m-2"
+                placeholder="Select"
+              >
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="handleQuery"
                 ><i-ep-search />搜索</el-button
@@ -253,13 +251,14 @@ onMounted(() => {
         </div>
 
         <el-card shadow="never">
-
           <!-- 表单开始位置 -->
 
           <el-table
             v-loading="loading"
             :data="supplyMoneyList"
-            @selection-change="handleSelectionChange">				<!-- 应该是导出用的-->
+            @selection-change="handleSelectionChange"
+          >
+            <!-- 应该是导出用的-->
             <el-table-column type="selection" width="50" align="center" />
             <el-table-column
               key="id"
@@ -269,7 +268,7 @@ onMounted(() => {
               width="100"
             />
             <el-table-column
-								key="goodName"
+              key="goodName"
               label="商品名称"
               align="center"
               prop="goodName"
@@ -300,35 +299,36 @@ onMounted(() => {
               prop="goodReturnNumber"
               width="120"
             />
-						<el-table-column
-								label="结算数量"
-								align="center"
-								prop="goodSettleNumber"
-								width="120"
-						/>
-						<el-table-column
-								key="goodSettleMoney"
-								label="结算额"
-								align="center"
-								prop="goodSettleMoney"
-								width="120"
-						/>
-						<el-table-column
-								key="goodType"
-								label="支付状态"
-								align="center"
-								prop="goodType"
-								width="120"
-						/>
+            <el-table-column
+              label="结算数量"
+              align="center"
+              prop="goodSettleNumber"
+              width="120"
+            />
+            <el-table-column
+              key="goodSettleMoney"
+              label="结算额"
+              align="center"
+              prop="goodSettleMoney"
+              width="120"
+            />
+            <el-table-column
+              key="goodType"
+              label="支付状态"
+              align="center"
+              prop="goodType"
+              width="120"
+            />
             <el-table-column label="操作" fixed="right" width="220">
               <template #default="scope">
                 <el-button
                   type="primary"
                   size="small"
                   @click="Alipay(scope.row)"
-									:icon="Check"
-									:disabled="scope.row.goodType=='已支付'"
-                  >支付</el-button>
+                  :icon="Check"
+                  :disabled="scope.row.goodType == '已支付'"
+                  >支付</el-button
+                >
               </template>
             </el-table-column>
           </el-table>

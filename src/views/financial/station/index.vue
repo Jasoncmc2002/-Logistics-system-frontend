@@ -12,9 +12,7 @@
  * defineOptions : 语法糖，定义本文件name
  */
 
-
-
-import {stationPageVO, StationQuery} from "@/api/financial/station/types";
+import { stationPageVO, StationQuery } from "@/api/financial/station/types";
 
 defineOptions({
   name: "User",
@@ -25,8 +23,7 @@ defineOptions({
  * 导入UI
  */
 
-import { getStationMoney} from "@/api/financial/station";
-
+import { getStationMoney } from "@/api/financial/station";
 
 /**
  * 定义ElementUI组件
@@ -60,38 +57,37 @@ const loading = ref(false);
 const ids = ref([]);
 const total = ref(0);
 
-
 const queryParams = reactive<StationQuery>({
   pageNum: 1,
   pageSize: 10,
-	endTime : new Date(2023, 10, 10, 10, 10),
-	startTime : new Date(2021, 10, 11, 10, 10),
-	station: "中山分站"
+  endTime: new Date(2023, 10, 10, 10, 10),
+  startTime: new Date(2021, 10, 11, 10, 10),
+  station: "中山分站",
 });
 
 //日期选择器
 const shortcuts = [
-	{
-		text: 'Today',
-		value: new Date(),
-	},
-	{
-		text: 'Yesterday',
-		value: () => {
-			const date = new Date()
-			date.setTime(date.getTime() - 3600 * 1000 * 24)
-			return date
-		},
-	},
-	{
-		text: 'A week ago',
-		value: () => {
-			const date = new Date()
-			date.setTime(date.getTime() - 3600 * 1000 * 24 * 7)
-			return date
-		},
-	},
-]
+  {
+    text: "Today",
+    value: new Date(),
+  },
+  {
+    text: "Yesterday",
+    value: () => {
+      const date = new Date();
+      date.setTime(date.getTime() - 3600 * 1000 * 24);
+      return date;
+    },
+  },
+  {
+    text: "A week ago",
+    value: () => {
+      const date = new Date();
+      date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+      return date;
+    },
+  },
+];
 
 const moneyList = ref<stationPageVO[]>();
 const sumMoney = ref(0);
@@ -103,13 +99,13 @@ const returnMoney = ref(0);
  */
 function handleQuery() {
   loading.value = true;
-	getStationMoney(queryParams)
+  getStationMoney(queryParams)
     .then(({ data }) => {
-			moneyList.value = data.pageInfo.list;
-			total.value = data.pageInfo.total;
-			sumMoney.value=data.sumMoney;
-			getMoney.value=data.getMoney;
-			returnMoney.value=data.returnMoney;
+      moneyList.value = data.pageInfo.list;
+      total.value = data.pageInfo.total;
+      sumMoney.value = data.sumMoney;
+      getMoney.value = data.getMoney;
+      returnMoney.value = data.returnMoney;
     })
     .finally(() => {
       loading.value = false;
@@ -125,7 +121,6 @@ function resetQuery() {
   queryParams.deptId = undefined;
   handleQuery();
 }
-
 
 /**
  * 重置表单
@@ -144,24 +139,22 @@ onMounted(() => {
 });
 
 //上传图片
-import { genFileId } from 'element-plus'
-import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus'
-import {consoleLog} from "echarts/types/src/util/log";
+import { genFileId } from "element-plus";
+import type { UploadInstance, UploadProps, UploadRawFile } from "element-plus";
 
-const upload = ref<UploadInstance>()
+const upload = ref<UploadInstance>();
 
-const handleExceed: UploadProps['onExceed'] = (files) => {
-	upload.value!.clearFiles()
-	const file = files[0] as UploadRawFile
-	file.uid = genFileId()
-	upload.value!.handleStart(file)
-}
+const handleExceed: UploadProps["onExceed"] = (files) => {
+  upload.value!.clearFiles();
+  const file = files[0] as UploadRawFile;
+  file.uid = genFileId();
+  upload.value!.handleStart(file);
+};
 
 const submitUpload = () => {
-	upload.value.submit()
-	console.warn(upload.value);
-}
-
+  upload.value.submit();
+  console.warn(upload.value);
+};
 </script>
 
 <template>
@@ -171,7 +164,7 @@ const submitUpload = () => {
       <el-col :lg="20" :xs="24">
         <div class="search-container">
           <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="分站名称" >
+            <el-form-item label="分站名称">
               <el-input
                 v-model="queryParams.station"
                 placeholder="中山分站"
@@ -181,22 +174,22 @@ const submitUpload = () => {
               />
             </el-form-item>
 
-						<el-form-item label="选择时间段" >
-							<el-date-picker
-									v-model="queryParams.startTime"
-									type="datetime"
-									placeholder="开始时间"
-									:shortcuts="shortcuts"
-							/>
-							<el-date-picker
-									v-model="queryParams.endTime"
-									type="datetime"
-									placeholder="结束时间"
-									:shortcuts="shortcuts"
-							/>
-						</el-form-item>
+            <el-form-item label="选择时间段">
+              <el-date-picker
+                v-model="queryParams.startTime"
+                type="datetime"
+                placeholder="开始时间"
+                :shortcuts="shortcuts"
+              />
+              <el-date-picker
+                v-model="queryParams.endTime"
+                type="datetime"
+                placeholder="结束时间"
+                :shortcuts="shortcuts"
+              />
+            </el-form-item>
 
-						<el-form-item>
+            <el-form-item>
               <el-button type="primary" @click="handleQuery"
                 ><i-ep-search />搜索</el-button
               >
@@ -205,30 +198,30 @@ const submitUpload = () => {
                 重置</el-button
               >
             </el-form-item>
-						<el-form-item>
-							<el-upload
-									ref="upload"
-									class="upload-demo"
-									action="/dev-api/financial/goodAili"
-									:headers="false"
-									:limit="1"
-									method="post"
-									:on-exceed="handleExceed"
-									:auto-upload="false"
-							>
-								<template #trigger>
-									<el-button type="primary">智能商品识别</el-button>
-								</template>
-								<el-button class="ml-3" type="success" @click="submitUpload">
-									upload to server
-								</el-button>
-								<template #tip>
-									<div class="el-upload__tip text-red">
-										limit 1 file, new file will cover the old file
-									</div>
-								</template>
-							</el-upload>
-						</el-form-item>
+            <el-form-item>
+              <el-upload
+                ref="upload"
+                class="upload-demo"
+                action="/dev-api/financial/goodAili"
+                :headers="false"
+                :limit="1"
+                method="post"
+                :on-exceed="handleExceed"
+                :auto-upload="false"
+              >
+                <template #trigger>
+                  <el-button type="primary">智能商品识别</el-button>
+                </template>
+                <el-button class="ml-3" type="success" @click="submitUpload">
+                  upload to server
+                </el-button>
+                <template #tip>
+                  <div class="el-upload__tip text-red">
+                    limit 1 file, new file will cover the old file
+                  </div>
+                </template>
+              </el-upload>
+            </el-form-item>
           </el-form>
         </div>
 
@@ -238,7 +231,9 @@ const submitUpload = () => {
           <el-table
             v-loading="loading"
             :data="moneyList"
-            @selection-change="handleSelectionChange">				<!-- 应该是导出用的-->
+            @selection-change="handleSelectionChange"
+          >
+            <!-- 应该是导出用的-->
             <el-table-column type="selection" width="50" align="center" />
             <el-table-column
               key="id"
@@ -247,11 +242,7 @@ const submitUpload = () => {
               prop="id"
               width="100"
             />
-            <el-table-column
-              label="商品类别"
-              align="center"
-              prop="goodClass"
-            />
+            <el-table-column label="商品类别" align="center" prop="goodClass" />
             <el-table-column
               label="商品名称"
               width="120"
@@ -278,25 +269,25 @@ const submitUpload = () => {
               prop="goodReturnNumber"
               width="120"
             />
-						<el-table-column
-								label="退款额"
-								align="center"
-								prop="goodReturnMoney"
-								width="120"
-						/>
+            <el-table-column
+              label="退款额"
+              align="center"
+              prop="goodReturnMoney"
+              width="120"
+            />
 
-<!--            <el-table-column label="操作" fixed="right" width="220">-->
-<!--              <template #default="scope">-->
-<!--                <el-button-->
-<!--                  v-hasPerm="['sys:user:reset_pwd']"-->
-<!--                  type="primary"-->
-<!--                  size="small"-->
-<!--                  link-->
-<!--                  @click="resetPassword(scope.row)"-->
-<!--                  ><i-ep-refresh-left />支付</el-button-->
-<!--                >-->
-<!--              </template>-->
-<!--            </el-table-column>-->
+            <!--            <el-table-column label="操作" fixed="right" width="220">-->
+            <!--              <template #default="scope">-->
+            <!--                <el-button-->
+            <!--                  v-hasPerm="['sys:user:reset_pwd']"-->
+            <!--                  type="primary"-->
+            <!--                  size="small"-->
+            <!--                  link-->
+            <!--                  @click="resetPassword(scope.row)"-->
+            <!--                  ><i-ep-refresh-left />支付</el-button-->
+            <!--                >-->
+            <!--              </template>-->
+            <!--            </el-table-column>-->
           </el-table>
 
           <!-- 表单结束位置 -->
