@@ -15,10 +15,9 @@
 //TODO: inheritAttrs是干嘛的？
 
 import {
-  invoice,
   invoicePageVO,
   invoiceQuery,
-} from "@/api/financial/invoice/types";
+} from "@/api/financial/invoiceSearch/types";
 
 /**
  * 导入UI
@@ -33,7 +32,7 @@ import {
   Search,
   Star,
 } from "@element-plus/icons-vue";
-import { addInvoice, getInvoice } from "@/api/financial/invoice";
+import { getInvoice } from "@/api/financial/invoiceSearch";
 
 /**
  * 定义ElementUI组件
@@ -65,25 +64,14 @@ const userFormRef = ref(ElForm); // 用户表单
  */
 const loading = ref(false);
 const total = ref(0);
-const dialogFormVisible = ref(false);
-const dialog = reactive<DialogOption>({
-  visible: false,
-});
-const form = reactive<invoice>({
-  invoiceClass: "",
-  startNumber: 1,
-  endNumber: 100000,
-  batch: "",
-  name: "",
-});
+
 const queryParams = reactive<invoiceQuery>({
   pageNum: 1,
   pageSize: 10,
   endTime: new Date(2023, 10, 10, 10, 10),
   startTime: new Date(2021, 10, 11, 10, 10),
-  invoiceClass: "",
-  invoiceStartNumber: 1,
-  invoiceEndNumber: 100000,
+  invoiceNumber: "",
+  username: "",
 });
 
 //日期选择器
@@ -110,51 +98,6 @@ const shortcuts = [
   },
 ];
 //发票状态选择器
-const options = [
-  {
-    value: "",
-    label: "全部",
-  },
-  {
-    value: "登记",
-    label: "登记",
-  },
-  {
-    value: "领用",
-    label: "领用",
-  },
-  {
-    value: "退回",
-    label: "退回",
-  },
-  {
-    value: "作废",
-    label: "作废",
-  },
-  {
-    value: "作废",
-    label: "作废/丢失",
-  },
-];
-//发票状态选择器1
-const options1 = [
-  {
-    value: "登记",
-    label: "登记",
-  },
-  {
-    value: "领用",
-    label: "领用",
-  },
-  {
-    value: "退回",
-    label: "退回",
-  },
-  {
-    value: "作废",
-    label: "作废/丢失",
-  },
-];
 const invoiceList = ref<invoicePageVO[]>();
 
 /**
@@ -172,18 +115,7 @@ function handleQuery() {
       loading.value = false;
     });
 }
-/*增加*/
-function addQuery() {
-  dialogFormVisible.value = false;
-  loading.value = true;
-  addInvoice(form)
-    .then(({}) => {
-      handleQuery();
-    })
-    .finally(() => {
-      loading.value = false;
-    });
-}
+
 /**
  * 重置查询
  */
@@ -222,14 +154,6 @@ function Alipay(row: { [key: string]: any }) {
     });
 }
 
-/**
- * 重置表单
- */
-function resetForm() {
-  userFormRef.value.resetFields();
-  userFormRef.value.clearValidate();
-}
-
 onMounted(() => {
   handleQuery(); // 初始化用户列表数据
 });
@@ -242,18 +166,18 @@ onMounted(() => {
       <el-col :lg="20" :xs="24">
         <div class="search-container">
           <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="发票开始号码">
+            <el-form-item label="发票号码">
               <el-input
-                v-model="queryParams.invoiceStartNumber"
+                v-model="queryParams.invoiceNumber"
                 placeholder=" "
                 clearable
                 style="width: 200px"
                 @keyup.enter="handleQuery"
               />
             </el-form-item>
-            <el-form-item label="发票结束号码">
+            <el-form-item label="发票使用人">
               <el-input
-                v-model="queryParams.invoiceEndNumber"
+                v-model="queryParams.username"
                 placeholder=" "
                 clearable
                 style="width: 200px"
@@ -274,21 +198,6 @@ onMounted(() => {
                 :shortcuts="shortcuts"
               />
             </el-form-item>
-            <el-form-item label="选择发票状态">
-              <el-select
-                v-model="queryParams.invoiceClass"
-                class="m-2"
-                placeholder="Select"
-              >
-                <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                  @click="handleQuery"
-                />
-              </el-select>
-            </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="handleQuery"
                 ><i-ep-search />搜索</el-button
@@ -296,10 +205,6 @@ onMounted(() => {
               <el-button @click="resetQuery">
                 <i-ep-refresh />
                 重置</el-button
-              >
-              <el-button type="primary" @click="dialogFormVisible = true">
-                <i-ep-refresh />
-                表单管理</el-button
               >
             </el-form-item>
           </el-form>
@@ -314,51 +219,45 @@ onMounted(() => {
           >
             <!-- 应该是导出用的-->
             <el-table-column
-              key="id"
-              label="编号"
+              key="invoiceId"
+              label="发票号"
               align="center"
-              prop="id"
+              prop="number"
               width="100"
             />
             <el-table-column
-              key="invoiceClass"
-              label="类型"
-              align="center"
-              prop="invoiceClass"
-              width="100"
-            />
-            <el-table-column
-              key="startNumber"
-              label="开始号码"
-              align="center"
-              prop="startNumber"
-              width="200"
-            />
-            <el-table-column
-              label="结束号码"
-              width="200"
-              align="center"
-              prop="endNumber"
-            />
-
-            <el-table-column
+              key="batch"
               label="批次"
-              width="100"
               align="center"
               prop="batch"
+              width="100"
+            />
+            <el-table-column
+              key="orderId"
+              label="订单号"
+              align="center"
+              prop="orderId"
+              width="200"
+            />
+            <el-table-column
+              label="金额"
+              width="200"
+              align="center"
+              prop="money"
             />
 
             <el-table-column
               label="姓名"
-              width="120"
+              width="100"
               align="center"
               prop="name"
             />
+
             <el-table-column
               label="日期"
+              width="300"
               align="center"
               prop="date"
-              width="300"
             />
           </el-table>
 
@@ -376,34 +275,5 @@ onMounted(() => {
     </el-row>
 
     <!-- 导入弹窗 -->
-    <el-dialog v-model="dialogFormVisible" title="发票管理">
-      <el-form :model="form">
-        <el-form-item label="发票批次" :label-width="formLabelWidth">
-          <el-input v-model="form.batch" autocomplete="off" />
-        </el-form-item>
-        <el-form-item label="发票类型" :label-width="formLabelWidth">
-          <el-select v-model="form.invoiceClass" placeholder="登记">
-            <el-option
-              v-for="item in options1"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="发票开始号码" :label-width="formLabelWidth">
-          <el-input v-model="form.startNumber" autocomplete="off" />
-        </el-form-item>
-        <el-form-item label="发票结束号码" :label-width="formLabelWidth">
-          <el-input v-model="form.endNumber" autocomplete="off" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">关闭</el-button>
-          <el-button type="primary" @click="addQuery"> 确认 </el-button>
-        </span>
-      </template>
-    </el-dialog>
   </div>
 </template>
