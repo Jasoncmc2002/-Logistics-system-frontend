@@ -55,6 +55,8 @@ export interface CentralStationForm {
   remark?:string;
   stationId?:number;
   stationName?:string;
+  vacancy?:number;
+  goodFactory?:string;
 }
 
 export interface StationQuery extends PageQuery {

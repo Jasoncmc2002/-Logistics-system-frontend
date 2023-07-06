@@ -156,3 +156,22 @@ export function updateCentralStationForm(params:CentralStationForm) {
 			data: params,
 		});
 }
+
+export function checkAllVacancy(params:CentralStationQuery ) {
+	return request({
+		url: "/distribute/central-station/checkAll",
+		method: "post",
+		data: params,
+	});
+}
+
+export function addBuyList(params: { time: any; list: any }) {
+	return request({
+		url: "/distribute/central-station/addBuyList",
+		method: "post",
+		data: params,
+	});
+}
+
+
+
