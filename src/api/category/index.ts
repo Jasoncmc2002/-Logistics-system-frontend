@@ -1,6 +1,6 @@
 import request from "@/utils/request";
 import { AxiosPromise } from "axios";
-import { StationForm, StationPageVO,StationQuery,
+import { FirstCategoryForm, FirstCategoryPageVO,FirstCategoryQuery,
   SecondaryCategoryForm,SecondaryCategoryPageVO ,SecondaryCategoryQuery,
    CentralStationForm,CentralStationQuery,CentralStationPageVO
 } from "./types";
@@ -10,7 +10,7 @@ import { StationForm, StationPageVO,StationQuery,
  *
  * @param userId
  */
-export function getFirstCategoryForm(id: number): AxiosPromise<StationForm> {
+export function getFirstCategoryForm(id: number): AxiosPromise<FirstCategoryForm> {
   return request({
     url: "/distribute/firstcategory/"+id,
     method: "post",
@@ -23,8 +23,8 @@ export function getFirstCategoryForm(id: number): AxiosPromise<StationForm> {
  * @param queryParams
  */
 export function getFirstCategoryPage(
-  queryParams: StationQuery
-): AxiosPromise<PageResult<StationPageVO[]>> {
+  queryParams: FirstCategoryQuery
+): AxiosPromise<PageResult<FirstCategoryPageVO[]>> {
   return request({
     url: "/distribute/firstcategory/getList",
     method: "post",
@@ -40,14 +40,14 @@ export function deleteFirstCategoryForm(id: number) {
   });
 }
 
-export function insertFirstCategoryForm(params:StationForm) {
+export function insertFirstCategoryForm(params:FirstCategoryForm) {
   return request({
     url: "/distribute/firstcategory/create",
     method: "post",
     data:params,
   });
 }
-export function updateFirstCategoryForm(params:StationForm) {
+export function updateFirstCategoryForm(params:FirstCategoryForm) {
   return request({
     url: "/distribute/firstcategory/update",
     method: "post",

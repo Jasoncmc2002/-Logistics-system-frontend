@@ -157,6 +157,8 @@ function handleQueryFirstCategory() {
 function resetQuery1() {
   // CentralStationFormRef.value.resetFields();
   // console.log("OK");
+		queryParams3.list=null;
+		queryParams3.time=null;
 	queryParams1.keywords=null;
   queryParams1.goodClassId=null;
 	queryParams1.goodSubclassId=null;
