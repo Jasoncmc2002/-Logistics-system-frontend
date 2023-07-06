@@ -1,7 +1,7 @@
 import request from "@/utils/request";
 import { AxiosPromise } from "axios";
 import { GoodPageVO, GoodQuery,GoodForm, OrderForm, OrderPageVO, OrderQuery, GoodQuery1 } from "./types";
-
+import{CentralStationQuery}from "@/api/category/types"
 /**
  * 获取用户表单详情
  *
@@ -39,7 +39,7 @@ export function getGoodPage(
 }
 
 export function getGoodPage1(
-  queryParams: GoodQuery1
+  queryParams: CentralStationQuery
 ): AxiosPromise<PageResult<GoodPageVO[]>> {
   return request({
     url: "/distribute/central-station/getListByCondition",
