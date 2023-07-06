@@ -1,8 +1,15 @@
 import request from "@/utils/request";
 import { AxiosPromise } from "axios";
-import { FirstCategoryForm, FirstCategoryPageVO,FirstCategoryQuery,
-  SecondaryCategoryForm,SecondaryCategoryPageVO ,SecondaryCategoryQuery,
-   CentralStationForm,CentralStationQuery,CentralStationPageVO
+import {
+  FirstCategoryForm,
+  FirstCategoryPageVO,
+  FirstCategoryQuery,
+  SecondaryCategoryForm,
+  SecondaryCategoryPageVO,
+  SecondaryCategoryQuery,
+  CentralStationForm,
+  CentralStationQuery,
+  CentralStationPageVO,
 } from "./types";
 
 /**
@@ -10,9 +17,11 @@ import { FirstCategoryForm, FirstCategoryPageVO,FirstCategoryQuery,
  *
  * @param userId
  */
-export function getFirstCategoryForm(id: number): AxiosPromise<FirstCategoryForm> {
+export function getFirstCategoryForm(
+  id: number
+): AxiosPromise<FirstCategoryForm> {
   return request({
-    url: "/distribute/firstcategory/"+id,
+    url: "/distribute/firstcategory/" + id,
     method: "post",
   });
 }
@@ -32,31 +41,32 @@ export function getFirstCategoryPage(
   });
 }
 
-
 export function deleteFirstCategoryForm(id: number) {
   return request({
-    url: "/distribute/firstcategory/delete/"+id,
-    method: "post"
+    url: "/distribute/firstcategory/delete/" + id,
+    method: "post",
   });
 }
 
-export function insertFirstCategoryForm(params:FirstCategoryForm) {
+export function insertFirstCategoryForm(params: FirstCategoryForm) {
   return request({
     url: "/distribute/firstcategory/create",
     method: "post",
-    data:params,
+    data: params,
   });
 }
-export function updateFirstCategoryForm(params:FirstCategoryForm) {
+export function updateFirstCategoryForm(params: FirstCategoryForm) {
   return request({
     url: "/distribute/firstcategory/update",
     method: "post",
-    data:params,
+    data: params,
   });
 }
-export function getSecondaryCategoryForm(id: number): AxiosPromise<SecondaryCategoryForm> {
+export function getSecondaryCategoryForm(
+  id: number
+): AxiosPromise<SecondaryCategoryForm> {
   return request({
-    url: "/distribute/secondarycategory/"+id,
+    url: "/distribute/secondarycategory/" + id,
     method: "post",
   });
 }
@@ -78,32 +88,31 @@ export function getSecondaryCategoryPage(
 
 export function deleteSecondaryCategoryForm(id: number) {
   return request({
-    url: "/distribute/secondarycategory/delete/"+id,
-    method: "post"
+    url: "/distribute/secondarycategory/delete/" + id,
+    method: "post",
   });
 }
 
-export function insertSecondaryCategoryForm(params:SecondaryCategoryForm) {
+export function insertSecondaryCategoryForm(params: SecondaryCategoryForm) {
   return request({
     url: "/distribute/secondarycategory/create",
     method: "post",
-    data:params,
+    data: params,
   });
 }
-export function updateSecondaryCategoryForm(params:SecondaryCategoryForm) {
+export function updateSecondaryCategoryForm(params: SecondaryCategoryForm) {
   return request({
     url: "/distribute/secondarycategory/update",
     method: "post",
-    data:params,
+    data: params,
   });
 }
 
-
-
-
-export function getCentralStationForm(id: number): AxiosPromise<CentralStationForm> {
+export function getCentralStationForm(
+  id: number
+): AxiosPromise<CentralStationForm> {
   return request({
-    url: "/distribute/central-station/"+id,
+    url: "/distribute/central-station/" + id,
     method: "post",
   });
 }
@@ -130,48 +139,57 @@ export function getCentralStationPage(
 
 export function deleteCentralStationForm(id: number) {
   return request({
-    url: "/distribute/central-station/delete/"+id,
-    method: "post"
+    url: "/distribute/central-station/delete/" + id,
+    method: "post",
   });
 }
 
-export function insertCentralStationForm(params:CentralStationForm) {
+export function insertCentralStationForm(params: CentralStationForm) {
   return request({
     url: "/distribute/central-station/create",
     method: "post",
-    data:params,
+    data: params,
   });
 }
-export function updateCentralStationForm(params:CentralStationForm) {
-	return request({
-		url: "/distribute/central-station/update",
-		method: "post",
-		data: params,
-	});
+export function updateCentralStationForm(params: CentralStationForm) {
+  return request({
+    url: "/distribute/central-station/update",
+    method: "post",
+    data: params,
+  });
 }
-  export function updateCentralStationFormList(params: { warn: any; max: any; idList: any }) {
-		return request({
-			url: "/distribute/central-station/updateList",
-			method: "post",
-			data: params,
-		});
+export function updateCentralStationFormList(params: {
+  warn: any;
+  max: any;
+  idList: any;
+}) {
+  return request({
+    url: "/distribute/central-station/updateList",
+    method: "post",
+    data: params,
+  });
 }
 
-export function checkAllVacancy(params:CentralStationQuery ) {
-	return request({
-		url: "/distribute/central-station/checkAll",
-		method: "post",
-		data: params,
-	});
+export function checkAllVacancy(params: CentralStationQuery) {
+  return request({
+    url: "/distribute/central-station/checkAll",
+    method: "post",
+    data: params,
+  });
 }
 
 export function addBuyList(params: { time: any; list: any }) {
-	return request({
-		url: "/distribute/central-station/addBuyList",
-		method: "post",
-		data: params,
-	});
+  return request({
+    url: "/distribute/central-station/addBuyList",
+    method: "post",
+    data: params,
+  });
 }
 
-
-
+export function addRegisterList(params: any) {
+  return request({
+    url: "/distribute/central-station/addRegisterList",
+    method: "post",
+    data: params,
+  });
+}
