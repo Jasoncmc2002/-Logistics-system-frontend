@@ -16,48 +16,47 @@ export interface CentralStationPageVO {
 }
 
 export interface FirstCategoryForm {
-  id?:number;
-  fname?:string;
-  description?:string;
+  id?: number;
+  fname?: string;
+  description?: string;
 }
 
 export interface SecondaryCategoryForm {
-  id?:number;
-  sname?:string;
-  fid?:number;
-  fname?:string;
-  description?:string;
+  id?: number;
+  sname?: string;
+  fid?: number;
+  fname?: string;
+  description?: string;
 }
 export interface CentralStationForm {
-  id?:number;
-  goodClassId?:number;
-  goodClassName?:string;
-  goodSubclassId?:number;
-  goodSubClassName?:string;
-  goodName?:string;
-  stock?:number;
-  withdrawal?:number;
-  waitAllo?:number;
-  doneAllo?:number;
-  warn?:number;
-  max?:number;
-  goodPrice?:number;
-  goodSale?:number;
-  goodCost?:number;
-  goodUnit?:string;
-  supplyId?:number;
-  supplyName?:number;
-  sellDate?:number;
-  isReturn?:number;
-  isReturnName?:string;
-  isChange?:number;
-  isChangeName?:string;
-  remark?:string;
-
+  id?: number;
+  goodClassId?: number;
+  goodClassName?: string;
+  goodSubclassId?: number;
+  goodSubClassName?: string;
+  goodName?: string;
+  stock?: number;
+  withdrawal?: number;
+  waitAllo?: number;
+  doneAllo?: number;
+  warn?: number;
+  max?: number;
+  goodPrice?: number;
+  goodSale?: number;
+  goodCost?: number;
+  goodUnit?: string;
+  supplyId?: number;
+  supplyName?: number;
+  sellDate?: number;
+  isReturn?: number;
+  isReturnName?: string;
+  isChange?: number;
+  isChangeName?: string;
+  remark?: string;
 }
 
 export interface FirstCategoryQuery extends PageQuery {
-  keywords?: string;
+  keywords?: string | null;
   status?: number;
 }
 export interface SecondaryCategoryQuery extends PageQuery {
@@ -70,6 +69,5 @@ export interface CentralStationQuery extends PageQuery {
   status?: number;
   goodClassId?: number;
   goodSubclassId?: number;
-  supplyId?:number;
+  supplyId?: number;
 }
-

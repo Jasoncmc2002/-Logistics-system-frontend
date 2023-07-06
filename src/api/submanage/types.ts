@@ -3,11 +3,11 @@ export interface TaskPageVO {
   /**
    * 订单号
    */
-  orderId: number;
+  orderId?: number;
   /**
    * 任务号
    */
-  id: number;
+  id?: number;
   /**
    * 分站
    */
@@ -48,6 +48,10 @@ export interface TaskPageVO {
    * 是否要发票
    */
   isInvoice?: number;
+  /**
+   * 分配人员
+   */
+  postman?: string;
 }
 
 // Query请求用的数据结构
@@ -55,14 +59,23 @@ export interface TaskQuery extends PageQuery {
   /**
    * 所属分站
    */
-  substation?: string | undefined | null;
-  taskStatus?: string | undefined | null;
-  taskType?: string | undefined | null;
-  startLine?: string | undefined | null | Date;
-  endLine?: string | undefined | null | Date;
+  substation?: string | undefined;
+  taskStatus?: string | undefined;
+  taskType?: string | undefined;
+  startLine?: string | undefined | Date;
+  endLine?: string | undefined | Date;
+  postman?: string | undefined;
 }
 
 /**
  * 分页项类型声明
  */
 export type TaskPageResult = PageResult<TaskPageVO[]>;
+
+/**
+ * 下拉栏所需要的数据 ： 任务种类
+ */
+
+export interface TaskType {
+  taskType?: string;
+}
