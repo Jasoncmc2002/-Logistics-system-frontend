@@ -1,4 +1,4 @@
- <script setup lang="ts">
+<script setup lang="ts">
 /**
  * setup ： 语法糖，可以省去子组件在父组件的components中注册的过程，直接import之后就可以使用
  * lang="ts" ： 表示此文件是TypeScript格式
@@ -17,52 +17,63 @@ defineOptions({
   inheritAttrs: false,
 });
 
-
-
 import {
   insertCentralStationForm,
   deleteCentralStationForm,
   getCentralStationPage,
   getCentralStationForm,
-  updateCentralStationForm
+  updateCentralStationForm,
 } from "@/api/category";
 
-
-import {CentralStationPageVO,CentralStationForm,CentralStationQuery } from "@/api/category/types";
+import {
+  CentralStationPageVO,
+  CentralStationForm,
+  CentralStationQuery,
+} from "@/api/category/types";
 import {
   insertSupplyForm,
   deleteSupplyForm,
   getSupplyPage,
   getSupplyForm,
-  updateSupplyForm
+  updateSupplyForm,
 } from "@/api/supply";
 
-
-import {SupplyPageVO,SupplyForm,SupplyQuery } from "@/api/supply/types";
+import { SupplyPageVO, SupplyForm, SupplyQuery } from "@/api/supply/types";
 
 import {
   insertFirstCategoryForm,
   deleteFirstCategoryForm,
   getFirstCategoryPage,
   getFirstCategoryForm,
-  updateFirstCategoryForm
+  updateFirstCategoryForm,
 } from "@/api/category";
-
-
-import {StationPageVO,StationForm,StationQuery } from "@/api/category/types";
 
 import {
   insertSecondaryCategoryForm,
   deleteSecondaryCategoryForm,
   getSecondaryCategoryPage,
   getSecondaryCategoryForm,
-  updateSecondaryCategoryForm
+  updateSecondaryCategoryForm,
+} from "@/api/category";
+import {
+  insertSecondaryCategoryForm,
+  deleteSecondaryCategoryForm,
+  getFirstCategoryPage,
+  getSecondaryCategoryForm,
+  updateSecondaryCategoryForm,
 } from "@/api/category";
 
+import {
+  SecondaryCategoryPageVO,
+  SecondaryCategoryForm,
+  SecondaryCategoryQuery,
+} from "@/api/category/types";
 
-import {SecondaryCategoryPageVO,SecondaryCategoryForm,SecondaryCategoryQuery } from "@/api/category/types";
-import { createEditor } from "@wangeditor/editor";
-
+import {
+  SecondaryCategoryPageVO,
+  FirstCategoryForm,
+  SecondaryCategoryQuery,
+} from "@/api/category/types";
 
 const CentralStationFormRef = ref(ElForm);
 
@@ -72,8 +83,6 @@ const total = ref(0);
 const dialog = reactive<DialogOption>({
   visible: false,
 });
-
-
 
 const queryParams1 = reactive<CentralStationQuery>({
   pageNum: 1,
@@ -86,21 +95,18 @@ const queryParams2 = reactive<CentralStationQuery>({
 });
 const userList1 = ref<CentralStationPageVO[]>();
 
-const formData1 = reactive<CentralStationForm>({
-});
+const formData1 = reactive<CentralStationForm>({});
 
-var supplyList =reactive<SupplyForm>({});
-var firstCategoryList=reactive<StationForm>({});
-var secondaryCategoryList=reactive<SecondaryCategoryForm>({});
+var supplyList = reactive<SupplyForm>({});
+var firstCategoryList = reactive<FirstCategoryForm>({});
+var secondaryCategoryList = reactive<SecondaryCategoryForm>({});
 // const supplyList=reactive({});
 // const firstCategoryList=reactive({});
 // const secondaryCategoryList=reactive({});
 
-
 const rules = reactive({
   // fname: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
   // description: [{ required: true, message: "描述不能为空", trigger: "blur" }],
-
 });
 
 function handleQuery1() {
@@ -112,7 +118,6 @@ function handleQuery1() {
       handleQuerySupply();
       handleQuerySecondaryCategory();
       handleQueryFirstCategory();
-
     })
 
     .finally(() => {
@@ -152,16 +157,13 @@ function handleQueryFirstCategory() {
     });
 }
 
-
-
-
 function resetQuery1() {
   // CentralStationFormRef.value.resetFields();
   // console.log("OK");
-	queryParams1.keywords=null;
-  queryParams1.goodClassId=null;
-	queryParams1.goodSubclassId=null;
-	queryParams1.supplyId=null;
+  queryParams1.keywords = null;
+  queryParams1.goodClassId = null;
+  queryParams1.goodSubclassId = null;
+  queryParams1.supplyId = null;
   queryParams1.pageNum = 1;
   handleQuery1();
 }
@@ -169,7 +171,6 @@ function resetQuery1() {
 function handleSelectionChange(selection: any) {
   ids.value = selection.map((item: any) => item.id);
 }
-
 
 async function openDialog1(id?: number) {
   dialog.visible = true;
@@ -183,19 +184,16 @@ async function openDialog1(id?: number) {
   }
 }
 
-
 function closeDialog1() {
   dialog.visible = false;
   resetForm1();
 }
-
 
 function resetForm1() {
   CentralStationFormRef.value.resetFields();
   CentralStationFormRef.value.clearValidate();
   formData1.id = undefined;
 }
-
 
 const handleSubmit1 = useThrottleFn(() => {
   CentralStationFormRef.value.validate((valid: any) => {
@@ -211,7 +209,7 @@ const handleSubmit1 = useThrottleFn(() => {
           })
           .finally(() => (loading.value = false));
       } else {
-       insertCentralStationForm(formData1)
+        insertCentralStationForm(formData1)
           .then(() => {
             ElMessage.success("新增成功");
             closeDialog1();
@@ -238,14 +236,14 @@ function handleDelete1(id?: number) {
     cancelButtonText: "取消",
     type: "warning",
   }).then(function () {
-    deleteCentralStationForm(id).then(() => {
-      ElMessage.success("删除成功");
-      resetQuery1();
-    })
-    .finally(() => (loading.value = false));
+    deleteCentralStationForm(id)
+      .then(() => {
+        ElMessage.success("删除成功");
+        resetQuery1();
+      })
+      .finally(() => (loading.value = false));
   });
 }
-
 
 onMounted(() => {
   handleQuery1();
@@ -253,14 +251,12 @@ onMounted(() => {
 </script>
 
 <template>
-
   <div class="app-container">
     <el-row>
       <!-- 搜索栏 -->
       <el-col :lg="12" :xs="24">
         <div class="search-container">
           <el-form ref="queryFormRef1" :model="queryParams1" :inline="true">
-            
             <el-form-item label="关键字" prop="keywords">
               <el-input
                 v-model="queryParams1.keywords"
@@ -270,35 +266,50 @@ onMounted(() => {
               />
             </el-form-item>
             <el-form-item label="一级分类" prop="goodClassId">
-          <el-select v-model="queryParams1.goodClassId" placeholder="请选择一级分类名" clearable >
+              <el-select
+                v-model="queryParams1.goodClassId"
+                placeholder="请选择一级分类名"
+                clearable
+              >
                 <el-option
                   v-for="item in firstCategoryList.value"
                   :key="item.id"
                   :label="item.fname"
-                  :value="item.id">
+                  :value="item.id"
+                >
                 </el-option>
-            </el-select> 
-        </el-form-item>
-        <el-form-item label="二级分类" prop="goodSubclassId">
-          <el-select v-model="queryParams1.goodSubclassId" placeholder="请选择二级分类名" clearable  >
+              </el-select>
+            </el-form-item>
+            <el-form-item label="二级分类" prop="goodSubclassId">
+              <el-select
+                v-model="queryParams1.goodSubclassId"
+                placeholder="请选择二级分类名"
+                clearable
+              >
                 <el-option
                   v-for="item in secondaryCategoryList.value"
                   :key="item.id"
                   :label="item.sname"
-                  :value="item.id">
+                  :value="item.id"
+                >
                 </el-option>
-            </el-select> 
-        </el-form-item>
-        <el-form-item label="供应商" prop="supplyId">
-            <el-select v-model="queryParams1.supplyId" placeholder="请选择供应商" clearable>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="供应商" prop="supplyId">
+              <el-select
+                v-model="queryParams1.supplyId"
+                placeholder="请选择供应商"
+                clearable
+              >
                 <el-option
                   v-for="item in supplyList.value"
                   :key="item.id"
                   :label="item.name"
-                  :value="item.id">
+                  :value="item.id"
+                >
                 </el-option>
-            </el-select> 
-        </el-form-item>
+              </el-select>
+            </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="handleQuery1"
                 ><i-ep-search />搜索</el-button
@@ -321,15 +332,14 @@ onMounted(() => {
                   @click="openDialog1()"
                   ><i-ep-plus />新增</el-button
                 >
-<!--                <el-button-->
-<!--                  v-hasPerm="['sys:user:delete']"-->
-<!--                  type="danger"-->
-<!--                  :disabled="ids.length === 0"-->
-<!--                  @click="handleDelete1()"-->
-<!--                  ><i-ep-delete />删除</el-button-->
-<!--                >-->
+                <!--                <el-button-->
+                <!--                  v-hasPerm="['sys:user:delete']"-->
+                <!--                  type="danger"-->
+                <!--                  :disabled="ids.length === 0"-->
+                <!--                  @click="handleDelete1()"-->
+                <!--                  ><i-ep-delete />删除</el-button-->
+                <!--                >-->
               </div>
-
             </div>
           </template>
 
@@ -339,9 +349,9 @@ onMounted(() => {
             v-loading="loading"
             :data="userList1"
             @selection-change="handleSelectionChange"
-			      style="width: 100%"
+            style="width: 100%"
           >
-<!--            <el-table-column type="selection" width="50" align="center" />-->
+            <!--            <el-table-column type="selection" width="50" align="center" />-->
             <el-table-column
               key="id"
               label="编号"
@@ -499,16 +509,14 @@ onMounted(() => {
                 >
               </template>
             </el-table-column>
-
           </el-table>
-            <pagination
+          <pagination
             v-if="total > 0"
             v-model:total="total"
             v-model:page="queryParams1.pageNum"
             v-model:limit="queryParams1.pageSize"
             @pagination="handleQuery1"
           />
-
         </el-card>
       </el-col>
     </el-row>
@@ -531,24 +539,32 @@ onMounted(() => {
           <el-input v-model="formData1.goodName" placeholder="请输入商品名" />
         </el-form-item>
         <el-form-item label="一级分类" prop="goodClassId">
-          <el-select v-model="formData1.goodClassId" placeholder="请选择一级分类名">
-                <el-option
-                  v-for="item in firstCategoryList.value"
-                  :key="item.id"
-                  :label="item.fname"
-                  :value="item.id">
-                </el-option>
-            </el-select> 
+          <el-select
+            v-model="formData1.goodClassId"
+            placeholder="请选择一级分类名"
+          >
+            <el-option
+              v-for="item in firstCategoryList.value"
+              :key="item.id"
+              :label="item.fname"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="二级分类" prop="goodSubclassId">
-          <el-select v-model="formData1.goodSubclassId" placeholder="请选择二级分类名">
-                <el-option
-                  v-for="item in secondaryCategoryList.value"
-                  :key="item.id"
-                  :label="item.sname"
-                  :value="item.id">
-                </el-option>
-            </el-select> 
+          <el-select
+            v-model="formData1.goodSubclassId"
+            placeholder="请选择二级分类名"
+          >
+            <el-option
+              v-for="item in secondaryCategoryList.value"
+              :key="item.id"
+              :label="item.sname"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="计量单位" prop="goodUnit">
           <el-input v-model="formData1.goodUnit" placeholder="请输入计量单位" />
@@ -562,30 +578,31 @@ onMounted(() => {
         <el-form-item label="成本价" prop="goodCost">
           <el-input v-model="formData1.goodCost" placeholder="请输入成本价" />
         </el-form-item>
-         <el-form-item label="供应商" prop="supplyId">
-            <el-select v-model="formData1.supplyId" placeholder="请选择供应商">
-                <el-option
-                  v-for="item in supplyList.value"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-            </el-select> 
+        <el-form-item label="供应商" prop="supplyId">
+          <el-select v-model="formData1.supplyId" placeholder="请选择供应商">
+            <el-option
+              v-for="item in supplyList.value"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="保质期" prop="sellDate">
-           <el-input v-model="formData1.sellDate" placeholder="请输入保质期" />
+          <el-input v-model="formData1.sellDate" placeholder="请输入保质期" />
         </el-form-item>
         <el-form-item label="可否退货" prop="isReturn">
           <el-radio-group v-model="formData1.isReturn">
-          <el-radio label="1">是</el-radio>
-          <el-radio label="0">否</el-radio>
-        </el-radio-group>
+            <el-radio label="1">是</el-radio>
+            <el-radio label="0">否</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="可否换货" prop="isChange">
           <el-radio-group v-model="formData1.isChange">
-          <el-radio label="1">是</el-radio>
-          <el-radio label="0">否</el-radio>
-        </el-radio-group>
+            <el-radio label="1">是</el-radio>
+            <el-radio label="0">否</el-radio>
+          </el-radio-group>
         </el-form-item>
         <!-- <el-form-item label="库存量" prop="stock">
           <el-input v-model="formData1.stock" placeholder="请输入库存量" />
@@ -593,7 +610,6 @@ onMounted(() => {
         <el-form-item label="备注" prop="remark">
           <el-input v-model="formData1.remark" placeholder="请输入备注" />
         </el-form-item>
-
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -602,7 +618,5 @@ onMounted(() => {
         </div>
       </template>
     </el-dialog>
-
   </div>
 </template>
-

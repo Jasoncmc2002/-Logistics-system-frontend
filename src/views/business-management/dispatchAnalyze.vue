@@ -13,7 +13,7 @@
  */
 
 defineOptions({
-  name: "firstCategory",
+  name: "dispatch-analyze",
   inheritAttrs: false,
 });
 
@@ -174,16 +174,24 @@ onMounted(() => {
       <el-col :lg="24" :xs="24">
         <div class="search-container">
           <el-form ref="queryFormRef1" :model="queryParams1" :inline="true">
-            <el-form-item label="关键字" prop="keywords">
-              <el-input
-                v-model="queryParams1.keywords"
-                placeholder="查询一级商品分类"
+            <el-form-item label="起始时间" prop="startTime">
+              <el-date-picker
+                v-model="queryParams1.startTime"
+                placeholder="选择起始时间"
                 clearable
+                type="datetime"
                 style="width: 200px"
-                @keyup.enter="handleQuery1"
               />
             </el-form-item>
-
+            <el-form-item label="结束时间" prop="endTime">
+              <el-date-picker
+                v-model="queryParams1.endTime"
+                placeholder="选择结束时间"
+                clearable
+                type="datetime"
+                style="width: 200px"
+              />
+            </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="handleQuery1"
                 ><i-ep-search />搜索</el-button

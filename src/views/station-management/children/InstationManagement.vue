@@ -377,26 +377,26 @@ onMounted(() => {
               label="编号"
               align="center"
               prop="id"
-              width="100"
+              width="150"
             />
             <el-table-column
               key="goodName"
               label="商品名"
               align="center"
-              width="100"
+              width="150"
               prop="goodName"
             />
             <el-table-column
               label="一级类别名"
               key="goodClassName"
-              width="100"
+              width="150"
               align="center"
               prop="goodClassName"
             />
             <el-table-column
               label="二级类别名"
               key="goodSubClassName"
-              width="100"
+              width="150"
               align="center"
               prop="goodSubClassName"
             />
@@ -404,7 +404,7 @@ onMounted(() => {
             <el-table-column
               label="可分配量"
               key="waitAllo"
-              width="100"
+              width="150"
               align="center"
               prop="waitAllo"
             />
