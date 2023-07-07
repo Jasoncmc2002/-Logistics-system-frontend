@@ -1,6 +1,6 @@
 import request from "@/utils/request";
 import { AxiosPromise } from "axios";
-import { GoodPageVO, GoodQuery,GoodForm, OrderForm, OrderPageVO, OrderQuery, GoodQuery1 } from "./types";
+import { GoodPageVO, GoodQuery,GoodForm, OrderForm, OrderPageVO, OrderQuery, GoodQuery1, CreatOrder } from "./types";
 import{CentralStationQuery}from "@/api/category/types"
 /**
  * 获取用户表单详情
@@ -43,6 +43,16 @@ export function getGoodPage1(
 ): AxiosPromise<PageResult<GoodPageVO[]>> {
   return request({
     url: "/distribute/central-station/getListByCondition",
+    method: "post",
+    data: queryParams,
+  });
+}
+
+
+export function CreatOrderfunction(queryParams:CreatOrder){
+  
+  return request({
+    url: "/customer/addOrder" ,
     method: "post",
     data: queryParams,
   });
