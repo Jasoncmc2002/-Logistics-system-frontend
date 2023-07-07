@@ -12,32 +12,29 @@
  * defineOptions : 语法糖，定义本文件name
  */
 
-
 defineOptions({
   name: "secondaryCategory",
   inheritAttrs: false,
 });
 
-
 import {
-	insertSecondaryCategoryForm,
-	deleteSecondaryCategoryForm,
-	getSecondaryCategoryPage,
-	getSecondaryCategoryForm,
-	updateSecondaryCategoryForm, getFirstCategoryPage
+  insertSecondaryCategoryForm,
+  deleteSecondaryCategoryForm,
+  getSecondaryCategoryPage,
+  getSecondaryCategoryForm,
+  updateSecondaryCategoryForm,
+  getFirstCategoryPage,
 } from "@/api/category";
 
-
 import {
-	SecondaryCategoryPageVO,
-	SecondaryCategoryForm,
-	SecondaryCategoryQuery,
-	StationForm, CentralStationQuery
+  SecondaryCategoryPageVO,
+  SecondaryCategoryForm,
+  SecondaryCategoryQuery,
+  FirstCategoryForm,
 } from "@/api/category/types";
 /**
  * 定义ElementUI组件
  */
-
 
 const SecondaryCategoryFormRef = ref(ElForm);
 /**
@@ -67,27 +64,23 @@ const dialog = reactive<DialogOption>({
   visible: false,
 });
 
-
-
 const queryParams1 = reactive<SecondaryCategoryQuery>({
   pageNum: 1,
-  pageSize:10,
+  pageSize: 10,
 });
 //全要查出来
-const queryParams2 = reactive<CentralStationQuery>({
-	pageNum: 1,
-	pageSize: 1000,
+const queryParams2 = reactive<FirstCategoryForm>({
+  pageNum: 1,
+  pageSize: 1000,
 });
 const userList1 = ref<SecondaryCategoryPageVO[]>();
 
-const formData1 = reactive<SecondaryCategoryForm>({
-});
-var firstCategoryList=reactive<StationForm>({});
+const formData1 = reactive<SecondaryCategoryForm>({});
+var firstCategoryList = reactive<FirstCategoryForm>({});
 
 const rules = reactive({
   sname: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
   // description: [{ required: true, message: "描述不能为空", trigger: "blur" }],
-
 });
 
 function handleQuery1() {
@@ -96,7 +89,7 @@ function handleQuery1() {
     .then(({ data }) => {
       userList1.value = data.list;
       total.value = data.total;
-		handleQueryFirstCategory();
+      handleQueryFirstCategory();
     })
     .catch((err) => {
       console.log(err);
@@ -106,20 +99,20 @@ function handleQuery1() {
     });
 }
 function handleQueryFirstCategory() {
-	loading.value = true;
-	getFirstCategoryPage(queryParams2)
-		.then(({ data }) => {
-			firstCategoryList.value = data.list;
-		})
-		.finally(() => {
-			loading.value = false;
-		});
+  loading.value = true;
+  getFirstCategoryPage(queryParams2)
+    .then(({ data }) => {
+      firstCategoryList.value = data.list;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
 
 function resetQuery1() {
   // SecondaryCategoryFormRef.value.resetFields();
-	queryParams1.keywords=null;
-	queryParams1.fId=null;
+  queryParams1.keywords = null;
+  queryParams1.fId = null;
   queryParams1.pageNum = 1;
   handleQuery1();
 }
@@ -127,7 +120,6 @@ function resetQuery1() {
 function handleSelectionChange(selection: any) {
   ids.value = selection.map((item: any) => item.id);
 }
-
 
 async function openDialog1(id?: number) {
   dialog.visible = true;
@@ -149,9 +141,8 @@ function closeDialog1() {
 function resetForm1() {
   SecondaryCategoryFormRef.value.resetFields();
   SecondaryCategoryFormRef.value.clearValidate();
-  formData1 .id = undefined;
+  formData1.id = undefined;
 }
-
 
 const handleSubmit1 = useThrottleFn(() => {
   SecondaryCategoryFormRef.value.validate((valid: any) => {
@@ -167,7 +158,7 @@ const handleSubmit1 = useThrottleFn(() => {
           })
           .finally(() => (loading.value = false));
       } else {
-       insertSecondaryCategoryForm(formData1)
+        insertSecondaryCategoryForm(formData1)
           .then(() => {
             ElMessage.success("新增成功");
             closeDialog1();
@@ -194,11 +185,12 @@ function handleDelete1(id?: number) {
     cancelButtonText: "取消",
     type: "warning",
   }).then(function () {
-    deleteSecondaryCategoryForm(id).then(() => {
-      ElMessage.success("删除成功");
-      resetQuery1();
-    })
-    .finally(() => (loading.value = false));
+    deleteSecondaryCategoryForm(id)
+      .then(() => {
+        ElMessage.success("删除成功");
+        resetQuery1();
+      })
+      .finally(() => (loading.value = false));
   });
 }
 
@@ -208,14 +200,12 @@ onMounted(() => {
 </script>
 
 <template>
-
   <div class="app-container">
     <el-row>
       <!-- 搜索栏 -->
       <el-col :lg="24" :xs="24">
         <div class="search-container">
           <el-form ref="queryFormRef1" :model="queryParams1" :inline="true">
-            
             <el-form-item label="关键字" prop="keywords">
               <el-input
                 v-model="queryParams1.keywords"
@@ -225,16 +215,21 @@ onMounted(() => {
                 @keyup.enter="handleQuery1"
               />
             </el-form-item>
-			  <el-form-item label="一级分类" prop="fid">
-				  <el-select v-model="queryParams1.fId" placeholder="请选择一级分类名" clearable >
-					  <el-option
-							  v-for="item in firstCategoryList.value"
-							  :key="item.id"
-							  :label="item.fname"
-							  :value="item.id">
-					  </el-option>
-				  </el-select>
-			  </el-form-item>
+            <el-form-item label="一级分类" prop="fid">
+              <el-select
+                v-model="queryParams1.fId"
+                placeholder="请选择一级分类名"
+                clearable
+              >
+                <el-option
+                  v-for="item in firstCategoryList.value"
+                  :key="item.id"
+                  :label="item.fname"
+                  :value="item.id"
+                >
+                </el-option>
+              </el-select>
+            </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="handleQuery1"
                 ><i-ep-search />搜索</el-button
@@ -257,15 +252,14 @@ onMounted(() => {
                   @click="openDialog1()"
                   ><i-ep-plus />新增</el-button
                 >
-<!--                <el-button-->
-<!--                  v-hasPerm="['sys:user:delete']"-->
-<!--                  type="danger"-->
-<!--                  :disabled="ids.length === 0"-->
-<!--                  @click="handleDelete1()"-->
-<!--                  ><i-ep-delete />删除</el-button-->
-<!--                >-->
+                <!--                <el-button-->
+                <!--                  v-hasPerm="['sys:user:delete']"-->
+                <!--                  type="danger"-->
+                <!--                  :disabled="ids.length === 0"-->
+                <!--                  @click="handleDelete1()"-->
+                <!--                  ><i-ep-delete />删除</el-button-->
+                <!--                >-->
               </div>
-
             </div>
           </template>
 
@@ -276,7 +270,7 @@ onMounted(() => {
             :data="userList1"
             @selection-change="handleSelectionChange"
           >
-<!--            <el-table-column type="selection" width="50" align="center" />-->
+            <!--            <el-table-column type="selection" width="50" align="center" />-->
             <el-table-column
               key="id"
               label="编号"
@@ -289,7 +283,7 @@ onMounted(() => {
               label="二级分类名"
               align="center"
               prop="sname"
-			       width="250"
+              width="250"
             />
 
             <el-table-column
@@ -299,13 +293,13 @@ onMounted(() => {
               align="center"
               prop="fname"
             />
-			  <el-table-column
-					  label="描述"
-					  key="description"
-					  width="250"
-					  align="center"
-					  prop="description"
-			  />
+            <el-table-column
+              label="描述"
+              key="description"
+              width="250"
+              align="center"
+              prop="description"
+            />
 
             <el-table-column label="操作" fixed="right" width="220">
               <template #default="scope">
@@ -334,8 +328,8 @@ onMounted(() => {
           <pagination
             v-if="total > 0"
             v-model:total="total"
-            v-model:page ="queryParams1.pageNum"
-            v-model:limit ="queryParams1.pageSize"
+            v-model:page="queryParams1.pageNum"
+            v-model:limit="queryParams1.pageSize"
             @pagination="handleQuery1"
           />
         </el-card>
@@ -359,24 +353,27 @@ onMounted(() => {
         <el-form-item label="类别名" prop="sname">
           <el-input v-model="formData1.sname" placeholder="请输入二级类别名" />
         </el-form-item>
-<!--        <el-form-item label="一级商品id" prop="fid">-->
-<!--          <el-input v-model="formData1.fid" placeholder="请输入一级类别ID" />-->
-<!--        </el-form-item>-->
-		  <el-form-item label="一级分类名称" prop="fid">
-			  <el-select v-model="formData1.fid" placeholder="请选择一级分类名" clearable >
-				  <el-option
-						  v-for="item in firstCategoryList.value"
-						  :key="item.id"
-						  :label="item.fname"
-						  :value="item.id">
-				  </el-option>
-			  </el-select>
-		  </el-form-item>
+        <!--        <el-form-item label="一级商品id" prop="fid">-->
+        <!--          <el-input v-model="formData1.fid" placeholder="请输入一级类别ID" />-->
+        <!--        </el-form-item>-->
+        <el-form-item label="一级分类名称" prop="fid">
+          <el-select
+            v-model="formData1.fid"
+            placeholder="请选择一级分类名"
+            clearable
+          >
+            <el-option
+              v-for="item in firstCategoryList.value"
+              :key="item.id"
+              :label="item.fname"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input v-model="formData1.description" placeholder="请输入描述" />
         </el-form-item>
-
-
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -385,7 +382,5 @@ onMounted(() => {
         </div>
       </template>
     </el-dialog>
-
   </div>
 </template>
-
