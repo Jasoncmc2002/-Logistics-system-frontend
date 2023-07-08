@@ -1,24 +1,11 @@
 <script setup lang="ts">
-/**
- * setup ： 语法糖，可以省去子组件在父组件的components中注册的过程，直接import之后就可以使用
- * lang="ts" ： 表示此文件是TypeScript格式
- */
-
-/**
- * @see {@link https://vuejs.org/api/sfc-script-setup.html#defineoptions}
- */
-
-/**
- * defineOptions : 语法糖，定义本文件name
- */
-
 defineOptions({
-  name: "dispatch-analyze",
+  name: "buy-ranking-analyze",
   inheritAttrs: false,
 });
 
-import { AnalyzePageVO, AnalyzeQuery, AnalyzeForm } from "@/api/analyze/types";
-import { getAnalyzePage } from "@/api/analyze/index";
+import { GoodPageVO, GoodQuery, GoodForm } from "@/api/category/types";
+import { getRanking } from "@/api/category/index";
 
 const firstCategoryFormRef = ref(ElForm);
 
@@ -29,13 +16,13 @@ const dialog = reactive<DialogOption>({
   visible: false,
 });
 
-const queryParams1 = reactive<AnalyzeQuery>({
+const queryParams1 = reactive<GoodQuery>({
   pageNum: 1,
   pageSize: 10,
 });
-const userList1 = ref<AnalyzePageVO[]>();
+const userList1 = ref<GoodPageVO[]>();
 
-const formData1 = reactive<AnalyzeForm>({});
+const formData1 = reactive<GoodForm>({});
 
 const rules = reactive({
   name: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
@@ -44,7 +31,7 @@ const rules = reactive({
 
 function handleQuery1() {
   loading.value = true;
-  getAnalyzePage(queryParams1)
+  getRanking(queryParams1)
     .then(({ data }) => {
       userList1.value = data.list;
       console.log(userList1.value);
@@ -136,31 +123,31 @@ onMounted(() => {
           >
             <!--            <el-table-column type="selection" width="100" />-->
             <el-table-column
-              key="stationName"
-              label="货站名称"
-              prop="stationName"
+              key="id"
+              label="商品代码"
+              prop="id"
               width="200"
               align="center"
             />
             <el-table-column
-              key="number"
-              label="送货商品数量"
-              prop="number"
+              key="goodName"
+              label="商品名称"
+              prop="goodName"
               align="center"
               width="200"
             />
             <el-table-column
-              key="totalTask"
-              label="完成任务数"
-              prop="totalTask"
+              key="goodNumber"
+              label="订购数量"
+              prop="goodNumber"
               width="200"
               align="center"
             />
 
             <el-table-column
-              key="totalMoney"
-              label="送货付款总额"
-              prop="totalMoney"
+              key="supply"
+              label="供应商"
+              prop="supply"
               width="200"
               align="center"
             />
