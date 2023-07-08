@@ -7,7 +7,7 @@ export interface OrderPageVO {
 }
 export interface GoodPageVO {
   
-  goodPrice: string;
+  goodPrice: number;
 
   goodCost: string;
 
@@ -124,7 +124,7 @@ export interface GoodQuery1 extends PageQuery {
 }
 
 export interface Good {
-  goodPrice?: string;
+  goodPrice?: number;
   goodCost?: string;
   
   goodSubclass?: string;
@@ -132,7 +132,7 @@ export interface Good {
   classId?: string;
   remark?: string;
   type?: string;
-  goodNumber?: string;
+  goodNumber?: number;
   supply?: string;
   sellDate?: string;
   goodUnit?: string;
@@ -153,7 +153,7 @@ export interface CreatOrder {
     orderStatus?: string;
     postcode?: string;
     remark?: string;
-    goodSum?: string;
+    goodSum: number;
     goodStatus?: string;
     orderDate?: string;
     deliveryDate?: string;

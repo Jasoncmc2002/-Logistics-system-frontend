@@ -38,8 +38,8 @@ import {
   exportUser,
   importUser,
 } from "@/api/user";
-
-
+import { useUserStore } from "@/store/modules/user";
+const userStore = useUserStore();
 // new api
 import { getOrderPage ,getGoodPage1} from "@/api/order";
 import { getCustomerPage,getCustomerForm ,addCustomer} from "@/api/customer";
@@ -53,7 +53,7 @@ import { UserForm, UserQuery, UserPageVO } from "@/api/user/types";
 // new type
 
 import { GoodQuery,GoodPageVO,GoodForm,GoodQuery1, OrderForm, OrderPageVO, OrderQuery } from "@/api/order/types";
-import { getGoodPage } from "@/api/order";
+import { getGoodPage ,CreatOrderfunction} from "@/api/order";
 
 import { CustomerQuery ,CustomerPageVO,CustomerForm} from "@/api/customer/types";
 
@@ -172,7 +172,9 @@ const formData = reactive<UserForm>({
 });
 import type { CreatOrder } from "@/api/order/types";
 const CreatOrderData=reactive<CreatOrder>({
-  Orders:{},
+  Orders:{
+    goodSum:0,
+  },
   Goods:[]
 });
 
@@ -236,25 +238,18 @@ const excelFilelist = ref<File[]>([]);
  */
 const OrderOptions = [
   {
-    value: '订单类型1',
-    label: '订单类型1',
+    value: '新订',
+    label: '新订',
   },
   {
-    value: '订单类型2',
-    label: '订单类型2',
+    value: '退货',
+    label: '退货',
   },
   {
-    value: '订单类型3',
-    label: 'Option3',
+    value: '换货',
+    label: '换货',
   },
-  {
-    value: '订单类型4',
-    label: '订单类型4',
-  },
-  {
-    value: '订单类型5',
-    label: '订单类型5',
-  },
+  
 ];
 /**
  * 导入分站
@@ -299,7 +294,7 @@ const pre = () => {
   if (active.value-- < 2) active.value = 1
 };
 
-const  num=ref(0);
+var  num1=0;
 
 
     
@@ -394,6 +389,13 @@ function handleQueryGood1() {
       loading.value = false;
     });
 }
+function computeGoodSum( ){
+     return{
+      
+     }             
+
+
+}
 //将选中商品添加到数组中
 function AddtoGoodlist(row:any) {
   loading.value = true;
@@ -401,9 +403,16 @@ function AddtoGoodlist(row:any) {
    queryParams1.goodSubclassId=row.goodSubclassId;
    queryParams1.keywords=row.goodName;
    getGoodPage1(queryParams1)
+
    .then(({data})=>{
        goodList.value=data.list;
+
+       CreatOrderData.Orders.goodSum+=(goodList.value[0].goodPrice*num1);
+       console.log(goodList.value[0].goodPrice);
        
+       let a=goodList.value[0].goodPrice*goodList.value[0].goodNumber;
+       console.log(a)
+
     CreatOrderData.Goods.push(
      {  goodPrice:goodList.value[0].goodPrice,
         goodClass:goodList.value[0].goodClassName,
@@ -413,7 +422,7 @@ function AddtoGoodlist(row:any) {
         goodFactory:goodList.value[0].goodFactory,
 
         keyId:CreatOrderData.Orders.customerId,
-        goodNumber:row.goodNumber,
+        goodNumber:num1,
         goodSale:goodList.value[0].goodSale,
         goodUnit:goodList.value[0].goodUnit,
         supply:goodList.value[0].supplyName,
@@ -428,8 +437,10 @@ function AddtoGoodlist(row:any) {
 
    }).finally(()=>{
     console.log("false");
+    
     console.log(CreatOrderData);
-       
+    
+       num1=0;
       loading.value = false;
    });
 }
@@ -527,16 +538,39 @@ async function openDialog(userId?: number) {
   queryParamsCustomer.idcard=row.idcard;
   queryParamsCustomer.name=row.name;
   queryParamsCustomer.mobilephone=row.mobilephone;
+  CreatOrderData.Orders.customerId=row.id;
+  CreatOrderData.Orders.customerName=row.name;
+  CreatOrderData.Orders.creater=userStore.userId;
+  //CreatOrderData.Orders.goodSum=0;
+  
   console.log(queryParamsCustomer);
     getCustomerPage(queryParamsCustomer).then(({ data }) => {
+
       Object.assign(formDataCustomer, data.list[0]);
-      console.log(formDataCustomer);
+      
+
     });
   
 }
-function CreatOrder(){
-  
+function closeCreatOrderDialog() {
 
+  CreateOrderdialog.visible = false;
+  //resetForm();
+}
+
+
+function CreatOrder(){
+  {
+      loading.value = true;
+        CreatOrderfunction(CreatOrderData)
+          .then(() => {
+            ElMessage.success("创建成功");
+            closeCreatOrderDialog();
+            
+            handleQueryCustomer();
+          })
+          .finally(() => (loading.value = false));
+    }
 }
 
 /**
@@ -549,7 +583,7 @@ function closeDialog() {
 
 function closeCreateOrderDialog() {
   CreateOrderdialog.visible = false;
-  //resetForm();
+  resetCreatOrderData();
 }
 /**
  * 重置表单
@@ -560,6 +594,15 @@ function resetForm() {
 
   formData.id = undefined;
   formData.status = 1;
+}
+
+function resetCreatOrderData() {
+  CreatOrderData.Orders={
+    goodSum:0
+  },
+  CreatOrderData.Goods=[]
+
+
 }
 
 /**
@@ -1064,8 +1107,6 @@ onMounted(() => {
     <el-steps :active="active" finish-status="success">
     <el-step title="第一步" />
     <el-step title="第二步" />
-    <el-step title="第三步" />
-    <el-step title="第四步" />
     </el-steps>
 
   <div
@@ -1339,7 +1380,7 @@ onMounted(() => {
               prop="goodNumber"
               width="150"
               
-            ><el-input-number v-model="num" size="small" :min="0" :max="10" label="描述文字"></el-input-number></el-table-column>
+            ><el-input-number id="sum" v-model="num1" size="small" :min="0" :max="10" clearable label="描述文字"></el-input-number></el-table-column>
 
             
 
@@ -1381,10 +1422,26 @@ onMounted(() => {
             @pagination="handleQueryGood"
           />
 
+        <el-form ref="CustomerFormRef" inline="true" >
+            <el-form-item label="商品总额是" props="GoodSum" >
+              <el-input 
+               v-model="CreatOrderData.Orders.goodSum"
+               readonly="readonly"
+               style=""
+               >
+            
+              </el-input>
+            </el-form-item>
+        </el-form>
+          
+              
+            
+
           <el-table
-          v-loading="loading"
-            :data="goodList1"
+             v-loading="loading"
+            :data="CreatOrderData.Goods"
             @selection-change="handleSelectionChangeOrder">
+
           <el-table-column
               key="id"
               label="编号"
@@ -1396,14 +1453,14 @@ onMounted(() => {
               
               label="商品类"
               align="center"
-              prop="goodClassId"
+              prop="goodClass"
               width="100"
             />
             <el-table-column
               label="商品子类"
               width="100"
               align="center"
-              prop="goodSubclassId"
+              prop="goodSubclass"
             />
             <el-table-column
               label="商品名"
@@ -1441,15 +1498,12 @@ onMounted(() => {
             v-model:limit="queryParamsGood1.pageSize"
             @pagination="handleQueryGood"
           />
-	
+     	
 </div>
   </div>
 
 
         
-
-
-
       <template #footer>
         <div class="dialog-footer">
           <el-row >
