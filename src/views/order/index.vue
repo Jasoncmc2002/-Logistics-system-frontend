@@ -57,11 +57,11 @@ import { getGoodPage ,CreatOrderfunction} from "@/api/order";
 
 import { CustomerQuery ,CustomerPageVO,CustomerForm} from "@/api/customer/types";
 
-import{getFirstCategoryPage,getSecondaryCategoryForm,getSecondaryCategoryPage,getFirstCategoryForm} from"@/api/category"
+import{getFirstCategoryPage,getSecondaryCategoryForm,getSecondaryCategoryPage,getFirstCategoryForm} from "@/api/good"
 
-import {CentralStationPageVO,CentralStationForm,CentralStationQuery } from "@/api/category/types";
+import {CentralStationPageVO,CentralStationForm,CentralStationQuery } from "@/api/good/types";
 
-import {FirstCategoryPageVO,FirstCategoryForm,FirstCategoryQuery,SecondaryCategoryForm,SecondaryCategoryPageVO,SecondaryCategoryQuery } from "@/api/category/types";
+import {FirstCategoryPageVO,FirstCategoryForm,FirstCategoryQuery,SecondaryCategoryForm,SecondaryCategoryPageVO,SecondaryCategoryQuery } from "@/api/good/types";
 /**
  * 定义ElementUI组件
  */
