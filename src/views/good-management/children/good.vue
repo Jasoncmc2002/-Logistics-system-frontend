@@ -30,50 +30,17 @@ import {
   CentralStationForm,
   CentralStationQuery,
 } from "@/api/good/types";
-import {
-  insertSupplyForm,
-  deleteSupplyForm,
-  getSupplyPage,
-  getSupplyForm,
-  updateSupplyForm,
-} from "@/api/supply";
+import { getSupplyPage } from "@/api/supply";
 
-import { SupplyPageVO, SupplyForm, SupplyQuery } from "@/api/supply/types";
+import { SupplyForm } from "@/api/supply/types";
 
-import {
-  insertFirstCategoryForm,
-  deleteFirstCategoryForm,
-  getFirstCategoryPage,
-  getFirstCategoryForm,
-  updateFirstCategoryForm,
-} from "@/api/good";
+import { getFirstCategoryPage } from "@/api/good";
 
-import {
-  insertSecondaryCategoryForm,
-  deleteSecondaryCategoryForm,
-  getSecondaryCategoryPage,
-  getSecondaryCategoryForm,
-  updateSecondaryCategoryForm,
-} from "@/api/good";
-import {
-  insertSecondaryCategoryForm,
-  deleteSecondaryCategoryForm,
-  getFirstCategoryPage,
-  getSecondaryCategoryForm,
-  updateSecondaryCategoryForm,
-} from "@/api/good";
+import { getSecondaryCategoryPage } from "@/api/good";
 
-import {
-  SecondaryCategoryPageVO,
-  SecondaryCategoryForm,
-  SecondaryCategoryQuery,
-} from "@/api/good/types";
+import { SecondaryCategoryForm } from "@/api/good/types";
 
-import {
-  SecondaryCategoryPageVO,
-  FirstCategoryForm,
-  SecondaryCategoryQuery,
-} from "@/api/good/types";
+import { FirstCategoryForm } from "@/api/good/types";
 
 const CentralStationFormRef = ref(ElForm);
 
