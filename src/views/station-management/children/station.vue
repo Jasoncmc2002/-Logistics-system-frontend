@@ -123,18 +123,26 @@ const handleSubmit1 = useThrottleFn(() => {
       loading.value = true;
       if (userId) {
         updateStationForm(formData1)
-          .then(() => {
-            ElMessage.success("修改成功");
-            closeDialog1();
-            resetQuery1();
+          .then(({ data }) => {
+            if (data != null) {
+              ElMessage.success("修改成功");
+              closeDialog1();
+              resetQuery1();
+            } else {
+              ElMessage.warning("库房名重复");
+            }
           })
           .finally(() => (loading.value = false));
       } else {
         insertStationForm(formData1)
-          .then(() => {
-            ElMessage.success("新增成功");
-            closeDialog1();
-            resetQuery1();
+          .then(({ data }) => {
+            if (data != null) {
+              ElMessage.success("新增成功");
+              closeDialog1();
+              resetQuery1();
+            } else {
+              ElMessage.warning("库房名重复");
+            }
           })
           .finally(() => (loading.value = false));
       }
