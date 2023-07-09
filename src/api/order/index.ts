@@ -9,6 +9,7 @@ import {
   OrderQuery,
   GoodQuery1,
   CreatOrder,
+  judgeStock,
 } from "./types";
 import { CentralStationQuery } from "@/api/good/types";
 /**
@@ -65,4 +66,13 @@ export function CreatOrderfunction(queryParams: CreatOrder) {
     method: "post",
     data: queryParams,
   });
+}
+
+export function judgeStokeMethod(queryParams: judgeStock){
+  return request({
+    url: "/distribute/central-station/check",
+    method: "post",
+    data: queryParams,
+  });
+
 }

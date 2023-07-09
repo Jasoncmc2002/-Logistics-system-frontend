@@ -52,8 +52,8 @@ import { UserForm, UserQuery, UserPageVO } from "@/api/user/types";
 
 // new type
 
-import { GoodQuery,GoodPageVO,GoodForm,GoodQuery1, OrderForm, OrderPageVO, OrderQuery, judgeStock } from "@/api/order/types";
-import { getGoodPage ,CreatOrderfunction,judgeStokeMethod} from "@/api/order";
+import { GoodQuery,GoodPageVO,GoodForm,GoodQuery1, OrderForm, OrderPageVO, OrderQuery } from "@/api/order/types";
+import { getGoodPage ,CreatOrderfunction} from "@/api/order";
 
 import { CustomerQuery ,CustomerPageVO,CustomerForm} from "@/api/customer/types";
 
@@ -159,11 +159,6 @@ const queryParamsCustomer = reactive<CustomerQuery>({
   mobilephone: "",
 
 });
-
-const queryParamsjudgeStoke=reactive<judgeStock>({
-
-
-})
 
 const userList = ref<UserPageVO[]>();
 const customerList=ref<CustomerPageVO[]>();
@@ -394,8 +389,6 @@ function handleQueryGood1() {
       loading.value = false;
     });
 }
-
-
 function computeGoodSum( ){
      return{
       
@@ -403,26 +396,6 @@ function computeGoodSum( ){
 
 
 }
-function judgeStoke(){
-  loading.value = true;
- judgeStokeMethod(queryParamsjudgeStoke)
-    .then(({ data }) => {
-     
-      goodList.value = data.list;
-      
-     
-      totalGood.value = data.total;
-    })
-    .finally(() => {
-      
-      loading.value = false;
-    });
-
-
-
-}
-
-
 //将选中商品添加到数组中
 function AddtoGoodlist(row:any) {
   loading.value = true;
