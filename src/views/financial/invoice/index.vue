@@ -23,7 +23,7 @@ import {
 /**
  * 导入UI
  */
-import { UploadFile } from "element-plus";
+import { FormInstance, FormRules, UploadFile } from "element-plus";
 
 import {
   Check,
@@ -34,12 +34,14 @@ import {
   Star,
 } from "@element-plus/icons-vue";
 import { addInvoice, getInvoice } from "@/api/financial/invoice";
+import { SupplyQuery } from "@/api/financial/supply/types";
+import { getSupplyMoney } from "@/api/financial/supply";
 
 /**
  * 定义ElementUI组件
  */
 
-const queryFormRef = ref(ElForm); // 查询表单
+const queryFormRef = ref<FormInstance>(); // 查询表单
 
 const userFormRef = ref(ElForm); // 用户表单
 
@@ -156,29 +158,57 @@ const options1 = [
   },
 ];
 const invoiceList = ref<invoicePageVO[]>();
+const chinaOptions = { timeZone: "Asia/Shanghai", hour12: false };
 
+const rules = reactive<FormRules<invoiceQuery>>({
+  invoiceStartNumber: [
+    {
+      required: true,
+      message: "请输入发票的开始号码",
+      trigger: "change",
+    },
+  ],
+  invoiceEndNumber: [
+    {
+      required: true,
+      message: "请输入发票的结束号码",
+      trigger: "change",
+    },
+  ],
+});
 /**
  * 查询
  */
-function handleQuery() {
-  loading.value = true;
-  getInvoice(queryParams)
-    .then(({ data }) => {
-      console.warn(data);
-      invoiceList.value = data.list;
-      total.value = data.total;
-    })
-    .finally(() => {
-      loading.value = false;
-    });
-}
+
+const handleQuery = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  await formEl.validate((valid, fields) => {
+    if (valid) {
+      loading.value = true;
+      getInvoice(queryParams)
+        .then(({ data }) => {
+          console.warn(data);
+          invoiceList.value = data.list;
+          total.value = data.total;
+        })
+        .finally(() => {
+          loading.value = false;
+        });
+    } else {
+      ElMessage({
+        type: "info",
+        message: "请正确输入！",
+      });
+    }
+  });
+};
 /*增加*/
 function addQuery() {
   dialogFormVisible.value = false;
   loading.value = true;
   addInvoice(form)
     .then(({}) => {
-      handleQuery();
+      handleQuery(queryFormRef);
     })
     .finally(() => {
       loading.value = false;
@@ -190,7 +220,7 @@ function addQuery() {
 function resetQuery() {
   queryFormRef.value.resetFields();
   queryParams.pageNum = 1;
-  handleQuery();
+  handleQuery(queryFormRef);
 }
 
 /**
@@ -231,7 +261,7 @@ function resetForm() {
 }
 
 onMounted(() => {
-  handleQuery(); // 初始化用户列表数据
+  handleQuery(queryFormRef); // 初始化用户列表数据
 });
 </script>
 
@@ -241,23 +271,28 @@ onMounted(() => {
       <!-- 搜索栏 -->
       <el-col :lg="20" :xs="24">
         <div class="search-container">
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="发票开始号码">
+          <el-form
+            ref="queryFormRef"
+            :model="queryParams"
+            :inline="true"
+            :rules="rules"
+          >
+            <el-form-item label="发票开始号码" prop="invoiceStartNumber">
               <el-input
-                v-model="queryParams.invoiceStartNumber"
+                v-model.number="queryParams.invoiceStartNumber"
                 placeholder=" "
                 clearable
                 style="width: 200px"
-                @keyup.enter="handleQuery"
+                @keyup.enter="handleQuery(queryFormRef)"
               />
             </el-form-item>
-            <el-form-item label="发票结束号码">
+            <el-form-item label="发票结束号码" prop="invoiceEndNumber">
               <el-input
-                v-model="queryParams.invoiceEndNumber"
+                v-model.number="queryParams.invoiceEndNumber"
                 placeholder=" "
                 clearable
                 style="width: 200px"
-                @keyup.enter="handleQuery"
+                @keyup.enter="handleQuery(queryFormRef)"
               />
             </el-form-item>
             <el-form-item label="选择时间段">
@@ -290,7 +325,7 @@ onMounted(() => {
               </el-select>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="handleQuery"
+              <el-button type="primary" @click="handleQuery(queryFormRef)"
                 ><i-ep-search />搜索</el-button
               >
               <el-button @click="resetQuery">
