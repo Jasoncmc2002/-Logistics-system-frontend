@@ -25,6 +25,38 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         "@": pathSrc,
       },
     },
+    build: {
+      sourcemap: false,
+      minify: "terser",
+      chunkSizeWarningLimit: 1500,
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+        },
+      },
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              return id
+                .toString()
+                .split("node_modules/")[1]
+                .split("/")[0]
+                .toString();
+            }
+          },
+          chunkFileNames: (chunkInfo) => {
+            const facadeModuleId = chunkInfo.facadeModuleId
+              ? chunkInfo.facadeModuleId.split("/")
+              : [];
+            const fileName =
+              facadeModuleId[facadeModuleId.length - 2] || "[name]";
+            return `js/${fileName}/[name].[hash].js`;
+          },
+        },
+      },
+    },
     css: {
       // CSS 预处理器
       preprocessorOptions: {
@@ -44,7 +76,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       proxy: {
         // 反向代理解决跨域
         [env.VITE_APP_BASE_API]: {
-          target: "http://localhost:10010",
+          target: "http://62.234.23.101:10010",
           // target: "http://vapi.youlai.tech", // 线上接口地址
           //target: 'http://localhost:8989',  // 本地接口地址 , 后端工程仓库地址：https://gitee.com/youlaiorg/youlai-boot
           changeOrigin: true,

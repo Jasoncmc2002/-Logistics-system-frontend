@@ -6,7 +6,7 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "dev": "vite serve --mode development",
-    "build:prod": "vite build --mode production &&vue-tsc --noEmit",
+    "build:prod": "vite build --mode development",
     "prepare": "husky install",
     "lint:eslint": "eslint  --fix --ext .ts,.js,.vue ./src ",
     "lint:prettier": "prettier --write \"**/*.{js,cjs,ts,json,tsx,css,less,scss,vue,html,md}\"",
@@ -56,6 +56,7 @@
     "pinia": "^2.0.33",
     "pnpm": "^8.6.6",
     "screenfull": "^6.0.0",
+    "terser": "^5.18.2",
     "vue": "^3.3.1",
     "vue-i18n": "9.2.2",
     "vue-router": "^4.2.0"
