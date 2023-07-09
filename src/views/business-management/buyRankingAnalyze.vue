@@ -4,8 +4,8 @@ defineOptions({
   inheritAttrs: false,
 });
 
-import { GoodPageVO, GoodQuery, GoodForm } from "@/api/category/types";
-import { getRanking } from "@/api/category/index";
+import { GoodPageVO, GoodQuery, GoodForm } from "@/api/good/types";
+import { getRanking } from "@/api/good/index";
 
 const firstCategoryFormRef = ref(ElForm);
 

@@ -23,13 +23,13 @@ import {
   getFirstCategoryPage,
   getFirstCategoryForm,
   updateFirstCategoryForm,
-} from "@/api/category";
+} from "@/api/good";
 
 import {
   FirstCategoryPageVO,
   FirstCategoryForm,
   FirstCategoryQuery,
-} from "@/api/category/types";
+} from "@/api/good/types";
 
 const firstCategoryFormRef = ref(ElForm);
 

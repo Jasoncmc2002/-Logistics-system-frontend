@@ -13,13 +13,13 @@ import {
   addBuyList,
   addRegisterList,
   checkAllVacancy,
-} from "@/api/category";
+} from "@/api/good";
 
 import {
   CentralStationPageVO,
   CentralStationForm,
   CentralStationQuery,
-} from "@/api/category/types";
+} from "@/api/good/types";
 import {
   insertSupplyForm,
   deleteSupplyForm,
@@ -36,9 +36,9 @@ import {
   getFirstCategoryPage,
   getFirstCategoryForm,
   updateFirstCategoryForm,
-} from "@/api/category";
+} from "@/api/good";
 
-import { StationPageVO, StationForm, StationQuery } from "@/api/category/types";
+import { StationPageVO, StationForm, StationQuery } from "@/api/good/types";
 
 import {
   insertSecondaryCategoryForm,
@@ -46,13 +46,13 @@ import {
   getSecondaryCategoryPage,
   getSecondaryCategoryForm,
   updateSecondaryCategoryForm,
-} from "@/api/category";
+} from "@/api/good";
 
 import {
   SecondaryCategoryPageVO,
   SecondaryCategoryForm,
   SecondaryCategoryQuery,
-} from "@/api/category/types";
+} from "@/api/good/types";
 import { createEditor } from "@wangeditor/editor";
 
 const CentralStationFormRef = ref(ElForm);

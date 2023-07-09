@@ -30,7 +30,7 @@ import {
   CentralStationPageVO,
   CentralStationForm,
   CentralStationQuery,
-} from "@/api/category/types";
+} from "@/api/good/types";
 import { BuyPageVO, BuyForm, BuyQuery } from "@/api/buy/types";
 
 const CentralStationFormRef = ref(ElForm);

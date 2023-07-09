@@ -1,7 +1,16 @@
 import request from "@/utils/request";
 import { AxiosPromise } from "axios";
-import { GoodPageVO, GoodQuery,GoodForm, OrderForm, OrderPageVO, OrderQuery, GoodQuery1, CreatOrder } from "./types";
-import{CentralStationQuery}from "@/api/category/types"
+import {
+  GoodPageVO,
+  GoodQuery,
+  GoodForm,
+  OrderForm,
+  OrderPageVO,
+  OrderQuery,
+  GoodQuery1,
+  CreatOrder,
+} from "./types";
+import { CentralStationQuery } from "@/api/good/types";
 /**
  * 获取用户表单详情
  *
@@ -19,7 +28,9 @@ export function getOrderForm(userId: number): AxiosPromise<OrderForm> {
  *
  * @param queryParams
  */
-export function getOrderPage(queryParams: OrderQuery): AxiosPromise<PageResult<OrderPageVO[]>> {
+export function getOrderPage(
+  queryParams: OrderQuery
+): AxiosPromise<PageResult<OrderPageVO[]>> {
   return request({
     url: "/customer/getAllOrder",
     method: "post",
@@ -48,11 +59,9 @@ export function getGoodPage1(
   });
 }
 
-
-export function CreatOrderfunction(queryParams:CreatOrder){
-  
+export function CreatOrderfunction(queryParams: CreatOrder) {
   return request({
-    url: "/customer/addOrder" ,
+    url: "/customer/addOrder",
     method: "post",
     data: queryParams,
   });

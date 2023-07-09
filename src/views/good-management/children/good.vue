@@ -23,13 +23,13 @@ import {
   getCentralStationPage,
   getCentralStationForm,
   updateCentralStationForm,
-} from "@/api/category";
+} from "@/api/good";
 
 import {
   CentralStationPageVO,
   CentralStationForm,
   CentralStationQuery,
-} from "@/api/category/types";
+} from "@/api/good/types";
 import {
   insertSupplyForm,
   deleteSupplyForm,
@@ -46,7 +46,7 @@ import {
   getFirstCategoryPage,
   getFirstCategoryForm,
   updateFirstCategoryForm,
-} from "@/api/category";
+} from "@/api/good";
 
 import {
   insertSecondaryCategoryForm,
@@ -54,26 +54,26 @@ import {
   getSecondaryCategoryPage,
   getSecondaryCategoryForm,
   updateSecondaryCategoryForm,
-} from "@/api/category";
+} from "@/api/good";
 import {
   insertSecondaryCategoryForm,
   deleteSecondaryCategoryForm,
   getFirstCategoryPage,
   getSecondaryCategoryForm,
   updateSecondaryCategoryForm,
-} from "@/api/category";
+} from "@/api/good";
 
 import {
   SecondaryCategoryPageVO,
   SecondaryCategoryForm,
   SecondaryCategoryQuery,
-} from "@/api/category/types";
+} from "@/api/good/types";
 
 import {
   SecondaryCategoryPageVO,
   FirstCategoryForm,
   SecondaryCategoryQuery,
-} from "@/api/category/types";
+} from "@/api/good/types";
 
 const CentralStationFormRef = ref(ElForm);
 

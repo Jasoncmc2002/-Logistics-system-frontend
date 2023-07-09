@@ -24,14 +24,14 @@ import {
   getSecondaryCategoryForm,
   updateSecondaryCategoryForm,
   getFirstCategoryPage,
-} from "@/api/category";
+} from "@/api/good";
 
 import {
   SecondaryCategoryPageVO,
   SecondaryCategoryForm,
   SecondaryCategoryQuery,
   FirstCategoryForm,
-} from "@/api/category/types";
+} from "@/api/good/types";
 /**
  * 定义ElementUI组件
  */

@@ -9,7 +9,7 @@ defineOptions({
 import { getTaskListByCriteria } from "@/api/submanage/tasks";
 
 // 导入需要的数据类型，需要用{}括起来（哪怕只引入一种数据）
-import { AnalyzePageVO, TaskQuery } from "@/api/submanage/tasks/types";
+import { TaskPageVO, TaskQuery } from "@/api/submanage/tasks/types";
 
 // 导入时间选择器
 import { ElDatePicker } from "element-plus";
@@ -32,7 +32,7 @@ const queryParams = reactive<TaskQuery>({
 });
 
 // 表格显示的数据
-const taskList = ref<AnalyzePageVO[]>();
+const taskList = ref<TaskPageVO[]>();
 
 const dialog = reactive<DialogOption>({
   visible: false,

@@ -1,5 +1,5 @@
 // 表单对应的数据结构
-export interface AnalyzePageVO {
+export interface TaskPageVO {
   /**
    * 订单号
    */
@@ -65,4 +65,4 @@ export interface TaskQuery extends PageQuery {
 /**
  * 分页项类型声明
  */
-export type TaskPageResult = PageResult<AnalyzePageVO[]>;
+export type TaskPageResult = PageResult<TaskPageVO[]>;
