@@ -62,8 +62,12 @@ const userList1 = ref<StationPageVO[]>();
 const formData1 = reactive<StationForm>({});
 
 const rules = reactive({
-  // fname: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
-  // description: [{ required: true, message: "描述不能为空", trigger: "blur" }],
+  name: [{ required: true, message: "库房名不能为空", trigger: "blur" }],
+  address: [{ required: true, message: "地址不能为空", trigger: "blur" }],
+  admin: [{ required: true, message: "管理员不能为空", trigger: "blur" }],
+  stationClass: [
+    { required: true, message: "库房级别不能为空", trigger: "blur" },
+  ],
 });
 
 function handleQuery1() {

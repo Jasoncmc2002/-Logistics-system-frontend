@@ -92,9 +92,9 @@ const options = {
   ],
 };
 
-async function handleQuery1() {
+function handleQuery1() {
   loading.value = true;
-  await getReceiptPage(queryParams1)
+  getReceiptPage(queryParams1)
     .then(({ data }) => {
       userList1.value = data.list;
       total.value = data.total;
