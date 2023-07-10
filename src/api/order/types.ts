@@ -167,3 +167,10 @@ export interface CreatOrder {
   };
   Goods: Good[];
 }
+
+export interface judgeStock{
+
+   id?:number;
+   goodNumber?:number;
+
+}

@@ -22,7 +22,7 @@ import {
 /**
  * 导入UI
  */
-import { UploadFile } from "element-plus";
+import { FormInstance, FormRules, UploadFile } from "element-plus";
 
 import {
   Check,
@@ -33,13 +33,13 @@ import {
   Star,
 } from "@element-plus/icons-vue";
 import { getInvoice } from "@/api/financial/invoiceSearch";
+import { SupplyQuery } from "@/api/financial/supply/types";
 
 /**
  * 定义ElementUI组件
  */
 
-const queryFormRef = ref(ElForm); // 查询表单
-
+const queryFormRef = ref<FormInstance>(); // 查询表单
 const userFormRef = ref(ElForm); // 用户表单
 
 /**
@@ -73,7 +73,6 @@ const queryParams = reactive<invoiceQuery>({
   invoiceNumber: "",
   username: "",
 });
-
 //日期选择器
 const shortcuts = [
   {

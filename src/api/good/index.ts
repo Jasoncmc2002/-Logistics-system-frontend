@@ -10,6 +10,9 @@ import {
   CentralStationForm,
   CentralStationQuery,
   CentralStationPageVO,
+  GoodForm,
+  GoodQuery,
+  GoodPageVO,
 } from "./types";
 
 /**
@@ -189,6 +192,13 @@ export function addBuyList(params: { time: any; list: any }) {
 export function addRegisterList(params: any) {
   return request({
     url: "/distribute/central-station/addRegisterList",
+    method: "post",
+    data: params,
+  });
+}
+export function getRanking(params: GoodQuery) {
+  return request({
+    url: "/distribute/good/getRanking",
     method: "post",
     data: params,
   });

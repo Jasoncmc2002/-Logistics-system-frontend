@@ -1,12 +1,8 @@
- <script setup lang="ts">
-
-
+<script setup lang="ts">
 defineOptions({
   name: "stationStock",
   inheritAttrs: false,
 });
-
-
 
 import {
   insertCentralStationForm,
@@ -14,45 +10,48 @@ import {
   getCentralStationPage,
   getCentralStationForm,
   updateCentralStationForm,
-	updateCentralStationFormList
-} from "@/api/category";
+  updateCentralStationFormList,
+} from "@/api/good";
 
-
-import {CentralStationPageVO,CentralStationForm,CentralStationQuery } from "@/api/category/types";
+import {
+  CentralStationPageVO,
+  CentralStationForm,
+  CentralStationQuery,
+} from "@/api/good/types";
 import {
   insertSupplyForm,
   deleteSupplyForm,
   getSupplyPage,
   getSupplyForm,
-  updateSupplyForm
+  updateSupplyForm,
 } from "@/api/supply";
 
-
-import {SupplyPageVO,SupplyForm,SupplyQuery } from "@/api/supply/types";
+import { SupplyPageVO, SupplyForm, SupplyQuery } from "@/api/supply/types";
 
 import {
   insertFirstCategoryForm,
   deleteFirstCategoryForm,
   getFirstCategoryPage,
   getFirstCategoryForm,
-  updateFirstCategoryForm
-} from "@/api/category";
+  updateFirstCategoryForm,
+} from "@/api/good";
 
-
-import {StationPageVO,StationForm,StationQuery } from "@/api/category/types";
+import { StationPageVO, StationForm, StationQuery } from "@/api/good/types";
 
 import {
   insertSecondaryCategoryForm,
   deleteSecondaryCategoryForm,
   getSecondaryCategoryPage,
   getSecondaryCategoryForm,
-  updateSecondaryCategoryForm
-} from "@/api/category";
+  updateSecondaryCategoryForm,
+} from "@/api/good";
 
-
-import {SecondaryCategoryPageVO,SecondaryCategoryForm,SecondaryCategoryQuery } from "@/api/category/types";
+import {
+  SecondaryCategoryPageVO,
+  SecondaryCategoryForm,
+  SecondaryCategoryQuery,
+} from "@/api/good/types";
 import { createEditor } from "@wangeditor/editor";
-
 
 const CentralStationFormRef = ref(ElForm);
 
@@ -62,8 +61,6 @@ const total = ref(0);
 const dialog = reactive<DialogOption>({
   visible: false,
 });
-
-
 
 const queryParams1 = reactive<CentralStationQuery>({
   pageNum: 1,
@@ -75,26 +72,21 @@ const queryParams2 = reactive<CentralStationQuery>({
   pageNum: 1,
   pageSize: 1000,
 });
-const queryParams3 = reactive<CentralStationForm>({
-
-});
+const queryParams3 = reactive<CentralStationForm>({});
 const userList1 = ref<CentralStationPageVO[]>();
 
-const formData1 = reactive<CentralStationForm>({
-});
+const formData1 = reactive<CentralStationForm>({});
 
-var supplyList =reactive<SupplyForm>({});
-var firstCategoryList=reactive<StationForm>({});
-var secondaryCategoryList=reactive<SecondaryCategoryForm>({});
+var supplyList = reactive<SupplyForm>({});
+var firstCategoryList = reactive<StationForm>({});
+var secondaryCategoryList = reactive<SecondaryCategoryForm>({});
 // const supplyList=reactive({});
 // const firstCategoryList=reactive({});
 // const secondaryCategoryList=reactive({});
 
-
 const rules = reactive({
   // fname: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
   // description: [{ required: true, message: "描述不能为空", trigger: "blur" }],
-
 });
 
 function handleQuery1() {
@@ -106,7 +98,6 @@ function handleQuery1() {
       handleQuerySupply();
       handleQuerySecondaryCategory();
       handleQueryFirstCategory();
-
     })
 
     .finally(() => {
@@ -114,27 +105,27 @@ function handleQuery1() {
     });
 }
 function handleQuery2() {
-	// console.log(ids.value);
-	// loading.value = true;
-	// for(var i=0;i<ids.value.length;i++){
-	// 	console.log(ids.value[i]);
-	// }
-	// console.log(queryParams3.max);
-	// console.log(queryParams3.warn);
-	const queryParams4={
-		 "idList":ids.value,
-			"max":queryParams3.max,
-			"warn":queryParams3.warn,
-	}
+  // console.log(ids.value);
+  // loading.value = true;
+  // for(var i=0;i<ids.value.length;i++){
+  // 	console.log(ids.value[i]);
+  // }
+  // console.log(queryParams3.max);
+  // console.log(queryParams3.warn);
+  const queryParams4 = {
+    idList: ids.value,
+    max: queryParams3.max,
+    warn: queryParams3.warn,
+  };
   // console.log(queryParams4);
-	// console.log(queryParams4.idList);
-	updateCentralStationFormList(queryParams4)
-		.then(({ data }) => {
-     resetQuery1();
-		})
-		.finally(() => {
-			loading.value = false;
-		});
+  // console.log(queryParams4.idList);
+  updateCentralStationFormList(queryParams4)
+    .then(({ data }) => {
+      resetQuery1();
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
 function handleQuerySupply() {
   loading.value = true;
@@ -169,19 +160,16 @@ function handleQueryFirstCategory() {
     });
 }
 
-
-
-
 function resetQuery1() {
   // CentralStationFormRef.value.resetFields();
   // console.log("OK");
-		queryParams3.max=null;
-		queryParams3.warn=null;
+  queryParams3.max = null;
+  queryParams3.warn = null;
 
-	queryParams1.keywords=null;
-  queryParams1.goodClassId=null;
-	queryParams1.goodSubclassId=null;
-	queryParams1.supplyId=null;
+  queryParams1.keywords = null;
+  queryParams1.goodClassId = null;
+  queryParams1.goodSubclassId = null;
+  queryParams1.supplyId = null;
   queryParams1.pageNum = 1;
   handleQuery1();
 }
@@ -190,7 +178,6 @@ function handleSelectionChange(selection: any) {
   ids.value = selection.map((item: any) => item.id);
   // console.log(ids.value);
 }
-
 
 async function openDialog1(id?: number) {
   dialog.visible = true;
@@ -204,19 +191,16 @@ async function openDialog1(id?: number) {
   }
 }
 
-
 function closeDialog1() {
   dialog.visible = false;
   resetForm1();
 }
-
 
 function resetForm1() {
   CentralStationFormRef.value.resetFields();
   CentralStationFormRef.value.clearValidate();
   formData1.id = undefined;
 }
-
 
 const handleSubmit1 = useThrottleFn(() => {
   CentralStationFormRef.value.validate((valid: any) => {
@@ -232,7 +216,7 @@ const handleSubmit1 = useThrottleFn(() => {
           })
           .finally(() => (loading.value = false));
       } else {
-       insertCentralStationForm(formData1)
+        insertCentralStationForm(formData1)
           .then(() => {
             ElMessage.success("新增成功");
             closeDialog1();
@@ -259,14 +243,14 @@ function handleDelete1(id?: number) {
     cancelButtonText: "取消",
     type: "warning",
   }).then(function () {
-    deleteCentralStationForm(id).then(() => {
-      ElMessage.success("删除成功");
-      resetQuery1();
-    })
-    .finally(() => (loading.value = false));
+    deleteCentralStationForm(id)
+      .then(() => {
+        ElMessage.success("删除成功");
+        resetQuery1();
+      })
+      .finally(() => (loading.value = false));
   });
 }
-
 
 onMounted(() => {
   handleQuery1();
@@ -274,14 +258,12 @@ onMounted(() => {
 </script>
 
 <template>
-
   <div class="app-container">
     <el-row>
       <!-- 搜索栏 -->
       <el-col :lg="18" :xs="24">
         <div class="search-container">
           <el-form ref="queryFormRef1" :model="queryParams1" :inline="true">
-            
             <el-form-item label="关键字" prop="keywords">
               <el-input
                 v-model="queryParams1.keywords"
@@ -291,25 +273,35 @@ onMounted(() => {
               />
             </el-form-item>
             <el-form-item label="一级分类" prop="goodClassId">
-          <el-select v-model="queryParams1.goodClassId" placeholder="请选择一级分类名" clearable >
+              <el-select
+                v-model="queryParams1.goodClassId"
+                placeholder="请选择一级分类名"
+                clearable
+              >
                 <el-option
                   v-for="item in firstCategoryList.value"
                   :key="item.id"
                   :label="item.fname"
-                  :value="item.id">
+                  :value="item.id"
+                >
                 </el-option>
-            </el-select> 
-        </el-form-item>
-        <el-form-item label="二级分类" prop="goodSubclassId">
-          <el-select v-model="queryParams1.goodSubclassId" placeholder="请选择二级分类名" clearable  >
+              </el-select>
+            </el-form-item>
+            <el-form-item label="二级分类" prop="goodSubclassId">
+              <el-select
+                v-model="queryParams1.goodSubclassId"
+                placeholder="请选择二级分类名"
+                clearable
+              >
                 <el-option
                   v-for="item in secondaryCategoryList.value"
                   :key="item.id"
                   :label="item.sname"
-                  :value="item.id">
+                  :value="item.id"
+                >
                 </el-option>
-            </el-select> 
-        </el-form-item>
+              </el-select>
+            </el-form-item>
 
             <el-form-item>
               <el-button type="primary" @click="handleQuery1"
@@ -322,50 +314,50 @@ onMounted(() => {
             </el-form-item>
           </el-form>
         </div>
-		  <div class="search-container">
-			  <el-form ref="queryFormRef2" :model="queryParams3" :inline="true">
-				  <el-form-item label="最大库存量" prop="max">
-					  <el-input
-							  v-model="queryParams3.max"
-							  placeholder="输入最大库存量"
-							  clearable
-							  style="width: 200px"
-					  />
-				  </el-form-item>
-			   <el-form-item label="预警值" prop="warn">
-				  <el-input
-						v-model="queryParams3.warn"
-						placeholder="输入预警值"
-						clearable
-						style="width: 200px"
-				/>
-			</el-form-item>
-				  <el-form-item>
-					  <el-button type="primary" @click="handleQuery2">批量设置</el-button>
-				  </el-form-item>
-			  </el-form>
-		  </div>
-
+        <div class="search-container">
+          <el-form ref="queryFormRef2" :model="queryParams3" :inline="true">
+            <el-form-item label="最大库存量" prop="max">
+              <el-input
+                v-model="queryParams3.max"
+                placeholder="输入最大库存量"
+                clearable
+                style="width: 200px"
+              />
+            </el-form-item>
+            <el-form-item label="预警值" prop="warn">
+              <el-input
+                v-model="queryParams3.warn"
+                placeholder="输入预警值"
+                clearable
+                style="width: 200px"
+              />
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="handleQuery2"
+                >批量设置</el-button
+              >
+            </el-form-item>
+          </el-form>
+        </div>
 
         <el-card shadow="never">
           <template #header>
             <div class="flex justify-between">
               <div>
-<!--                <el-button-->
-<!--                  v-hasPerm="['sys:user:add']"-->
-<!--                  type="success"-->
-<!--                  @click="openDialog1()"-->
-<!--                  ><i-ep-plus />新增</el-button-->
-<!--                >-->
-<!--                <el-button-->
-<!--                  v-hasPerm="['sys:user:delete']"-->
-<!--                  type="danger"-->
-<!--                  :disabled="ids.length === 0"-->
-<!--                  @click="handleDelete1()"-->
-<!--                  ><i-ep-delete />删除</el-button-->
-<!--                >-->
+                <!--                <el-button-->
+                <!--                  v-hasPerm="['sys:user:add']"-->
+                <!--                  type="success"-->
+                <!--                  @click="openDialog1()"-->
+                <!--                  ><i-ep-plus />新增</el-button-->
+                <!--                >-->
+                <!--                <el-button-->
+                <!--                  v-hasPerm="['sys:user:delete']"-->
+                <!--                  type="danger"-->
+                <!--                  :disabled="ids.length === 0"-->
+                <!--                  @click="handleDelete1()"-->
+                <!--                  ><i-ep-delete />删除</el-button-->
+                <!--                >-->
               </div>
-
             </div>
           </template>
 
@@ -375,7 +367,7 @@ onMounted(() => {
             v-loading="loading"
             :data="userList1"
             @selection-change="handleSelectionChange"
-			      style="width: 100%"
+            style="width: 100%"
           >
             <el-table-column type="selection" width="50" align="center" />
             <el-table-column
@@ -405,13 +397,13 @@ onMounted(() => {
               align="center"
               prop="goodSubClassName"
             />
-			  <el-table-column
-					  label="库房名称"
-					  key="stationName"
-					  width="120"
-					  align="center"
-					  prop="stationName"
-			  />
+            <el-table-column
+              label="库房名称"
+              key="stationName"
+              width="120"
+              align="center"
+              prop="stationName"
+            />
             <el-table-column
               label="最大库存量"
               key="max"
@@ -419,13 +411,13 @@ onMounted(() => {
               align="center"
               prop="max"
             />
-			  <el-table-column
-					  label="警戒值"
-					  key="warn"
-					  width="120"
-					  align="center"
-					  prop="warn"
-			  />
+            <el-table-column
+              label="警戒值"
+              key="warn"
+              width="120"
+              align="center"
+              prop="warn"
+            />
             <el-table-column
               label="退货量"
               key="withdrawal"
@@ -448,7 +440,6 @@ onMounted(() => {
               prop="doneAllo"
             />
 
-
             <el-table-column label="操作" fixed="right" width="220">
               <template #default="scope">
                 <el-button
@@ -469,16 +460,14 @@ onMounted(() => {
                 >
               </template>
             </el-table-column>
-
           </el-table>
-            <pagination
+          <pagination
             v-if="total > 0"
             v-model:total="total"
             v-model:page="queryParams1.pageNum"
             v-model:limit="queryParams1.pageSize"
             @pagination="handleQuery1"
           />
-
         </el-card>
       </el-col>
     </el-row>
@@ -500,10 +489,9 @@ onMounted(() => {
         <el-form-item label="最大库存量" prop="max">
           <el-input v-model="formData1.max" placeholder="请输入最大库存量" />
         </el-form-item>
-		  <el-form-item label="预警值" prop="warn">
-			  <el-input v-model="formData1.warn" placeholder="请输入预警值" />
-		  </el-form-item>
-
+        <el-form-item label="预警值" prop="warn">
+          <el-input v-model="formData1.warn" placeholder="请输入预警值" />
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -512,7 +500,5 @@ onMounted(() => {
         </div>
       </template>
     </el-dialog>
-
   </div>
 </template>
-

@@ -18,3 +18,12 @@ export function getTaskListByCriteria(
     data: queryParams,
   });
 }
+export function getTaskListByDate(
+  queryParams: TaskQuery
+): AxiosPromise<TaskPageResult> {
+  return request({
+    url: "/dispatch/selectByDate",
+    method: "post",
+    data: queryParams,
+  });
+}

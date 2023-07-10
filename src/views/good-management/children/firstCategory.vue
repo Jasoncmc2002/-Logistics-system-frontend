@@ -23,13 +23,13 @@ import {
   getFirstCategoryPage,
   getFirstCategoryForm,
   updateFirstCategoryForm,
-} from "@/api/category";
+} from "@/api/good";
 
 import {
   FirstCategoryPageVO,
   FirstCategoryForm,
   FirstCategoryQuery,
-} from "@/api/category/types";
+} from "@/api/good/types";
 
 const firstCategoryFormRef = ref(ElForm);
 
@@ -119,18 +119,26 @@ const handleSubmit1 = useThrottleFn(() => {
       loading.value = true;
       if (userId) {
         updateFirstCategoryForm(formData1)
-          .then(() => {
-            ElMessage.success("修改成功");
-            closeDialog1();
-            resetQuery1();
+          .then(({ data }) => {
+            if (data != null) {
+              ElMessage.success("修改成功");
+              closeDialog1();
+              resetQuery1();
+            } else {
+              ElMessage.warning("一级分类名重复");
+            }
           })
           .finally(() => (loading.value = false));
       } else {
         insertFirstCategoryForm(formData1)
-          .then(() => {
-            ElMessage.success("新增成功");
-            closeDialog1();
-            resetQuery1();
+          .then(({ data }) => {
+            if (data != null) {
+              ElMessage.success("新增成功");
+              closeDialog1();
+              resetQuery1();
+            } else {
+              ElMessage.warning("一级分类名重复");
+            }
           })
           .finally(() => (loading.value = false));
       }

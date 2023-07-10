@@ -24,14 +24,14 @@ import {
   getSecondaryCategoryForm,
   updateSecondaryCategoryForm,
   getFirstCategoryPage,
-} from "@/api/category";
+} from "@/api/good";
 
 import {
   SecondaryCategoryPageVO,
   SecondaryCategoryForm,
   SecondaryCategoryQuery,
   FirstCategoryForm,
-} from "@/api/category/types";
+} from "@/api/good/types";
 /**
  * 定义ElementUI组件
  */
@@ -151,18 +151,26 @@ const handleSubmit1 = useThrottleFn(() => {
       loading.value = true;
       if (userId) {
         updateSecondaryCategoryForm(formData1)
-          .then(() => {
-            ElMessage.success("修改成功");
-            closeDialog1();
-            resetQuery1();
+          .then(({ data }) => {
+            if (data != null) {
+              ElMessage.success("修改成功");
+              closeDialog1();
+              resetQuery1();
+            } else {
+              ElMessage.warning("二级分类名重复");
+            }
           })
           .finally(() => (loading.value = false));
       } else {
         insertSecondaryCategoryForm(formData1)
-          .then(() => {
-            ElMessage.success("新增成功");
-            closeDialog1();
-            resetQuery1();
+          .then(({ data }) => {
+            if (data != null) {
+              ElMessage.success("新增成功");
+              closeDialog1();
+              resetQuery1();
+            } else {
+              ElMessage.warning("二级分类名重复");
+            }
           })
           .finally(() => (loading.value = false));
       }
