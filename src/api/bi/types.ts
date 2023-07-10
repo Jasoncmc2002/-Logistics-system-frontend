@@ -53,7 +53,7 @@ export interface ChartQueryRequest {
   sortOrder?: string;
   userId?: number;
 }
-
+/*SDADA1*/
 export interface ChartUpdateRequest {
   chartData?: string;
   chartType?: string;
