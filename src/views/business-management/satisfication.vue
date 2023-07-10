@@ -20,10 +20,11 @@ defineOptions({
 });
 
 import { ReceiptPageVO, ReceiptQuery, ReceiptForm } from "@/api/receipt/types";
-import { getReceiptPage } from "@/api/receipt/index";
-import { values } from "lodash";
-
-const firstCategoryFormRef = ref(ElForm);
+import { getReceiptPage, exportExcel } from "@/api/receipt/index";
+import { genChartByAiUsingPOST } from "@/api/bi";
+import { BiResponse, genChartByAiUsingPOSTParams } from "@/api/bi/types";
+import { SecondaryCategoryQuery } from "@/api/good/types";
+import { reactive } from "vue";
 
 const loading = ref(false);
 const ids = ref([]);
@@ -31,102 +32,99 @@ const total = ref(0);
 const dialog = reactive<DialogOption>({
   visible: false,
 });
-
 const queryParams1 = reactive<ReceiptQuery>({
   pageNum: 1,
   pageSize: 10,
 });
+const queryParams2 = reactive<ReceiptQuery>({
+  pageNum: 1,
+  pageSize: 1000,
+});
 const userList1 = ref<ReceiptPageVO[]>();
+const formRules = reactive({
+  goal: [{ required: true, message: "请输入分析目标" }],
+});
+const chartTypes = [
+  { value: "折线图", label: "折线图" },
+  { value: "柱状图", label: "柱状图" },
+  { value: "堆叠图", label: "堆叠图" },
+  { value: "饼图", label: "饼图" },
+  { value: "雷达图", label: "雷达图" },
+];
 const userList2 = ref(null);
-const total1 = reactive({
-  number: 0,
-});
-const total2 = reactive({
-  number: 0,
-});
-const total3 = reactive({
-  number: 0,
-});
+// const total1 = reactive({
+//   number: 0,
+// });
+// const total2 = reactive({
+//   number: 0,
+// });
+// const total3 = reactive({
+//   number: 0,
+// });
 const formData1 = reactive<ReceiptForm>({});
-
-const rules = reactive({
-  name: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
-  // description: [{ required: true, message: "描述不能为空", trigger: "blur" }],
+const formData = reactive<genChartByAiUsingPOSTParams>({
+  creator: "admin",
+  goal: "分析",
+  name: "分析",
+  chartType: "折线图",
 });
+const res = reactive<BiResponse>({
+  chartId: 0,
+  genChart: "",
+  genResult: "",
+});
+let chartOption = ref();
+const submitting = ref(false);
 
-const options = {
-  grid: {
-    left: "2%",
-    right: "2%",
-    bottom: "10%",
-    containLabel: true,
-  },
-  legend: {
-    top: "bottom",
-    textStyle: {
-      color: "#999",
-    },
-  },
-  series: [
-    {
-      name: "Nightingale Chart",
-      type: "pie",
-      radius: [50, 130],
-      center: ["50%", "50%"],
-      roseType: "area",
-      itemStyle: {
-        borderRadius: 1,
-        color: function (params: any) {
-          //自定义颜色
-          const colorList = ["#409EFF", "#67C23A", "#E6A23C", "#F56C6C"];
-          return colorList[params.dataIndex];
-        },
-      },
-      // data: userList2.value,
-      data: [
-        { value: total1.number, name: "满意" },
-        { value: total2.number, name: "不满意" },
-        { value: total3.number, name: "其他" },
-      ],
-    },
-  ],
-};
+function handleExport() {
+  exportExcel().then((response: any) => {
+    // const blob = new Blob([response.data], {
+    // 	type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8",
+    // });
+    // const a = document.createElement("a");
+    // const href = window.URL.createObjectURL(blob); // 下载的链接
+    // a.href = href;
+    // a.download = decodeURI(
+    // 	response.headers["content-disposition"].split(";")[1].split("=")[1]
+    // ); // 获取后台设置的文件名称
+    // document.body.appendChild(a);
+    // a.click(); // 点击导出
+    // document.body.removeChild(a); // 下载完成移除元素
+    // window.URL.revokeObjectURL(href); // 释放掉blob对象
+    submitting.value = true;
+    genChartByAiUsingPOST(response.data, <genChartByAiUsingPOSTParams>formData)
+      .then(({ data }) => {
+        console.warn(data);
+        if (data.genChart == null) {
+          ElMessage.warning("分析失败");
+        } else {
+          res.chartId = data.chartId;
+          res.genChart = data.genChart;
+          res.genResult = data.genResult;
+          chartOption = JSON.parse(data.genChart);
+          if (!chartOption) {
+            ElMessage.warning("图表代码解析错误");
+          }
+        }
+      })
+      .finally(() => {
+        submitting.value = false;
+      });
+  });
+}
 
 function handleQuery1() {
   loading.value = true;
-  getReceiptPage(queryParams1)
+  getReceiptPage()
     .then(({ data }) => {
       userList1.value = data.list;
       total.value = data.total;
-      for (var i = 0; i < userList1.value.length; i++) {
-        if (userList1.value[i].customerSatis == "满意") {
-          total1.number = total1.number + 1;
-        } else {
-          if (userList1.value[i].customerSatis == "不满意") {
-            total2.number = total2.number + 1;
-          } else {
-            total3.number = total3.number + 1;
-          }
-        }
-      }
-
-      userList2.value = [
-        { value: total1.number, name: "满意" },
-        { value: total2.number, name: "不满意" },
-        { value: total3.number, name: "其他" },
-      ];
-      console.log(userList2.value);
     })
 
     .finally(() => {
       loading.value = false;
     });
 }
-// watch: {
-// 	seriesData(val) {
-// 		this.setOptions({series:val})
-// 	}
-// }
 
 function resetQuery1() {
   // firstCategoryFormRef.value.resetFields();
@@ -140,43 +138,11 @@ function handleSelectionChange(selection: any) {
 }
 
 function resetForm1() {
-  firstCategoryFormRef.value.resetFields();
-  firstCategoryFormRef.value.clearValidate();
   formData1.id = undefined;
 }
 
-const props = defineProps({
-  id: {
-    type: String,
-    default: "pieChart",
-  },
-  className: {
-    type: String,
-    default: "",
-  },
-  width: {
-    type: String,
-    default: "500px",
-    required: true,
-  },
-  height: {
-    type: String,
-    default: "500px",
-    required: true,
-  },
-});
-
 onMounted(() => {
   handleQuery1();
-
-  console.log(options.series[0].data);
-  const chart = echarts.init(
-    document.getElementById(<string>props.id) as HTMLDivElement
-  );
-  chart.setOption(options);
-  window.addEventListener("resize", () => {
-    chart.resize();
-  });
 });
 </script>
 
@@ -186,11 +152,41 @@ onMounted(() => {
       <!-- 搜索栏 -->
       <el-col :span="12">
         <div class="search-container">
-          <el-form ref="queryFormRef1" :model="queryParams1" :inline="true">
+          <el-form ref="queryFormRef1" :model="formData" :inline="true">
+            <el-form-item label="分析目标" :rules="formRules.goal">
+              <el-input
+                type="textarea"
+                placeholder="请输入你的分析需求，比如：分析网站用户的增长情况"
+                v-model="formData.goal"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="图表名称">
+              <el-input
+                placeholder="请输入图表名称"
+                v-model="formData.name"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="图表类型">
+              <el-select v-model="formData.chartType">
+                <el-option
+                  v-for="option in chartTypes"
+                  :key="option.value"
+                  :value="option.value"
+                  :label="option.label"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+
             <el-form-item>
               <el-button @click="resetQuery1">
                 <i-ep-refresh />
                 重置</el-button
+              >
+            </el-form-item>
+            <el-form-item>
+              <el-button class="ml-3" @click="handleExport"
+                ><template #icon><i-ep-download /></template
+                >导出并分析</el-button
               >
             </el-form-item>
           </el-form>
@@ -231,18 +227,22 @@ onMounted(() => {
               width="200"
             />
           </el-table>
-          <pagination
-            v-if="total > 0"
-            v-model:total="total"
-            v-model:page="queryParams1.pageNum"
-            v-model:limit="queryParams1.pageSize"
-            @pagination="handleQuery1"
-          />
         </el-card>
       </el-col>
-      <el-col :span="12">
-        <div :id="id" :class="className" :style="{ height, width }" />
-      </el-col>
+      <!--      <el-col :span="12">-->
+      <!--        <div :id="id" :class="className" :style="{ height, width }" />-->
+      <!--      </el-col>-->
     </el-row>
+    <el-col :span="12">
+      <el-card header="分析结论">
+        <div v-loading="submitting">{{ res.genResult }}</div>
+      </el-card>
+      <el-divider></el-divider>
+      <el-card header="可视化图表" body-style="{ height: '200px' }">
+        <div v-loading="submitting" style="height: 400px">
+          <ECharts ref="chart" :option="chartOption" />
+        </div>
+      </el-card>
+    </el-col>
   </div>
 </template>

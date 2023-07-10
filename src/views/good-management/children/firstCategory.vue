@@ -49,7 +49,8 @@ const userList1 = ref<FirstCategoryPageVO[]>();
 const formData1 = reactive<FirstCategoryForm>({});
 
 const rules = reactive({
-  name: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
+  fname: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
+  // description: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
   // description: [{ required: true, message: "描述不能为空", trigger: "blur" }],
 });
 
