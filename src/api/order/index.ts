@@ -68,6 +68,16 @@ export function CreatOrderfunction(queryParams: CreatOrder) {
   });
 }
 
+export function getOrderPageByCondition(
+	queryParams: OrderQuery
+): AxiosPromise<PageResult<OrderPageVO[]>> {
+	return request({
+		url: "/customer/getOrdersByCriteria",
+		method: "post",
+		data: queryParams,
+	});
+}
+
 export function judgeStokeMethod(queryParams: judgeStock){
   return request({
     url: "/distribute/central-station/check",
