@@ -1,39 +1,27 @@
 <!--字典类型-->
 <script setup lang="ts">
 defineOptions({
-  name: "Distribution",
+  name: "Tasks",
   inheritAttrs: false,
 });
 
 // 导入需要的api方法,需要用{}括起来（哪怕只引入一种方法）
-import { getTaskListByCriteria, updateTaskPostmanById } from "@/api/submanage";
-import { getAllPostman } from "@/api/postman";
+import { getTaskListByCriteria } from "@/api/submanage";
 
 // 导入需要的数据类型，需要用{}括起来（哪怕只引入一种数据）
-import { TaskPageVO, TaskQuery } from "@/api/submanage/types";
-import { PostmanForm, PostmanQuery } from "@/api/postman/types";
-import { color } from "echarts";
+import { TaskPageVO, TaskQuery, TaskType } from "@/api/submanage/types";
 
 // 导入时间选择器
 import { ElDatePicker } from "element-plus";
-import { all } from "axios";
+import { forEach } from "lodash";
 
 const queryFormRef = ref(ElForm);
+const dataFormRef = ref(ElForm);
 
 const loading = ref(false);
 const ids = ref<number[]>([]);
 const total = ref(0);
 
-// 弹窗
-const dialog = reactive<DialogOption>({
-  visible: false,
-});
-
-// 弹窗需要的数据
-var dialogTask = reactive<TaskPageVO>({});
-var postmanList = ref<PostmanForm[]>([]);
-
-// 查询使用的数据
 const queryParams = reactive<TaskQuery>({
   pageNum: 1,
   pageSize: 10,
@@ -45,13 +33,12 @@ const queryParams = reactive<TaskQuery>({
   postman: "",
 });
 
-const queryPostmans = reactive<PostmanQuery>({
-  pageNum: 1,
-  pageSize: 10,
-});
-
 // 表格显示的数据
 const taskList = ref<TaskPageVO[]>([]);
+
+const dialog = reactive<DialogOption>({
+  visible: false,
+});
 
 // 下拉栏所需要的数据
 var taskTypeList = ref<any[]>([]);
@@ -81,13 +68,6 @@ function handleQuery() {
     });
 }
 
-// 查询所有可用配送人员
-function allPostman() {
-  getAllPostman(queryPostmans).then(({ data }) => {
-    postmanList.value = data.list;
-  });
-}
-
 /**
  * 重置查询
  */
@@ -95,7 +75,7 @@ function resetQuery() {
   queryFormRef.value.resetFields();
   queryParams.pageNum = 1;
   queryParams.substation = "";
-  queryParams.taskStatus = "可分配";
+  queryParams.taskStatus = "";
   queryParams.taskType = "";
   queryParams.startLine = "";
   queryParams.endLine = "";
@@ -137,61 +117,25 @@ function handleSelectionChange(selection: any) {
   ids.value = selection.map((item: any) => item.id);
 }
 
-/**
- * 添加/编辑分配人员
- */
-function editPostmanDialog(row: { [key: string]: any }) {
-  dialog.visible = true;
-  if (row.taskStatus === "可分配") {
-    dialogTask = row;
-    dialog.title = "分配配送人员";
-    // getUserForm(userId).then(({ data }) => {
-    //   Object.assign(formData, data);
-    // });
-  } else {
-    dialog.title = "更换配送人员";
-  }
-}
-
-/**
- * 关闭弹窗
- */
-function closeDialog() {
-  dialog.visible = false;
-  resetQuery();
-}
-
-/**
- * 添加/修改配送人员
- */
-function editPostman() {
-  updateTaskPostmanById(dialogTask);
-  closeDialog();
-  resetQuery();
-}
-
 onMounted(() => {
-  queryParams.taskStatus = "可分配";
   handleQuery();
-  allPostman();
 });
 </script>
 
 <template>
-  <!-- 搜索框以及一张表单 -->
   <div class="app-container">
     <div class="search-container">
       <el-form ref="queryFormRef" :model="queryParams" :inline="true">
         <!-- 搜索关键字 -->
         <!-- date picker的model报错是因为element-plus的版本问题，不影响正常使用  -->
         <el-form-item label="关键字" prop="name">
-          <!-- <el-input
+          <el-input
             v-model="queryParams.substation"
             placeholder="分站名称"
             clearable
             @keyup.enter="handleQuery"
             style="width: 200px"
-          /> -->
+          />
 
           <!-- <el-form-item label="状态" prop="status">
               <el-select
@@ -227,8 +171,11 @@ onMounted(() => {
             clearable
             style="width: 200px"
           >
+            <el-option label="已调度" value="已调度" />
             <el-option label="可分配" value="可分配" />
             <el-option label="已分配" value="已分配" />
+            <el-option label="已领货" value="已领货" />
+            <el-option label="已完成" value="已完成" />
           </el-select>
         </el-form-item>
 
@@ -321,13 +268,13 @@ onMounted(() => {
           prop="id"
           width="100"
         />
-        <!-- <el-table-column
+        <el-table-column
           key="substation"
           label="分站"
           align="center"
           prop="substation"
           width="100"
-        /> -->
+        />
         <el-table-column
           key="taskType"
           label="任务类型"
@@ -349,18 +296,11 @@ onMounted(() => {
           prop="address"
           width="100"
         />
-        <!-- <el-table-column
+        <el-table-column
           key="receiveName"
           label="接收人姓名"
           align="center"
           prop="receiveName"
-          width="100"
-        /> -->
-        <el-table-column
-          key="postman"
-          label="分配人员"
-          align="center"
-          prop="postman"
           width="100"
         />
         <el-table-column
@@ -370,20 +310,20 @@ onMounted(() => {
           prop="deadline"
           width="100"
         />
-        <!-- <el-table-column
+        <el-table-column
           key="goodSum"
           label="商品总价值"
           align="center"
           prop="goodSum"
           width="100"
-        /> -->
-        <!-- <el-table-column
+        />
+        <el-table-column
           key="endDate"
           label="送到日期"
           align="center"
           prop="endDate"
           width="100"
-        /> -->
+        />
         <el-table-column
           key="taskStatus"
           label="任务状态"
@@ -391,38 +331,13 @@ onMounted(() => {
           prop="taskStatus"
           width="100"
         />
-        <!-- <el-table-column
+        <el-table-column
           key="isInvoice"
           label="是否要发票"
           align="center"
           prop="isInvoice"
           width="100"
-        /> -->
-
-        <!-- 可进行数据操作的按钮 -->
-        <el-table-column label="操作" fixed="right" width="220">
-          <template #default="scope">
-            <el-button
-              v-if="scope.row.taskStatus === '可分配'"
-              v-hasPerm="['sys:user:reset_pwd']"
-              type="primary"
-              size="small"
-              link
-              @click="editPostmanDialog(scope.row)"
-              ><i-ep-edit />添加配送人员</el-button
-            >
-            <el-button
-              v-if="scope.row.taskStatus === '已分配'"
-              v-hasPerm="['sys:user:edit']"
-              :style="{ color: 'red' }"
-              type="primary"
-              link
-              size="small"
-              @click="editPostmanDialog(scope.row)"
-              ><i-ep-edit />修改配送人员</el-button
-            >
-          </template>
-        </el-table-column>
+        />
       </el-table>
       <!-- 表单结束位置 -->
 
@@ -441,38 +356,4 @@ onMounted(() => {
       />
     </el-card>
   </div>
-
-  <!-- 表单弹窗 -->
-  <el-dialog
-    v-model="dialog.visible"
-    :title="dialog.title"
-    width="600px"
-    append-to-body
-    @close="closeDialog"
-  >
-    <el-form
-      ref="userFormRef"
-      :model="dialogTask"
-      :rules="rules"
-      label-width="80px"
-    >
-      <el-form-item label="分配人员" prop="taskType">
-        <el-select v-model="dialogTask.postman" clearable>
-          <el-option
-            v-for="item in postmanList"
-            :key="item.postmanName"
-            :label="item.postmanName"
-            :value="item.postmanName"
-          >
-          </el-option>
-        </el-select>
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button type="primary" @click="editPostman">出 库</el-button>
-        <el-button @click="closeDialog">取 消</el-button>
-      </div>
-    </template>
-  </el-dialog>
 </template>
