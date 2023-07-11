@@ -80,6 +80,7 @@ var firstCategoryList = reactive<FirstCategoryForm>({});
 
 const rules = reactive({
   sname: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
+  fid: [{ required: true, message: "一级类别不能为空", trigger: "blur" }],
   // description: [{ required: true, message: "描述不能为空", trigger: "blur" }],
 });
 

@@ -103,7 +103,13 @@ export interface GoodForm {
 }
 
 export interface OrderQuery extends PageQuery {
-
+	pageNum: number,
+	pageSize: number,
+	customerName?:string,
+	id?:number,
+	receiveName?:string,
+	startTime?:string,
+	endTime?:string
 }
 //search by key id
 export interface GoodQuery extends PageQuery {

@@ -72,8 +72,22 @@ var secondaryCategoryList = reactive<SecondaryCategoryForm>({});
 // const secondaryCategoryList=reactive({});
 
 const rules = reactive({
-  // fname: [{ required: true, message: "类别名不能为空", trigger: "blur" }],
-  // description: [{ required: true, message: "描述不能为空", trigger: "blur" }],
+  goodName: [{ required: true, message: "商品名不能为空", trigger: "blur" }],
+  goodClassId: [
+    { required: true, message: "商品一级类别名不能为空", trigger: "blur" },
+  ],
+  goodSubclassId: [
+    { required: true, message: "商品二级类别名不能为空", trigger: "blur" },
+  ],
+  goodPrice: [{ required: true, message: "售价不能为空", trigger: "blur" }],
+  goodSale: [{ required: true, message: "折扣不能为空", trigger: "blur" }],
+  goodCost: [{ required: true, message: "成本价不能为空", trigger: "blur" }],
+  goodUnit: [{ required: true, message: "计量单位不能为空", trigger: "blur" }],
+  supplyId: [{ required: true, message: "供应商不能为空", trigger: "blur" }],
+  sellDate: [{ required: true, message: "保质期不能为空", trigger: "blur" }],
+  isReturn: [{ required: true, message: "不能为空", trigger: "blur" }],
+  isChange: [{ required: true, message: "不能为空", trigger: "blur" }],
+  remark: [{ required: true, message: "描述不能为空", trigger: "blur" }],
 });
 
 function handleQuery1() {
@@ -502,7 +516,7 @@ onMounted(() => {
         :rules="rules"
         label-width="80px"
       >
-        <el-form-item label="商品名称" prop="goodNname">
+        <el-form-item label="商品名称" prop="goodName">
           <el-input v-model="formData1.goodName" placeholder="请输入商品名" />
         </el-form-item>
         <el-form-item label="一级分类" prop="goodClassId">
