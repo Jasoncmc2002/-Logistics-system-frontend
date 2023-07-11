@@ -189,7 +189,7 @@ export interface EditOrder {
     postcode?: string;
   
     
-    deliveryDate?: string;
+    deliveryDateFront?: string;
 
     substation?: string;
 

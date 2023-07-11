@@ -560,7 +560,7 @@ function openEditOrderdialog(row: { [key: string]: any }) {
 	EditOrderdialog.title = "编辑订单信息";
 	EditOrderData.id=row.id;
     EditOrderData.customerAddress=row.customerAddress;
-	EditOrderData.deliveryDate=row.deliveryDate;
+	EditOrderData.deliveryDateFront=row.deliveryDate;
 	EditOrderData.explain=row.explain;
 	EditOrderData.isInvoice=row.isInvoice;
 	EditOrderData.mobilephone=row.mobilephone;
@@ -1168,7 +1168,7 @@ onMounted(() => {
 							<el-col span="12">
 								<el-form-item label="要求完成日期" prop="delivery_date">
 									<el-date-picker
-											v-model="EditOrderData.deliveryDate"
+											v-model="EditOrderData.deliveryDateFront"
 											type="datetime"
 											placeholder="Select date and time"
 									/>
