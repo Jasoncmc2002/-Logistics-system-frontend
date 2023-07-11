@@ -2,7 +2,8 @@
 import request from "@/utils/request";
 import { AxiosPromise } from "axios";
 // 按照需求导入相应的数据类型或者需要的连表类型
-import { BuyQuery , BuyPageResult, InOutStation, AllocationQuery , AllocationPageResult, DetailQuery, DetailPageResult, CenterOutData } from "./types";
+import { BuyQuery , BuyPageResult, InOutStation, AllocationQuery , AllocationPageResult, DetailQuery, DetailPageResult, CenterOutData, InOutQuery , SubInData , AllocationPageResultByID, AllocationData, AlloQuery, ReceiveQuery, GoodPageResult, ReceiveQueryResult} from "./types";
+import { pa } from "element-plus/es/locale";
 
 /**
  * 字典类型分页列表
@@ -29,6 +30,16 @@ export function getAllocationByCriteria(
   })
 }
 
+export function getAllocationById(
+  queryParams: InOutQuery
+): AxiosPromise<AllocationPageResultByID>{
+  return request({
+    url: "/dispatch/getGoodListByAlloId",
+    method: "post",
+    data: queryParams,
+  })
+}
+
 export function getDetailsByOrderId (
   queryParams: DetailQuery
 ): AxiosPromise<DetailPageResult>{
@@ -37,6 +48,19 @@ export function getDetailsByOrderId (
     method: "post",
     data: queryParams,
     
+  })
+}
+
+/**
+ * 得到allocation的显示用的数据
+ */
+export function getAllocationDataById(
+  queryParams: AlloQuery
+): AxiosPromise<AllocationData>{
+  return request({
+    url: "/dispatch/getByAlloId",
+    method: "post",
+    data: queryParams
   })
 }
 
@@ -66,4 +90,32 @@ export function submitCenterOut(
   })
 }
 
+/**
+ * 提交分站入库
+ */
+export function subInSubmit(
+  param: SubInData
+): void{
+  request({
+    url: "/warehouse/centralcontroller/inSubstation",
+    method: "post",
+    data: param
+  })
+}
 
+
+////////////////////////领货//////////////////////////
+/**
+ * 字典类型分页列表
+ *
+ * @param queryParams
+ */
+export function getGoodListByTaskId(
+  queryParams: ReceiveQuery
+): AxiosPromise<ReceiveQueryResult> {
+  return request({
+    url: "/dispatch/getDelivery",
+    method: "post",
+    data: queryParams,
+  });
+}

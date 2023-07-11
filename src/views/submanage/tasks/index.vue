@@ -6,13 +6,14 @@ defineOptions({
 });
 
 // 导入需要的api方法,需要用{}括起来（哪怕只引入一种方法）
-import { getTaskListByCriteria } from "@/api/submanage/tasks";
+import { getTaskListByCriteria } from "@/api/submanage";
 
 // 导入需要的数据类型，需要用{}括起来（哪怕只引入一种数据）
-import { TaskPageVO, TaskQuery } from "@/api/submanage/tasks/types";
+import { TaskPageVO, TaskQuery, TaskType } from "@/api/submanage/types";
 
 // 导入时间选择器
 import { ElDatePicker } from "element-plus";
+import { forEach } from "lodash";
 
 const queryFormRef = ref(ElForm);
 const dataFormRef = ref(ElForm);
@@ -24,19 +25,23 @@ const total = ref(0);
 const queryParams = reactive<TaskQuery>({
   pageNum: 1,
   pageSize: 10,
-  substation: null,
-  taskStatus: null,
-  taskType: null,
-  startLine: null,
-  endLine: null,
+  substation: "",
+  taskStatus: "",
+  taskType: "",
+  startLine: "",
+  endLine: "",
+  postman: "",
 });
 
 // 表格显示的数据
-const taskList = ref<TaskPageVO[]>();
+const taskList = ref<TaskPageVO[]>([]);
 
 const dialog = reactive<DialogOption>({
   visible: false,
 });
+
+// 下拉栏所需要的数据
+var taskTypeList = ref<any[]>([]);
 
 // 新建相关格式要求设置
 const rules = reactive({
@@ -53,6 +58,10 @@ function handleQuery() {
     .then(({ data }) => {
       taskList.value = data.list;
       total.value = data.total;
+      dropDownBarDataRefresh();
+      console.log("打印加载到的所有任务类型");
+      console.log(taskTypeList);
+      console.log("打印加载到的所有任务类型结束");
     })
     .finally(() => {
       loading.value = false;
@@ -65,12 +74,40 @@ function handleQuery() {
 function resetQuery() {
   queryFormRef.value.resetFields();
   queryParams.pageNum = 1;
-  queryParams.substation = null;
-  queryParams.taskStatus = null;
-  queryParams.taskType = null;
-  queryParams.startLine = null;
-  queryParams.endLine = null;
+  queryParams.substation = "";
+  queryParams.taskStatus = "";
+  queryParams.taskType = "";
+  queryParams.startLine = "";
+  queryParams.endLine = "";
+  queryParams.postman = "";
   handleQuery();
+}
+
+/**
+ * 加载下拉栏所需要的数据
+ */
+function dropDownBarDataRefresh() {
+  console.log("进入下拉栏数据加载方法");
+  console.log(taskList.value.length);
+
+  for (var i = 0; i < taskList.value.length; i++) {
+    var ex = false;
+
+    for (var j = 0; j < taskTypeList.value?.length; j++) {
+      console.log(i);
+      console.log(taskList.value.at(i)?.taskType);
+      console.log(taskTypeList.value.at(j));
+      if (taskList.value.at(i)?.taskType == taskTypeList.value.at(j)) {
+        ex = true;
+        break;
+      }
+    }
+
+    if (!ex) {
+      taskTypeList.value.push(taskList.value.at(i)?.taskType);
+      continue;
+    }
+  }
 }
 
 /**
@@ -112,25 +149,36 @@ onMounted(() => {
               </el-select>
             </el-form-item> -->
         </el-form-item>
-        <el-form-item>
-          <el-input
+        <el-form-item label="任务类型" prop="taskType">
+          <el-select
+            v-model="queryParams.taskType"
+            placeholder="全部"
+            clearable
+          >
+            <el-option
+              v-for="item in taskTypeList"
+              :key="item"
+              :label="item"
+              :value="item"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="任务状态" prop="status">
+          <el-select
             v-model="queryParams.taskStatus"
-            placeholder="任务状态"
+            placeholder="全部"
             clearable
             style="width: 200px"
-            @keyup.enter="handleQuery"
-          ></el-input>
+          >
+            <el-option label="已调度" value="已调度" />
+            <el-option label="可分配" value="可分配" />
+            <el-option label="已分配" value="已分配" />
+            <el-option label="已领货" value="已领货" />
+            <el-option label="已完成" value="已完成" />
+          </el-select>
         </el-form-item>
 
-        <el-form-item>
-          <el-input
-            v-model="queryParams.taskType"
-            placeholder="任务类型"
-            clearable
-            style="width: 200px"
-            @keyup.enter="handleQuery"
-          />
-        </el-form-item>
         <el-form-item>
           <el-date-picker
             v-model="queryParams.startLine"
