@@ -278,17 +278,17 @@ onMounted(() => {
           min-width="12%"
         />
         <el-table-column
-          key="outStation"
+          key="outStationName"
           label="出库库房"
           align="center"
-          prop="outStation"
+          prop="outStationName"
           min-width="12%"
         />
         <el-table-column
-          key="inStation"
+          key="inStationName"
           label="入库库房"
           align="center"
-          prop="inStation"
+          prop="inStationName"
           min-width="12%"
         />
         <el-table-column
