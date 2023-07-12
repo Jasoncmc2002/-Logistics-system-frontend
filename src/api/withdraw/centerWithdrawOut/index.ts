@@ -127,8 +127,7 @@ export function submitReceive(
   submitData: SubmitReceiveData
 ): void{
   request({
-    url: "warehouse/centralcontroller/takeGoods",
+    url: "warehouse/centrolcontroller/takeGoods",
     method: "post",
-    data: submitData
   })
 }

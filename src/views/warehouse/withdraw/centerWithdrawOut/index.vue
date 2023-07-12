@@ -1,65 +1,44 @@
 <!--字典类型-->
 <script setup lang="ts">
 defineOptions({
-  name: "Receive",
+  name: "CenterIn",
   inheritAttrs: false,
 });
-////////////////////////////////////////////////////////////////////////////////////////////////////////////---import---///////////////////////////////////////////////////////////////////////////////
+
 // 导入需要的api方法,需要用{}括起来（哪怕只引入一种方法）
-import { getGoodListByTaskId , submitCenterIn , submitReceive} from "@/api/warehouse";
+import { getBuyListByCriteria , submitCenterIn} from "@/api/warehouse";
 
 // 导入需要的数据类型，需要用{}括起来（哪怕只引入一种数据）
-import { BuyQuery , BuyPageVO , InOutStation, ReceiveQuery, GoodPageVO , ReceiveData, ReceiveQueryResult , SubmitReceiveData } from "@/api/warehouse/types";
+import { BuyQuery , BuyPageVO , InOutStation } from "@/api/warehouse/types";
 
-// 导入时间选择器等插件
+// 导入时间选择器
 import { ElDatePicker } from "element-plus";
 import { forEach } from "lodash";
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////---声明前端固定使用的数据---///////////////////////////////////////////////////////////////////////////////
-
-// el-form需要对应的数据格式，里面的内容由model=“所需要的数据”决定
 const queryFormRef = ref(ElForm);
-// 目前没用到
 const dataFormRef = ref(ElForm);
-// loading：决定表单是否数据加载成功，是否渲染数据
+
 const loading = ref(false);
-// ids：存放多选时的id
 const ids = ref<number[]>([]);
-// total：决定表单对应数据的总数
 const total = ref(0);
 
-///////////////////////---弹窗--//////////////////////////
+// 查询参数
+const queryParams = reactive<BuyQuery>({
+  pageNum: 1,
+  pageSize: 10,
+  id:""
+});
+
+const inOutStation = reactive<InOutStation>({})
+
+// 表格显示的数据
+const buyList = ref<BuyPageVO[]>([]);
 
 // 声明一个待用弹窗，初始为不可见
 const dialog = reactive<DialogOption>({
   visible: false,
 });
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////---前后端交互所需要的数据---///////////////////////////////////////////////////////////////////////////////
-
-///////////////////////---调用后端所需要的数据结构---//////////////////////////
-
-// 查询参数
-const queryParams = reactive<ReceiveQuery>({
-  pageNum: 1,
-  pageSize: 10
-});
-
-// 提交领货信息的数据体
-const submitReceiveData = reactive<SubmitReceiveData>({});
-
-///////////////////////---渲染表格所需要的数据---//////////////////////////
-
-// 表格显示的数据
-const goodList = ref<GoodPageVO[]>([]);
-
-// 填表所需数据
-const receiveData = ref<ReceiveData>({});
-
-
-
-
-///////////////////////---格式要求设置---//////////////////////////
 
 // 新建相关格式要求设置
 const rules = reactive({
@@ -67,39 +46,43 @@ const rules = reactive({
   code: [{ required: true, message: "请输入字典类型编码", trigger: "blur" }],
 });
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////---方法---///////////////////////////////////////////////////////////////////////////////
-
-///////////////////////---加载数据---//////////////////////////
-
 /**
  * 查询/也用作加载所有数据
  */
 function handleQuery() {
   loading.value = true;
-  getGoodListByTaskId(queryParams)
+  // getTaskListByCriteria(queryParams)
+  //   .then(({ data }) => {
+  //     taskList.value = data.list;
+  //     total.value = data.total;
+  //     dropDownBarDataRefresh();
+  //     console.log("打印加载到的所有任务类型");
+  //     console.log(taskTypeList);
+  //     console.log("打印加载到的所有任务类型结束");
+  //   })
+  //   .finally(() => {
+  //     loading.value = false;
+  //   });
+  getBuyListByCriteria(queryParams)
     .then(({ data }) => {
       loading.value = true;
-      goodList.value = data.pageInfo?.list;
-      receiveData.value = data.task;
-      total.value = data.pageInfo?.total;
+      buyList.value = data.list;
+      total.value = data.total;
     })
     .finally(() => {
       loading.value = false;
     })
 }
 
-
 /**
  * 重置查询
  */
 function resetQuery() {
   queryFormRef.value.resetFields();
-  queryParams.taskId = undefined;
-  goodList.value = undefined;
+  queryParams.id = undefined;
+  handleQuery();
 }
 
-
-///////////////////////---多选事件---//////////////////////////
 
 /**
  * checkbox change事件
@@ -108,39 +91,38 @@ function handleSelectionChange(selection: any) {
   ids.value = selection.map((item: any) => item.id);
 }
 
-///////////////////////---按钮事件---//////////////////////////
-
 /**
- * 确认领货
+ * 提交入库
  */
-function receiveCommit(){
-  submitReceiveData.goods = goodList.value;
-  submitReceiveData.taskId = queryParams.taskId;
-  submitReceiveData.distributor = receiveData.value.postman;
-  submitReceiveData.date = receiveData.value.receiveDate;
-  submitReceiveData.stationName = receiveData.value.substation;
-  submitReceiveData.stationId = receiveData.value.substationId;
-  submitReceive(submitReceiveData);
+function centerIn(){
+  submitCenterIn(inOutStation);
+  clearCenterIn();
 }
 
-/**
- * 清空领货
- */
-function clearReceive(){
-  receiveData.value.orderId = undefined;
-  receiveData.value.taskDate = undefined;
-  receiveData.value.substation = undefined;
-  receiveData.value.postman = undefined;
-  receiveData.value.taskType = undefined;
-  receiveData.value.receiveName = undefined;
-  receiveData.value.receiveDate = undefined;
+function clearCenterIn(){
+  inOutStation.goodId = undefined;
+  inOutStation.goodName = undefined;
+  inOutStation.date = undefined;
+  inOutStation.buyDate = undefined;
+  inOutStation.number = undefined;
+  inOutStation.remark = undefined;
+  inOutStation.signer = undefined;
+  inOutStation.supply = undefined;
 }
 
-///////////////////////---挂载时自动渲染---//////////////////////////
+function selectBuy(row: { [key: string]: any }){
+  inOutStation.goodId = row.centralGoodId;
+  inOutStation.supply = row.supply;
+  inOutStation.buyDate = row.buyDate;
+}
+
+function actualNumber(row: { [key: string]: any }){
+  inOutStation.number = parseFloat(row.number);
+}
 
 onMounted(() => {
+  handleQuery();
 });
-
 </script>
 
 <template>
@@ -150,9 +132,9 @@ onMounted(() => {
       <el-form ref="queryFormRef" :model="queryParams" :inline="true">
         <!-- 搜索关键字 -->
         <!-- date picker的model报错是因为element-plus的版本问题，不影响正常使用  -->
-        <el-form-item label="任务单号" prop="taskId">
+        <el-form-item label="购货单号" prop="name">
           <el-input
-            v-model="queryParams.taskId"
+            v-model="queryParams.id"
             placeholder=""
             clearable
             @keyup.enter="handleQuery"
@@ -168,33 +150,32 @@ onMounted(() => {
         </el-form-item>
       </el-form>
     </div>
-
-    <!-- 领货详细信息录入栏 -->
+    <!-- 购入单签收详细信息录入栏 -->
     <el-card>
-      <el-form ref="queryFormRef" :model="receiveData" :inline="true">
+      <el-form ref="queryFormRef" :model="inOutStation" :inline="true">
         <!-- 搜索关键字 -->
         <!-- date picker的model报错是因为element-plus的版本问题，不影响正常使用  -->
-        <el-form-item label="订单号" prop="orderId" style="width: 300px;">
+        <el-form-item label="货物号码" prop="goodId" style="width: 300px;">
           <el-input
-            v-model="receiveData.orderId"
+            v-model="inOutStation.goodId"
             placeholder=""
             clearable
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
         </el-form-item>
-        <el-form-item label="任务分配日期" prop="taskDate" style="width: 300px;">
+        <el-form-item label="供应商源" prop="supply" style="width: 300px;">
           <el-input
-            v-model="receiveData.taskDate"
+            v-model="inOutStation.supply"
             placeholder=""
             clearable
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
         </el-form-item>
-        <el-form-item label="送货分站" prop="substation" style="width: 300px;">
+        <el-form-item label="购货日期" prop="buyDate" style="width: 300px;">
           <el-input
-            v-model="receiveData.substation"
+            v-model="inOutStation.buyDate"
             placeholder=""
             clearable
             @keyup.enter="handleQuery"
@@ -202,50 +183,40 @@ onMounted(() => {
           />
         </el-form-item>
         <br>
-        <el-form-item label="配送员" prop="postman" style="width: 300px;">
+        <el-form-item label="签收人员" prop="signer" style="width: 300px;">
           <el-input
-            v-model="receiveData.postman"
+            v-model="inOutStation.signer"
             placeholder=""
             clearable
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
         </el-form-item>
-        <el-form-item label="任务类型" prop="taskType" style="width: 300px;">
-          <el-input
-            v-model="receiveData.taskType"
-            placeholder=""
-            clearable
-            @keyup.enter="handleQuery"
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="领货人" prop="receiveName" style="width: 300px;">
-          <el-input
-            v-model="receiveData.receiveName"
-            placeholder=""
-            clearable
-            @keyup.enter="handleQuery"
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="领货日期" prop="receiveDate" style="width: 300px;">
+        <el-form-item label="签收日期" prop="buyDate" style="width: 300px;">
           <el-date-picker
-            v-model="receiveData.receiveDate"
-            placeholder=""
+            v-model="inOutStation.date"
+            placeholder="购货日期"
             clearable
             style="width: 200px"
             @keyup.enter="handleQuery"
           />
-          
+        </el-form-item>
+        <el-form-item label="备注信息" prop="remark" style="width: 300px;">
+          <el-input
+            v-model="inOutStation.remark"
+            placeholder=""
+            clearable
+            @keyup.enter="handleQuery"
+            style="width: 200px"
+          />
         </el-form-item>
         <br>
-        <!-- 按钮 -->
+        <!-- 搜索按钮 -->
         <el-form-item>
-          <el-button type="primary" @click="receiveCommit()"
-            ><i-ep-search />确认领货</el-button
+          <el-button type="primary" @click="centerIn()"
+            ><i-ep-search />提交回执</el-button
           >
-          <el-button @click="clearReceive()"><i-ep-refresh />清空</el-button>
+          <el-button @click="clearCenterIn()"><i-ep-refresh />清空</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -261,7 +232,7 @@ onMounted(() => {
       <el-table
         v-loading="loading"
         highlight-current-row
-        :data="goodList"
+        :data="buyList"
         border
         @selection-change="handleSelectionChange"
       >
@@ -309,20 +280,34 @@ onMounted(() => {
           min-width="12%"
         />
         <el-table-column
-          key="goodNumber"
-          label="应领货数量"
+          key="buyNumber"
+          label="应入库数量"
           align="center"
-          prop="goodNumber"
+          prop="buyNumber"
           min-width="12%"
         />
-        <el-table-column label="实际领货数量" fixed="right" width="220">
+        <el-table-column label="实际入库数量" fixed="right" width="220">
               <template #default="scope">
                 <el-input 
                 v-model="scope.row.number"
                 placeholder=""
                 clearable
+                @blur="actualNumber(scope.row)"
                 style="min-width=12%">
                 </el-input>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" fixed="right" width="220">
+              <template #default="scope">
+                <el-button
+                  v-hasPerm="['sys:user:delete']"
+                  type="primary"
+                  link
+                  size="small"
+                  @click="selectBuy(scope.row)"
+                  min-width="12%"
+                  ><i-ep-delete />选择</el-button
+                >
               </template>
             </el-table-column>
       </el-table>

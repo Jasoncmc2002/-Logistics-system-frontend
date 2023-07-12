@@ -6,7 +6,7 @@ defineOptions({
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////---import---///////////////////////////////////////////////////////////////////////////////
 // 导入需要的api方法,需要用{}括起来（哪怕只引入一种方法）
-import { getGoodListByTaskId , submitCenterIn , submitReceive} from "@/api/warehouse";
+import { getGoodListByTaskId , submitCenterIn} from "@/api/warehouse";
 
 // 导入需要的数据类型，需要用{}括起来（哪怕只引入一种数据）
 import { BuyQuery , BuyPageVO , InOutStation, ReceiveQuery, GoodPageVO , ReceiveData, ReceiveQueryResult , SubmitReceiveData } from "@/api/warehouse/types";
@@ -116,11 +116,8 @@ function handleSelectionChange(selection: any) {
 function receiveCommit(){
   submitReceiveData.goods = goodList.value;
   submitReceiveData.taskId = queryParams.taskId;
-  submitReceiveData.distributor = receiveData.value.postman;
-  submitReceiveData.date = receiveData.value.receiveDate;
-  submitReceiveData.stationName = receiveData.value.substation;
-  submitReceiveData.stationId = receiveData.value.substationId;
-  submitReceive(submitReceiveData);
+  submitReceiveData.distributor = receiveData.value.distributor
+  submitReceive();
 }
 
 /**
