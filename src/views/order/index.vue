@@ -335,7 +335,7 @@ function handleQueryCustomer() {
 	getCustomerPage(queryParamsCustomer)
 		.then(({ data }) => {
 			customerList.value = data.list;
-			console.log(customerList);
+			
 			total.value = data.total;
 		})
 		.finally(() => {
@@ -448,13 +448,14 @@ function AddtoGoodlist(row:any) {
 
 
 				CreatOrderData.Goods.push(
+
 					{  goodPrice:goodList.value[0].goodPrice,
 						goodClass:goodList.value[0].goodClassName,
 						goodName:goodList.value[0].goodName,
 						goodSubclass:goodList.value[0].goodSubClassName,
 						goodCost:goodList.value[0].goodCost,
 						goodFactory:goodList.value[0].goodFactory,
-
+                        goodId:goodList.value[0].id,
 						keyId:CreatOrderData.Orders.customerId,
 						goodNumber:num1,
 						goodSale:goodList.value[0].goodSale,
@@ -672,11 +673,12 @@ const handleSubmit = useThrottleFn(() => {
 
 
 onMounted(() => {
-
-	handleQueryOrder();
-	handleQueryGood();
 	handleQuerySecondaryCategory();
 	handleQueryFirstCategory();
+	handleQueryCustomer();
+	handleQueryOrder();
+	handleQueryGood();
+	
 });
 
 

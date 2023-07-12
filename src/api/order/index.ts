@@ -9,6 +9,8 @@ import {
   OrderQuery,
   GoodQuery1,
   CreatOrder,
+  EditOrder,
+  CancelOrder,
   judgeStock,
 } from "./types";
 import { CentralStationQuery } from "@/api/good/types";
@@ -63,6 +65,23 @@ export function getGoodPage1(
 export function CreatOrderfunction(queryParams: CreatOrder) {
   return request({
     url: "/customer/addOrder",
+    method: "post",
+    data: queryParams,
+  });
+}
+
+
+export function EditOrderfunction(queryParams: EditOrder){
+  return request({
+    url: "/customer/updateOrder",
+    method: "post",
+    data: queryParams,
+  });
+}
+
+export function CancelOrderfunction(queryParams: CancelOrder){
+  return request({
+    url: "/customer/changeOrderStatusById",
     method: "post",
     data: queryParams,
   });

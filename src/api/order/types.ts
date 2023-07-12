@@ -27,6 +27,8 @@ export interface GoodPageVO {
 
   goodNumber:number;
 
+  id:number;
+
 
   classId: string;
 
@@ -105,11 +107,13 @@ export interface GoodForm {
 export interface OrderQuery extends PageQuery {
 	pageNum: number,
 	pageSize: number,
-	customerName?:string,
-	id?:number,
-	receiveName?:string,
-	startTime?:string,
-	endTime?:string
+	customerName:string,
+	id:number,
+	receiveName:string,
+	startTime:string,
+	endTime:string,
+  orderType:string
+  
 }
 //search by key id
 export interface GoodQuery extends PageQuery {
@@ -132,7 +136,7 @@ export interface GoodQuery1 extends PageQuery {
 export interface Good {
   goodPrice?: number;
   goodCost?: string;
-  
+  goodId?:number;
   goodSubclass?: string;
   keyId?: string;
   classId?: string;
@@ -173,6 +177,43 @@ export interface CreatOrder {
   };
   Goods: Good[];
 }
+
+export interface EditOrder {
+    id:number;
+
+    explain?: string;
+
+    orderType?: string;
+
+    customerAddress?: string;
+
+
+    postcode?: string;
+  
+    
+    deliveryDate?: string;
+
+    substation?: string;
+
+    mobilephone?: string;
+    
+    receiveName?: string;
+
+    isInvoice?: string;
+    
+  
+}
+
+export interface CancelOrder {
+  id?:number;
+
+  orderStatus?:string;
+  
+
+}
+
+
+
 
 export interface judgeStock{
 

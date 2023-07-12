@@ -41,7 +41,7 @@ import {
 import { useUserStore } from "@/store/modules/user";
 const userStore = useUserStore();
 // new api
-import { getOrderPage ,getGoodPage1} from "@/api/order";
+import { getOrderPage ,getGoodPage1, CancelOrderfunction} from "@/api/order";
 import { getCustomerPage,getCustomerForm ,addCustomer} from "@/api/customer";
 
 
@@ -52,8 +52,8 @@ import { UserForm, UserQuery, UserPageVO } from "@/api/user/types";
 
 // new type
 
-import { GoodQuery,GoodPageVO,GoodForm,GoodQuery1, OrderForm, OrderPageVO, OrderQuery } from "@/api/order/types";
-import { getGoodPage ,CreatOrderfunction,getOrderPageByCondition} from "@/api/order";
+import { GoodQuery,GoodPageVO,GoodForm,GoodQuery1, OrderForm, OrderPageVO, OrderQuery,CancelOrder } from "@/api/order/types";
+import { getGoodPage ,EditOrderfunction,getOrderPageByCondition} from "@/api/order";
 
 import { CustomerQuery ,CustomerPageVO,CustomerForm} from "@/api/customer/types";
 
@@ -107,10 +107,13 @@ const dialog = reactive<DialogOption>({
 	visible: false,
 });
 
-const CreateOrderdialog = reactive<DialogOption>({
+const EditOrderdialog = reactive<DialogOption>({
 	visible: false,
 });
 
+const AddGooddialog = reactive<DialogOption>({
+	visible: false,
+});
 const queryParams = reactive<UserQuery>({
 	pageNum: 1,
 	pageSize: 10,
@@ -132,17 +135,23 @@ const queryParams2 = reactive<CentralStationQuery>({
 const queryParamsOrder = reactive<OrderQuery>({
 	pageNum: 1,
 	pageSize: 5,
+	customerName:"",
+	id:0,
+	receiveName:"",
+	startTime:"",
+	endTime:"",
+  orderType:""
 });
 
 const queryParamsOrderByCondition = reactive<OrderQuery>({
 	pageNum: 1,
 	pageSize: 5,
-	id: undefined,
 	customerName:"",
-
+	id:0,
 	receiveName:"",
 	startTime:"",
-	endTime:""
+	endTime:"",
+  orderType:""
 });
 
 const queryParamsGood = reactive<GoodQuery>({
@@ -177,17 +186,25 @@ const customerList=ref<CustomerPageVO[]>();
 // new pagevo
 const orderList = ref<OrderPageVO[]>();
 const goodList = ref<GoodPageVO[]>();
+var   goodList2 = ref<GoodPageVO[]>();
 const goodList1 = ref<GoodPageVO[]>();
 const formData = reactive<UserForm>({
 	status: 1,
 });
-import type { CreatOrder } from "@/api/order/types";
+import type { CreatOrder,EditOrder } from "@/api/order/types";
 const CreatOrderData=reactive<CreatOrder>({
 	Orders:{
 		goodSum:0,
 	},
 	Goods:[]
 });
+const EditOrderData=reactive<EditOrder>({
+	id:0
+       
+})
+const CancelOrderData=reactifyObject<CancelOrder>({
+
+})
 
 // new formData
 
@@ -543,48 +560,99 @@ async function openDialog(userId?: number) {
 /**
  * 打开订单创建弹窗
  */
-function openCreateOrderDialog(row: { [key: string]: any }) {
+function openEditOrderdialog(row: { [key: string]: any }) {
 
-	CreateOrderdialog.visible = true;
-	CreateOrderdialog.title = "创建订单";
-	queryParamsCustomer.idcard=row.idcard;
-	queryParamsCustomer.name=row.name;
-	queryParamsCustomer.mobilephone=row.mobilephone;
-	CreatOrderData.Orders.customerId=row.id;
-	CreatOrderData.Orders.customerName=row.name;
-	CreatOrderData.Orders.creater=userStore.nickname;
-	//CreatOrderData.Orders.goodSum=0;
+	
 
-	console.log(queryParamsCustomer);
-	getCustomerPage(queryParamsCustomer).then(({ data }) => {
+	EditOrderdialog.title = "编辑订单信息";
+	EditOrderData.id=row.id;
+    EditOrderData.customerAddress=row.customerAddress;
+	EditOrderData.deliveryDate=row.deliveryDate;
+	EditOrderData.explain=row.explain;
+	EditOrderData.isInvoice=row.isInvoice;
+	EditOrderData.mobilephone=row.mobilephone;
+	EditOrderData.orderType=row.orderType;
+	EditOrderData.postcode=row.postcode;
+	EditOrderData.receiveName=row.receiveName;
+	EditOrderData.substation=row.substation;
+	EditOrderdialog.visible = true;
 
-		Object.assign(formDataCustomer, data.list[0]);
-
-
-	});
 
 }
-function closeCreatOrderDialog() {
 
-	CreateOrderdialog.visible = false;
-	//resetForm();
+function openAddGooddialog(row: { [key: string]: any }) {
+
+	
+AddGooddialog.title = "增加下单商品";
+
+AddGooddialog.visible = true;
+           queryParamsGood.keyId=row.id;
+          {
+			getGoodPage(queryParamsGood)
+			.then(({ data }) => {
+			goodList2.value=data.list;
+		    console.log(goodList2);
+			})
+		.finally(() => {
+			loading.value = false;
+		});
+		}
+
+
+
 }
 
-
-function CreatOrder(){
+function EditOrder(){
 	{
 		loading.value = true;
-		CreatOrderfunction(CreatOrderData)
+		EditOrderfunction(EditOrderData)
 			.then(() => {
-				ElMessage.success("创建成功");
-				closeCreatOrderDialog();
+				ElMessage.success("编辑订单信息成功");
+				closeEditOrderdialog();
 
-				handleQueryCustomer();
+				
 			})
 			.finally(() => (loading.value = false));
 	}
 }
 
+
+
+function handleCancel(row: { [key: string]: any }){
+
+	{   CancelOrderData.id=row.id;
+		CancelOrderData.orderStatus="已撤销";
+
+
+		loading.value = true;
+		CancelOrderfunction(CancelOrderData)
+			.then(() => {
+				ElMessage.success("撤销订单成功");
+				
+
+				
+			})
+			.finally(() => (loading.value = false));
+	}
+}
+
+function handleAddgood(row: { [key: string]: any }){
+	{   
+		CancelOrderData.id=row.id;
+		CancelOrderData.orderStatus="已撤销";
+
+
+		loading.value = true;
+		CancelOrderfunction(CancelOrderData)
+			.then(() => {
+				ElMessage.success("撤销订单成功");
+				
+
+				
+			})
+			.finally(() => (loading.value = false));
+	}
+}
 /**
  * 关闭弹窗
  */
@@ -593,9 +661,16 @@ function closeDialog() {
 	//resetForm();
 }
 
-function closeCreateOrderDialog() {
-	CreateOrderdialog.visible = false;
-	resetCreatOrderData();
+function closeEditOrderdialog() {
+	EditOrderdialog.visible = false;
+	handleQueryOrder();
+	resetEditOrderData();
+}
+
+function closeAddGooddialog() {
+	AddGooddialog.visible = false;
+	//handleQueryOrder();
+	//resetEditOrderData();
 }
 /**
  * 重置表单
@@ -614,6 +689,10 @@ function resetCreatOrderData() {
 	},
 		CreatOrderData.Goods=[]
 
+
+}
+function resetEditOrderData() {
+	EditOrderData.id=0;
 
 }
 
@@ -643,6 +722,7 @@ onMounted(() => {
 
 	handleQueryOrder();
 	handleQueryGood();
+	
 	handleQuerySecondaryCategory();
 	handleQueryFirstCategory();
 });
@@ -763,7 +843,7 @@ onMounted(() => {
 						<!-- 具体数据 -->
 						<el-table-column
 								key="id"
-								label="编号"
+								label="订单编号"
 								align="center"
 								prop="id"
 								width="80"
@@ -781,16 +861,11 @@ onMounted(() => {
 								align="center"
 								prop="goodSum"
 						/>
-						<el-table-column
-								label="商品说明"
-								align="center"
-								prop="explain"
-								width="100"
-						/>
+						
 						<el-table-column
 								label="备注信息"
 								align="center"
-								prop="remark"
+								prop="explain"
 								width="100"
 						/>
 						<el-table-column
@@ -846,22 +921,51 @@ onMounted(() => {
 								prop="isInvoice"
 								width="100"
 						/>
-						<el-table-column
-								label="货物状态"
-								align="center"
-								prop="goodStatus"
-								width="100"
-						/>
+						
 
 						<!-- 一些操作按钮 -->
-						<el-table-column label="操作" fixed="right" width="70">
+						<el-table-column label="操作" fixed="right" width="200">
 							<template #default="scope">
 								<el-button
-										type="primary"
-										size="small"
-										link
-										@click="displayOrderInfo(scope.row)"
-								>详细信息</el-button>
+									type="primary"
+									size="small"
+									link
+									@click="displayOrderInfo(scope.row)"
+							        >详细信息</el-button>
+
+								<el-button
+									v-if="scope.row.orderStatus=='可分配'||scope.row.orderStatus=='缺货'" 
+									type="primary"
+									link
+									size="small"
+									@click="openEditOrderdialog(scope.row)"
+									><i-ep-edit />编辑订单信息</el-button
+									>
+									
+									<el-button
+									
+									type="primary"
+									link
+									size="small"
+									@click="handleCancel(scope.row)"
+									><i-ep-delete />撤销订单</el-button>
+									
+									<el-button
+									v-if="scope.row.orderStatus=='可分配'||scope.row.orderStatus=='缺货'"
+									type="primary"
+									link
+									size="small"
+									@click="openAddGooddialog(scope.row)"
+									><i-ep-plus />新增下单商品</el-button>
+
+									
+									<el-button
+									v-if="scope.row.orderStatus=='可分配'||scope.row.orderStatus=='缺货'"
+									type="primary"
+									link
+									size="small"
+									@click="handleDelete(scope.row.id)"
+									><i-ep-minus />退订</el-button>
 
 							</template>
 						</el-table-column>
@@ -882,7 +986,7 @@ onMounted(() => {
 		<!-- </el-col> -->
 		<el-container>
 			<el-card>
-				<el-header>Header</el-header>
+				<el-header>商品详情</el-header>
 				<el-main>
 
 					<!--good表单开始-->
@@ -896,8 +1000,15 @@ onMounted(() => {
 
 						<!-- 具体数据 -->
 						<el-table-column
+								label="订单号"
+								align="center"
+								prop="keyId"
+								width="140"
+
+						/>
+						<el-table-column
 								key="id"
-								label="编号"
+								label="商品编号"
 								align="center"
 								prop="id"
 								width="150"
@@ -944,13 +1055,7 @@ onMounted(() => {
 								width="140"
 
 						/>
-						<el-table-column
-								label="客户id"
-								align="center"
-								prop="customerId"
-								width="140"
-
-						/>
+						
 					</el-table>
 					<pagination
 							v-if="total > 0"
@@ -1057,29 +1162,26 @@ onMounted(() => {
 
 
 
-		<!-- 表单弹窗2-create-order -->
+		<!-- 表单弹窗2-edit-order -->
 		<el-dialog
-				v-model="CreateOrderdialog.visible"
-				:title="CreateOrderdialog.title"
+				v-model="EditOrderdialog.visible"
+				:title="EditOrderdialog.title"
 				width="1100px"
 				append-to-body
-				@close="closeCreateOrderDialog"
+				@close="closeEditOrderdialog"
 		>
-
-
 
 
 			<!--记得写rules-->
 
-			<el-steps :active="active" finish-status="success">
+			<!-- <el-steps :active="active" finish-status="success">
 				<el-step title="第一步" />
-				<el-step title="第二步" />
-			</el-steps>
+				
+			</el-steps> -->
 
 			<div
-					:model="CreatOrderData">
+					:model="EditOrderData">
 
-				<div v-show="active == 1">
 					<el-card class="box-card">
 						<template #header>
 							<div class="card-header">
@@ -1087,89 +1189,18 @@ onMounted(() => {
 								<el-button class="button" text></el-button>
 							</div>
 						</template>
-						<!--row1-->
-						<el-row >
-							<el-col span="12">
-								<el-form-item label="用户名" prop="customer_name">
-									<el-input
-
-											v-model="formDataCustomer.name"
-											:placeholder=formDataCustomer.name
-											readonly="readonly"
-
-									/>
-								</el-form-item>
-							</el-col>
-							<el-col span="12">
-								<el-form-item label="地址" prop="customer_address">
-									<el-input
-											v-model="formDataCustomer.address"
-											readonly="readonly"
-											placeholder="请输入地址"
-									/>
-								</el-form-item>
-							</el-col>
-							<el-col span="12">
-								<el-form-item label="固定电话" prop="addressphone">
-									<el-input
-											v-model="formDataCustomer.addressphone"
-
-											placeholder="请输入固定电话号码"
-											readonly="readonly"
-									/>
-								</el-form-item>
-							</el-col>
-						</el-row>
-
-						<!--row2-->
-
-						<el-row>
-
-							<el-col span="12">
-								<el-form-item label="手机号码" prop="mobilephone">
-									<el-input
-											v-model="formDataCustomer.mobilephone"
-											placeholder="请输入手机号码"
-											readonly="readonly"
-											maxlength="11"
-									/>
-								</el-form-item>
-							</el-col>
-
-							<el-col span="12">
-								<el-form-item label="工作单位" prop="work">
-									<el-input
-											v-model="formDataCustomer.work"
-											readonly="readonly"
-
-											placeholder="请输入工作单位"
-									/>
-								</el-form-item>
-							</el-col>
-
-							<el-col span="12">
-								<el-form-item label="邮编" prop="postcode">
-									<el-input
-											v-model="formDataCustomer.postcode"
-											readonly="readonly"
-											placeholder="请输入邮编"
-									/>
-								</el-form-item>
-							</el-col>
-						</el-row>
-
 						<!--row3-->
 
 						<el-row>
 							<el-col span="12">
 								<el-form-item label="接收人姓名" prop="receiveName">
-									<el-input v-model="CreatOrderData.Orders.receiveName" />
+									<el-input v-model="EditOrderData.receiveName" />
 								</el-form-item>
 							</el-col>
 
 							<el-col span="12">
 								<el-form-item label="接收人电话" prop="mobilephone">
-									<el-input v-model="CreatOrderData.Orders.mobilephone" />
+									<el-input v-model="EditOrderData.mobilephone" />
 								</el-form-item>
 							</el-col>
 
@@ -1181,7 +1212,7 @@ onMounted(() => {
 							<el-col span="8">
 								<el-form-item label="订单类型" prop="order_type">
 									<el-select
-											v-model="CreatOrderData.Orders.orderType"
+											v-model="EditOrderData.orderType"
 											class="m-2"
 											placeholder="订单类型"
 									>
@@ -1198,7 +1229,7 @@ onMounted(() => {
 							<el-col span="8">
 								<el-form-item label="投递分站" prop="substation">
 									<el-select
-											v-model="CreatOrderData.Orders.substation"
+											v-model="EditOrderData.substation"
 											class="m-2"
 											placeholder="选择分站"
 									>
@@ -1215,7 +1246,7 @@ onMounted(() => {
 							<el-col span="12">
 								<el-form-item label="要求完成日期" prop="delivery_date">
 									<el-date-picker
-											v-model="CreatOrderData.Orders.deliveryDate"
+											v-model="EditOrderData.deliveryDate"
 											type="datetime"
 											placeholder="Select date and time"
 									/>
@@ -1226,27 +1257,27 @@ onMounted(() => {
 						<!--row 5-->
 
 						<el-row>
-							<el-col span="12">
-								<el-form-item label="是否索要发票" prop="work">
+							<el-col span="8">
+								<el-form-item label="是否索要发票" >
 									<el-radio-group
-											v-model="CreatOrderData.Orders.isInvoice"
+											v-model="EditOrderData.isInvoice"
 											class="ml-4"
 									>
 										<el-radio label="1" size="large">是</el-radio>
-										<el-radio label="2" size="large">否</el-radio>
+										<el-radio label="0" size="large">否</el-radio>
 									</el-radio-group>
 								</el-form-item>
 							</el-col>
 
-							<el-col span="12">
-								<el-form-item label="送货地址" prop="work">
-									<el-input v-model="CreatOrderData.Orders.customerAddress" />
+							<el-col span="8">
+								<el-form-item label="送货地址" >
+									<el-input style="" v-model="EditOrderData.customerAddress"/>
 								</el-form-item>
 							</el-col>
 
-							<el-col span="12">
-								<el-form-item label="收件人邮编" prop="work">
-									<el-input v-model="CreatOrderData.Orders.postcode" />
+							<el-col span="8">
+								<el-form-item label="收件人邮编" >
+									<el-input v-model="EditOrderData.postcode" />
 								</el-form-item>
 							</el-col>
 						</el-row>
@@ -1255,7 +1286,7 @@ onMounted(() => {
 						<el-row>
 							<el-col span="12">
 								<el-form-item label="备注信息" prop="explain">
-									<el-input v-model="CreatOrderData.Orders.explain" />
+									<el-input v-model="EditOrderData.explain" />
 								</el-form-item>
 							</el-col>
 						</el-row>
@@ -1263,14 +1294,49 @@ onMounted(() => {
 
 
 					</el-card>
-				</div>
+				
 
 
 				<!--下一步-->
 
-				<div v-show="active >= 2">
+				
 
-					<el-form ref="CustomerFormRef" :model="queryParams1" :inline="true">
+			</div>
+
+
+
+			<template #footer>
+				<div class="dialog-footer">
+					<el-row >
+
+						<!-- <el-button v-if="active < 2" style="margin-top: 12px" @click="next"
+						>下一步</el-button
+						>
+						<el-button v-if="active > 1" style="margin-top: 12px" @click="pre"
+						>上一步</el-button
+						> -->
+						
+						<el-button style="margin-top: 12px" @click="closeEditOrderdialog">取 消</el-button>
+
+
+						<el-button type="primary"    style="margin-top: 12px;"  @click="EditOrder()">确认修改</el-button>
+
+
+					</el-row>
+				</div>
+			</template>
+		</el-dialog>
+
+		<el-dialog
+				v-model="AddGooddialog.visible"
+				:title="AddGooddialog.title"
+				width="1100px"
+				append-to-body
+				@close="closeAddGooddialog"
+		>
+	
+	
+		<el-form ref="CustomerFormRef" :model="queryParams1" :inline="true">
 						<el-form-item label="商品搜索" prop="keywords">
 							<el-select v-model="queryParams1.goodClassId" class="m-2" placeholder="一级分类" >
 								<el-option
@@ -1308,12 +1374,11 @@ onMounted(() => {
 							:data="goodList"
 							@selection-change="handleSelectionChangeOrder"
 					>
-						<!-- 选中框行 -->
-						<!-- <el-table-column type="selection" width="50" align="center" /> -->
+	
 
 						<!-- 具体数据 -->
 
-						<el-table-column
+						 <el-table-column
 								key="id"
 								label="编号"
 								align="center"
@@ -1379,34 +1444,34 @@ onMounted(() => {
 
 
 
-					</el-table>
+					</el-table> 
 
-					<pagination
+					 <pagination
 							v-if="total > 0"
 							v-model:total="total"
 							v-model:page="queryParamsGood1.pageNum"
 							v-model:limit="queryParamsGood1.pageSize"
 							@pagination="handleQueryGood"
-					/>
+					/> 
 
-					<el-form ref="CustomerFormRef" inline="true" >
+					 <el-form ref="CustomerFormRef" inline="true" >
 						<el-form-item label="商品总额是" props="GoodSum" >
 							<el-input
-									v-model="CreatOrderData.Orders.goodSum"
+									v-model="goodList2.goodSum"
 									readonly="readonly"
 									style=""
 							>
 
 							</el-input>
 						</el-form-item>
-					</el-form>
+					</el-form> 
 
 
 
 
 					<el-table
 							v-loading="loading"
-							:data="CreatOrderData.Goods"
+							:data="goodList2"
 							@selection-change="handleSelectionChangeOrder">
 
 						<el-table-column
@@ -1464,33 +1529,9 @@ onMounted(() => {
 							v-model:page="queryParamsGood1.pageNum"
 							v-model:limit="queryParamsGood1.pageSize"
 							@pagination="handleQueryGood"
-					/>
-
-				</div>
-			</div>
-
-
-
-			<template #footer>
-				<div class="dialog-footer">
-					<el-row >
-
-						<el-button v-if="active < 2" style="margin-top: 12px" @click="next"
-						>下一步</el-button
-						>
-						<el-button v-if="active > 1" style="margin-top: 12px" @click="pre"
-						>上一步</el-button
-						>
-						<el-button style="margin-top: 12px" @click="closeCreateOrderDialog">取 消</el-button>
-
-
-						<el-button type="primary"  v-show="active >= 2"  style="margin-top: 12px;"  @click="CreatOrder">创建订单</el-button>
-
-
-					</el-row>
-				</div>
-			</template>
-		</el-dialog>
+					/> 
+	
+	</el-dialog>
 
 
 	</div>
