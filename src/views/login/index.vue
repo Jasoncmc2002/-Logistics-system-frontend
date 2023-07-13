@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <Particles class="login-particles" :options="options" />
+    <!--    <Particles class="login-particles" :options="options" />-->
     <el-form
       ref="loginFormRef"
       :model="loginData"
@@ -206,91 +206,6 @@ function handleLogin() {
   });
 }
 
-const options = {
-  fpsLimit: 60,
-  interactivity: {
-    detectsOn: "canvas",
-    events: {
-      onClick: {
-        enable: true,
-        mode: "push",
-      },
-      onHover: {
-        enable: true,
-        mode: "grab",
-      },
-      resize: true,
-    },
-    modes: {
-      bubble: {
-        distance: 400,
-        duration: 2,
-        opacity: 0.8,
-        size: 40,
-      },
-      push: {
-        quantity: 4,
-      },
-      grab: {
-        distance: 200,
-        duration: 0.4,
-      },
-      attract: {
-        distance: 200,
-        duration: 0.4,
-        factor: 5,
-      },
-    },
-  },
-  particles: {
-    color: {
-      value: "#BA55D3",
-    },
-    links: {
-      color: "#FFBBFF",
-      distance: 150,
-      enable: true,
-      opacity: 0.4,
-      width: 1.2,
-    },
-    collisions: {
-      enable: true,
-    },
-    move: {
-      attract: {
-        enable: false,
-        rotateX: 600,
-        rotateY: 1200,
-      },
-      bounce: false,
-      direction: "none",
-      enable: true,
-      out_mode: "out",
-      random: false,
-      speed: 0.5,
-      straight: false,
-    },
-    number: {
-      density: {
-        enable: true,
-        value_area: 2000,
-      },
-      value: 800,
-    },
-    opacity: {
-      value: 0.7,
-    },
-    shape: {
-      type: "star",
-    },
-    size: {
-      random: true,
-      value: 3,
-    },
-  },
-  detectRetina: true,
-};
-
 onMounted(() => {
   getCaptcha();
 });
@@ -323,17 +238,6 @@ onMounted(() => {
         cursor: pointer;
       }
     }
-  }
-
-  .login-particles {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    //background-size: cover;
-    //background-repeat: no-repeat;
-    //background-image: url('@/assets/0001.jpg');
-    opacity: 0.9;
   }
 }
 
