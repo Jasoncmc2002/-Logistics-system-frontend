@@ -19,12 +19,6 @@ import { CentralStationQuery } from "@/api/good/types";
  *
  * @param userId
  */
-export function getOrderForm(userId: number): AxiosPromise<OrderForm> {
-  return request({
-    url: "/api/v1/users/" + userId + "/form",
-    method: "get",
-  });
-}
 
 /**
  * 获取用户分页列表
@@ -70,6 +64,13 @@ export function CreatOrderfunction(queryParams: CreatOrder) {
   });
 }
 
+export function AddOrderGoodfunction(queryParams: CreatOrder) {
+  return request({
+    url: "/customer/addOrderGood",
+    method: "post",
+    data: queryParams,
+  });
+}
 
 export function EditOrderfunction(queryParams: EditOrder){
   return request({

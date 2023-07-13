@@ -153,10 +153,12 @@ export interface Good {
   isChange?: string;
   goodName?: string;
   username?: string;
+  changeNumber?:number;
 }
 
 export interface CreatOrder {
   Orders: {
+    id?:number;
     explain?: string;
     orderType?: string;
     customerAddress?: string;
