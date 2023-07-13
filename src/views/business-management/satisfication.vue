@@ -138,7 +138,7 @@ onMounted(() => {
   <div class="app-container">
     <el-row :gutter="24">
       <!-- 搜索栏 -->
-      <el-col :span="12">
+      <el-col :span="18">
         <div class="search-container">
           <el-form ref="queryFormRef1" :model="formData" :inline="true">
             <!--            <el-form-item label="分析目标" :rules="formRules.goal">-->
