@@ -1,44 +1,66 @@
 <!--字典类型-->
 <script setup lang="ts">
 defineOptions({
-  name: "CenterIn",
+  name: "CenterWithdrawOut",
   inheritAttrs: false,
 });
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////---import---///////////////////////////////////////////////////////////////////////////////
 // 导入需要的api方法,需要用{}括起来（哪怕只引入一种方法）
-import { getBuyListByCriteria , submitCenterIn} from "@/api/warehouse";
+import { submitCenterIn , getGoodListByAlloId , getGoodListByKey , centralStationReturn } from "@/api/withdraw/centerWithdrawOut";
 
 // 导入需要的数据类型，需要用{}括起来（哪怕只引入一种数据）
-import { BuyQuery , BuyPageVO , InOutStation } from "@/api/warehouse/types";
+import { GoodPageVO , ReceiveData , ReceiveQueryResult , SubmitWithdrawData , AllocationPageVO , GoodQuery } from "@/api/withdraw/centerWithdrawOut/types";
+import { all } from "axios";
 
-// 导入时间选择器
+// 导入时间选择器等插件
 import { ElDatePicker } from "element-plus";
 import { forEach } from "lodash";
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////---声明前端固定使用的数据---///////////////////////////////////////////////////////////////////////////////
+
+// el-form需要对应的数据格式，里面的内容由model=“所需要的数据”决定
 const queryFormRef = ref(ElForm);
+// 目前没用到
 const dataFormRef = ref(ElForm);
-
+// loading：决定表单是否数据加载成功，是否渲染数据
 const loading = ref(false);
+const dialogLoading = ref(false);
+// ids：存放多选时的id
 const ids = ref<number[]>([]);
+// total：决定表单对应数据的总数
 const total = ref(0);
+const dialogTotal = ref(0);
 
-// 查询参数
-const queryParams = reactive<BuyQuery>({
-  pageNum: 1,
-  pageSize: 10,
-  id:""
-});
-
-const inOutStation = reactive<InOutStation>({})
-
-// 表格显示的数据
-const buyList = ref<BuyPageVO[]>([]);
+///////////////////////---弹窗--//////////////////////////
 
 // 声明一个待用弹窗，初始为不可见
 const dialog = reactive<DialogOption>({
   visible: false,
 });
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////---前后端交互所需要的数据---///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////---调用后端所需要的数据结构---//////////////////////////
+
+// 查询参数
+const queryParams = reactive<GoodQuery>({
+  pageNum: 1,
+  pageSize: 10,
+  id: "",
+  endTime: new Date(2023, 10, 10, 10, 10),
+  startTime: new Date(2021, 10, 11, 10, 10),
+});
+
+
+// 提交领货信息的数据体
+const submitWithdrawData = reactive<SubmitWithdrawData>({});
+///////////////////////---渲染表格所需要的数据---//////////////////////////
+
+// 详情弹窗中，商品详情表单数据
+const goodList = ref<GoodPageVO[]>([]);
+
+
+///////////////////////---格式要求设置---//////////////////////////
 
 // 新建相关格式要求设置
 const rules = reactive({
@@ -46,27 +68,19 @@ const rules = reactive({
   code: [{ required: true, message: "请输入字典类型编码", trigger: "blur" }],
 });
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////---方法---///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////---加载数据---//////////////////////////
+
 /**
  * 查询/也用作加载所有数据
  */
 function handleQuery() {
   loading.value = true;
-  // getTaskListByCriteria(queryParams)
-  //   .then(({ data }) => {
-  //     taskList.value = data.list;
-  //     total.value = data.total;
-  //     dropDownBarDataRefresh();
-  //     console.log("打印加载到的所有任务类型");
-  //     console.log(taskTypeList);
-  //     console.log("打印加载到的所有任务类型结束");
-  //   })
-  //   .finally(() => {
-  //     loading.value = false;
-  //   });
-  getBuyListByCriteria(queryParams)
+  getGoodListByKey(queryParams)
     .then(({ data }) => {
       loading.value = true;
-      buyList.value = data.list;
+      goodList.value = data.list;
       total.value = data.total;
     })
     .finally(() => {
@@ -74,15 +88,18 @@ function handleQuery() {
     })
 }
 
+
 /**
  * 重置查询
  */
 function resetQuery() {
   queryFormRef.value.resetFields();
   queryParams.id = undefined;
-  handleQuery();
+  goodList.value = undefined;
 }
 
+
+///////////////////////---多选事件---//////////////////////////
 
 /**
  * checkbox change事件
@@ -91,38 +108,43 @@ function handleSelectionChange(selection: any) {
   ids.value = selection.map((item: any) => item.id);
 }
 
+///////////////////////---按钮事件---//////////////////////////
+
 /**
- * 提交入库
+ * 确认出库
  */
-function centerIn(){
-  submitCenterIn(inOutStation);
-  clearCenterIn();
+function centerOut(row: { [key: string]: any }){
+    dialog.title = "填写退货到供应商信息";
+    dialog.visible = true;
+    submitWithdrawData.inoutStationId = row.id;
 }
 
-function clearCenterIn(){
-  inOutStation.goodId = undefined;
-  inOutStation.goodName = undefined;
-  inOutStation.date = undefined;
-  inOutStation.buyDate = undefined;
-  inOutStation.number = undefined;
-  inOutStation.remark = undefined;
-  inOutStation.signer = undefined;
-  inOutStation.supply = undefined;
+///////////////////////---弹窗相关事件---//////////////////////////
+
+/**
+ * 关闭弹窗
+ */
+ function closeDialog() {
+  dialog.visible = false;
 }
 
-function selectBuy(row: { [key: string]: any }){
-  inOutStation.goodId = row.centralGoodId;
-  inOutStation.supply = row.supply;
-  inOutStation.buyDate = row.buyDate;
+/**
+ * 提交退货出库到供应商
+ */
+function centerOutSubmit(){
+  centralStationReturn(submitWithdrawData)
+    .then(({ data }) => {
+      closeDialog();
+      handleQuery();
+    })
 }
 
-function actualNumber(row: { [key: string]: any }){
-  inOutStation.number = parseFloat(row.number);
-}
+///////////////////////---挂载时自动渲染---//////////////////////////
 
 onMounted(() => {
   handleQuery();
 });
+
 </script>
 
 <template>
@@ -132,13 +154,32 @@ onMounted(() => {
       <el-form ref="queryFormRef" :model="queryParams" :inline="true">
         <!-- 搜索关键字 -->
         <!-- date picker的model报错是因为element-plus的版本问题，不影响正常使用  -->
-        <el-form-item label="购货单号" prop="name">
+        <el-form-item label="库房退货单ID" prop="taskId">
           <el-input
             v-model="queryParams.id"
             placeholder=""
             clearable
             @keyup.enter="handleQuery"
             style="width: 200px"
+          />
+        </el-form-item>
+        <el-form-item label="时间范围" prop="startLine">
+          <el-date-picker
+            v-model="queryParams.startTime"
+            placeholder="时间左界限"
+            clearable
+            style="width: 200px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        <el-form-item>-</el-form-item>
+        <el-form-item label="" prop="endLine">
+          <el-date-picker
+            v-model="queryParams.endTime"
+            placeholder="时间右界限"
+            clearable
+            style="width: 200px"
+            @keyup.enter="handleQuery"
           />
         </el-form-item>
         <!-- 搜索按钮 -->
@@ -150,76 +191,6 @@ onMounted(() => {
         </el-form-item>
       </el-form>
     </div>
-    <!-- 购入单签收详细信息录入栏 -->
-    <el-card>
-      <el-form ref="queryFormRef" :model="inOutStation" :inline="true">
-        <!-- 搜索关键字 -->
-        <!-- date picker的model报错是因为element-plus的版本问题，不影响正常使用  -->
-        <el-form-item label="货物号码" prop="goodId" style="width: 300px;">
-          <el-input
-            v-model="inOutStation.goodId"
-            placeholder=""
-            clearable
-            @keyup.enter="handleQuery"
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="供应商源" prop="supply" style="width: 300px;">
-          <el-input
-            v-model="inOutStation.supply"
-            placeholder=""
-            clearable
-            @keyup.enter="handleQuery"
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="购货日期" prop="buyDate" style="width: 300px;">
-          <el-input
-            v-model="inOutStation.buyDate"
-            placeholder=""
-            clearable
-            @keyup.enter="handleQuery"
-            style="width: 200px"
-          />
-        </el-form-item>
-        <br>
-        <el-form-item label="签收人员" prop="signer" style="width: 300px;">
-          <el-input
-            v-model="inOutStation.signer"
-            placeholder=""
-            clearable
-            @keyup.enter="handleQuery"
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="签收日期" prop="buyDate" style="width: 300px;">
-          <el-date-picker
-            v-model="inOutStation.date"
-            placeholder="购货日期"
-            clearable
-            style="width: 200px"
-            @keyup.enter="handleQuery"
-          />
-        </el-form-item>
-        <el-form-item label="备注信息" prop="remark" style="width: 300px;">
-          <el-input
-            v-model="inOutStation.remark"
-            placeholder=""
-            clearable
-            @keyup.enter="handleQuery"
-            style="width: 200px"
-          />
-        </el-form-item>
-        <br>
-        <!-- 搜索按钮 -->
-        <el-form-item>
-          <el-button type="primary" @click="centerIn()"
-            ><i-ep-search />提交回执</el-button
-          >
-          <el-button @click="clearCenterIn()"><i-ep-refresh />清空</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
     <!-- 表单部分 -->
     <el-card shadow="never">
       <!-- 表单开始位置 -->
@@ -232,7 +203,7 @@ onMounted(() => {
       <el-table
         v-loading="loading"
         highlight-current-row
-        :data="buyList"
+        :data="goodList"
         border
         @selection-change="handleSelectionChange"
       >
@@ -250,7 +221,13 @@ onMounted(() => {
               prop="id"
               width="100"
             /> -->
-
+        <el-table-column
+          key="goodId"
+          label="商品代码"
+          align="center"
+          prop="goodId"
+          min-width="12%"
+        />
         <el-table-column
           key="goodName"
           label="商品名称"
@@ -259,57 +236,47 @@ onMounted(() => {
           min-width="12%"
         />
         <el-table-column
-          key="goodClass"
-          label="一级类别"
+          key="goodFactory"
+          label="供应商"
           align="center"
-          prop="goodClass"
-          min-width="12%"
-        />
-        <el-table-column
-          key="goodSubclass"
-          label="二级类别"
-          align="center"
-          prop="goodSubclass"
+          prop="goodFactory"
           min-width="12%"
         />
         <el-table-column
           key="goodUnit"
-          label="商品单位"
+          label="计量单位"
           align="center"
           prop="goodUnit"
           min-width="12%"
         />
         <el-table-column
-          key="buyNumber"
-          label="应入库数量"
+          key="stationName"
+          label="分站名称"
           align="center"
-          prop="buyNumber"
+          prop="stationName"
           min-width="12%"
         />
-        <el-table-column label="实际入库数量" fixed="right" width="220">
-              <template #default="scope">
-                <el-input 
-                v-model="scope.row.number"
-                placeholder=""
-                clearable
-                @blur="actualNumber(scope.row)"
-                style="min-width=12%">
-                </el-input>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" fixed="right" width="220">
-              <template #default="scope">
-                <el-button
-                  v-hasPerm="['sys:user:delete']"
-                  type="primary"
-                  link
-                  size="small"
-                  @click="selectBuy(scope.row)"
-                  min-width="12%"
-                  ><i-ep-delete />选择</el-button
-                >
-              </template>
-            </el-table-column>
+        <el-table-column
+          key="number"
+          label="退货数量"
+          align="center"
+          prop="number"
+          min-width="12%"
+        />
+
+        <el-table-column label="操作" fixed="right" width="220">
+          <template #default="scope">
+            <el-button
+              v-hasPerm="['sys:user:delete']"
+              type="primary"
+              link
+              size="small"
+              @click="centerOut(scope.row)"
+              min-width="12%"
+              ><i-ep-edit />退货到供应商</el-button
+            >
+          </template>
+        </el-table-column>
       </el-table>
       <!-- 表单结束位置 -->
 
@@ -327,5 +294,62 @@ onMounted(() => {
         @pagination="handleQuery"
       />
     </el-card>
+
+    <!-- 提交分站库房出库表单弹窗 -->
+    <el-dialog
+      v-model="dialog.visible"
+      :title="dialog.title"
+      width="400px"
+      append-to-body
+      @close="closeDialog"
+    >
+    <el-form
+          ref="userFormRef"
+          :model="submitWithdrawData"
+          :rules="rules"
+          label-width="80px"
+      >
+        <el-form-item label="分发人" prop="distributor" style="width: 300px;">
+          <el-input
+            v-model="submitWithdrawData.distributor"
+            placeholder=""
+            clearable
+            style="width: 500px"
+          />
+        </el-form-item>
+        <el-form-item label="签收人" prop="signer" style="width: 300px;">
+          <el-input
+            v-model="submitWithdrawData.signer"
+            placeholder=""
+            clearable
+            style="width: 500px"
+          />
+        </el-form-item>
+        <el-form-item label="备注" prop="remark" style="width: 300px;">
+          <el-input
+            v-model="submitWithdrawData.remark"
+            placeholder=""
+            clearable
+            style="width: 500px"
+          />
+        </el-form-item>
+        <el-form-item label="出库日期" prop="date" style="width: 300px;">
+          <el-date-picker
+            v-model="submitWithdrawData.date"
+            placeholder="出库日期"
+            clearable
+            style="width: 500px"
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+        
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="centerOutSubmit">出 库</el-button>
+          <el-button @click="closeDialog">返 回</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>

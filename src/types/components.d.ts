@@ -89,8 +89,11 @@ declare module "@vue/runtime-core" {
     SizeSelect: typeof import("./../components/SizeSelect/index.vue")["default"];
     SvgIcon: typeof import("./../components/SvgIcon/index.vue")["default"];
     TagInput: typeof import("./../components/TagInput/index.vue")["default"];
+		LayoutCom: typeof import("../components/common/LayoutCom.vue")["default"];
     TagsView: typeof import("./../layout/components/TagsView/index.vue")["default"];
     WangEditor: typeof import("./../components/WangEditor/index.vue")["default"];
+		Header: typeof import("./../components/common/header/Header.vue")["default"];
+		Footer: typeof import("./../components/common/footer/Footer.vue")["default"];
   }
   export interface ComponentCustomProperties {
     vLoading: typeof import("element-plus/es")["ElLoadingDirective"];

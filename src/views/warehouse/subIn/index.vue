@@ -4,31 +4,39 @@ defineOptions({
   name: "SubIn",
   inheritAttrs: false,  
 });
+////////////////////////////////////////////////////////////////////////////////////////////////////////////---import---///////////////////////////////////////////////////////////////////////////////
 
-import { getStationInOutPage } from "@/api/station";
-import { StationInOutQuery } from "@/api/station/types";
 // 导入需要的api方法,需要用{}括起来（哪怕只引入一种方法）
-import { getBuyListByCriteria , submitCenterIn , getAllocationByCriteria , getDetailsByOrderId , submitCenterOut , getAllocationById , getAllocationDataById , subInSubmit} from "@/api/warehouse";
+import { submitCenterIn , getDetailsByOrderId , getAllocationById , getAllocationDataById , subInSubmit} from "@/api/warehouse";
 
 // 导入需要的数据类型，需要用{}括起来（哪怕只引入一种数据）
-import { AllocationQuery , AllocationPageVO , InOutStation , DetailPageVO , DetailQuery, AlloQuery , CenterOutData , InOutQuery , GoodPageVO , SubInData , AllocationData } from "@/api/warehouse/types";
-import { all } from "axios";
-import { number } from "echarts";
+import { InOutStation , DetailPageVO , DetailQuery, AlloQuery , InOutQuery , GoodPageVO , SubInData , AllocationData } from "@/api/warehouse/types";
 
 // 导入时间选择器
 import { ElDatePicker } from "element-plus";
-import { tr } from "element-plus/es/locale";
-import { forEach } from "lodash";
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////---声明前端固定使用的数据---///////////////////////////////////////////////////////////////////////////////
+
+// el-form需要对应的数据格式，里面的内容由model=“所需要的数据”决定
 const queryFormRef = ref(ElForm);
+
+// 目前没用到
 const dataFormRef = ref(ElForm);
 
+// loading：决定表单是否数据加载成功，是否渲染数据
 const loading = ref(false);
-const ids = ref<number[]>([]);
-const total = ref(0);
-
 const detailLoading = ref(false);
+
+// ids：存放多选时的id
+const ids = ref<number[]>([]);
+
+// total：决定表单对应数据的总数
+const total = ref(0);
 const detailTotal = ref(0);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////---前后端交互所需要的数据---///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////---调用后端所需要的数据结构---//////////////////////////
 
 // 查询参数
 const queryParams = reactive<InOutQuery>({
@@ -49,6 +57,7 @@ const detailParams = reactive<DetailQuery>({
 
 // 提交出库所需要的数据
 const subInData = reactive<SubInData>({})
+
 
 const allocationData = reactive<AllocationData>({})
 

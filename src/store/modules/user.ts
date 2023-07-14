@@ -1,14 +1,14 @@
-import { defineStore } from "pinia";
+import {defineStore} from "pinia";
 
-import { loginApi, logoutApi } from "@/api/auth";
-import { getUserInfo } from "@/api/user";
-import { resetRouter } from "@/router";
-import { store } from "@/store";
+import {loginApi, logoutApi, signApi} from "@/api/auth";
+import {getUserInfo} from "@/api/user";
+import {resetRouter} from "@/router";
+import {store} from "@/store";
 
-import { LoginData } from "@/api/auth/types";
-import { UserInfo } from "@/api/user/types";
+import {LoginData, SignInData} from "@/api/auth/types";
+import {UserInfo} from "@/api/user/types";
 
-import { useStorage } from "@vueuse/core";
+import {useStorage} from "@vueuse/core";
 
 export const useUserStore = defineStore("user", () => {
   // state
@@ -38,7 +38,22 @@ export const useUserStore = defineStore("user", () => {
         });
     });
   }
-
+/*  注册调用*/
+	function sign(loginData: SignInData) {
+		return new Promise<void>((resolve, reject) => {
+			console.log("ssss??")
+			signApi(loginData)
+			.then((response) => {
+				console.log("ssss")
+				// const { tokenType, accessToken } = response.data;
+				// token.value = tokenType + " " + accessToken; // Bearer eyJhbGciOiJIUzI1NiJ9.xxx.xxx
+				resolve();
+			})
+			.catch((error) => {
+				reject(error);
+			});
+		});
+	}
   // 获取信息(用户昵称、头像、角色集合、权限集合)
   function getInfo() {
     return new Promise<UserInfo>((resolve, reject) => {
@@ -94,6 +109,7 @@ export const useUserStore = defineStore("user", () => {
     roles,
     perms,
     login,
+		sign,
     getInfo,
     logout,
     resetToken,

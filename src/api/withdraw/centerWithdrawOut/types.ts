@@ -1,3 +1,117 @@
+////////////////////////////---Query---//////////////////////////////////
+
+/**
+ * 根据id号或者时间范围查询商品列表
+ */
+export interface GoodQuery extends PageQuery {
+    /**
+   * 中心库房退货单号
+   */
+    id?: string;
+    /**
+     * 时间左界限
+     */
+    startTime?: string | Date;
+    /**
+     * 时间右界限
+     */
+    endTime?: string | Date;
+}
+////////////////////////////---SubmitData---//////////////////////////////////
+export interface SubOutData {
+  /**
+   * 调拨单号
+   */
+  alloId?: number;
+  /**
+   * 备注
+   */
+  remark?: string;
+  /**
+   * 分站出库日期
+   */
+  date?: string | Date;
+  /**
+   * 签收人
+   */
+  signer?: string;
+  /**
+   * 分发人
+   */
+  distributor?: string;
+  /**
+   * 商品列表
+   */
+  goods?: GoodPageVO[];
+}
+////////////////////////////---PageVO---//////////////////////////////////
+/**
+ * 商品页面数据
+ */
+export interface GoodPageVO {   	
+  /**
+   * 商品分类
+   */
+  goodClass?: string;
+  /**
+   * 商品代码
+   */
+  goodId?: number;
+  /**
+   * 商品名称
+   */
+  goodName?: string;
+  /**
+   * 供应商
+   */
+  goodFactory?: string;
+  /**
+   * 计量单位
+   */
+  goodUnit?: string;
+  /**
+   * 分站名称
+   */
+  stationName?: string;
+  /**
+   * 退货数量
+   */
+  goodNumber?: number;
+}
+
+/**
+ * 调拨单页面数据
+ */
+export interface AllocationPageVO {   	
+  /**
+   * 调拨单号
+   */
+  id?: number;
+  /**
+   * 订单号
+   */
+  orderId?: number;
+  /**
+   * 出库库房
+   */
+  outStationName?: string;
+  /**
+   * 入库库房
+   */
+  inStationName?: string;
+}
+////////////////////////////---PageResult---//////////////////////////////////
+export type GoodPageResult = PageResult<GoodPageVO[]>;
+
+
+export type AllocationPageResult = PageResult<AllocationPageVO[]>;
+
+export interface DefaultRespond {
+  code?: string;
+  data?: any;
+  message?: string;
+}
+//////////////////////////////////复制过来的记得删除//////////////////////////////////////
 // 表单对应的数据结构
 export interface BuyPageVO {
   /**
@@ -95,24 +209,12 @@ export interface DetailQuery extends PageQuery {
   orderId?: number;
 }
 
-export interface AlloQuery {
-  /**
-   * 调拨单号
-   */
-  id?: number;
-  /**
-   * type
-   */
-  alloType?: number;
-}
-
 
 /**
  * 分页项类型声明
  */
 export type BuyPageResult = PageResult<BuyPageVO[]>;
 
-export type AllocationPageResult = PageResult<AllocationPageVO[]>;
 
 export type DetailPageResult = PageResult<DetailPageVO[]>;
 
@@ -204,36 +306,7 @@ export interface InOutQuery extends PageQuery{
  */
 export type AllocationPageResultByID = PageResult<GoodPageVO[]>;
 
-/**
- * 出入库页面数据
- */
-export interface GoodPageVO {   	
-  /**
-   * 商品名称
-   */
-  goodName?: string;
-  /**
-   * 一级类别
-   */
-  goodClass?: string;
-  /**
-   * 二级类别
-   */
-  goodSubClass?: string;
-  /**
-   * 商品单位
-   */
-  goodUnit?: string;
-  /**
-   * 应入库数量
-   */
-  goodNumber?: number;
-  /**
-   * 实际入库数量
-   */
-  realNumber?: number;
 
-}
 
 /**
  * 分站入库需要的数据
@@ -331,16 +404,15 @@ export type ReceiveQueryResult = {
   task: ReceiveData;
 }
 
-export type SubmitReceiveData = {
-  goods?: GoodPageVO[];
-  taskId?: number;
+export type SubmitWithdrawData = {
+  inoutStationId?: number;
   date?: string | Date;
   distributor?: string;
-  stationName?: string;
-  stationId?: number;
+  signer?: string;
+  remark?: string;
 }
 
-export type GoodPageResult = PageResult<GoodPageVO[]>;
+
 
 /**
  * 用于渲染领货单相关数据，以及提交领货时手动填写的数据

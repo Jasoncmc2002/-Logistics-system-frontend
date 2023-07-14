@@ -2,8 +2,38 @@
 import request from "@/utils/request";
 import { AxiosPromise } from "axios";
 // 按照需求导入相应的数据类型或者需要的连表类型
-import { BuyQuery , BuyPageResult, InOutStation, AllocationQuery , AllocationPageResult, DetailQuery, DetailPageResult, CenterOutData, InOutQuery , SubInData , AllocationPageResultByID, AllocationData, AlloQuery, ReceiveQuery, GoodPageResult, ReceiveQueryResult, SubmitReceiveData} from "./types";
+import { BuyQuery , BuyPageResult, InOutStation, AllocationQuery , AllocationPageResult, DetailQuery, DetailPageResult, CenterOutData, InOutQuery , SubInData , AllocationPageResultByID, AllocationData, AlloQuery, ReceiveQuery, GoodPageResult, ReceiveQueryResult, SubmitReceiveData, TaskQuery} from "./types";
 import { pa } from "element-plus/es/locale";
+
+/**
+ * 字典类型分页列表
+ *
+ * @param queryParams
+ */
+export function getGoodListByTaskId(
+  queryParams: TaskQuery
+): AxiosPromise<GoodPageResult> {
+  return request({
+    url: "/dispatch/getGoodByTaskId",
+    method: "post",
+    data: queryParams,
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////复制过来的记得删除/////////////////////////////////////
 
 /**
  * 字典类型分页列表
@@ -105,20 +135,6 @@ export function subInSubmit(
 
 
 ////////////////////////领货//////////////////////////
-/**
- * 字典类型分页列表
- *
- * @param queryParams
- */
-export function getGoodListByTaskId(
-  queryParams: ReceiveQuery
-): AxiosPromise<ReceiveQueryResult> {
-  return request({
-    url: "/dispatch/getDelivery",
-    method: "post",
-    data: queryParams,
-  });
-}
 
 /**
  * 确认领货

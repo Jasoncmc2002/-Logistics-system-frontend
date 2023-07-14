@@ -1,15 +1,16 @@
 import router from "@/router";
-import { useUserStoreHook } from "@/store/modules/user";
-import { usePermissionStoreHook } from "@/store/modules/permission";
+import {useUserStoreHook} from "@/store/modules/user";
+import {usePermissionStoreHook} from "@/store/modules/permission";
 
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
+
 NProgress.configure({ showSpinner: false }); // 进度条
 
 const permissionStore = usePermissionStoreHook();
 
 // 白名单路由
-const whiteList = ["/login"];
+const whiteList = ["/login","/companyindex","/product","/example","/news","/about","/company","/signIn"];
 
 router.beforeEach(async (to, from, next) => {
   NProgress.start();
@@ -18,8 +19,9 @@ router.beforeEach(async (to, from, next) => {
   // const hasToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImp0aSI6IjY2ZGIwNGRjYjhjNTQwNzNhNDZiOTNiOTM4YThiNjVmIiwidXNlcklkIjoyLCJ1c2VybmFtZSI6ImFkbWluIiwiZGVwdElkIjoxLCJkYXRhU2NvcGUiOjEsImF1dGhvcml0aWVzIjpbIlJPTEVfQURNSU4iXSwiZXhwIjoxNjg3MzI4ODcxfQ.hH8TJR64WSYB2jd6XEa1BigiOhLgigieEyUKYtnty4k"
   // localStorage.setItem("accessToken", hasToken);
   // //测试用
-  console.log("dklsjfdsklfjsdklfjdskfjdsklfjdskfjdsklfjdsklfjskflsdflksdflks");
-  console.log(hasToken);
+/*  console.log("dklsjfdsklfjsdklfjdskfjdsklfjdskfjdsklfjdsklfjskflsdflksdflks");
+  console.log(hasToken);*/
+	console.log(to);
   if (hasToken) {
     if (to.path === "/login") {
       // 如果已登录，跳转首页

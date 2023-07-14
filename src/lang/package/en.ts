@@ -10,13 +10,21 @@ export default {
     username: "Username",
     password: "Password",
     login: "Login",
+		signIn: "SigIn",
     verifyCode: "Verify Code",
+		nickname: "nickname",
+		mobile: "mobile",
+		email: "email",
+		passwordagain: "Password again",
+		toLogin: "go to login",
+		toSign: "go to Sign in",
   },
   // 导航栏国际化
   navbar: {
     dashboard: "Dashboard",
     logout: "Logout",
     document: "Document",
-    gitee: "Gitee",
+		giteeFront: "Gitee Front",
+		giteeBack: "Gitee Back"
   },
 };

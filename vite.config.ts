@@ -1,15 +1,15 @@
 import vue from "@vitejs/plugin-vue";
 
-import { UserConfig, ConfigEnv, loadEnv, defineConfig } from "vite";
+import {ConfigEnv, defineConfig, loadEnv, UserConfig} from "vite";
 
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
-import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
+import {ElementPlusResolver} from "unplugin-vue-components/resolvers";
 
 import Icons from "unplugin-icons/vite";
 import IconsResolver from "unplugin-icons/resolver";
 
-import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
+import {createSvgIconsPlugin} from "vite-plugin-svg-icons";
 
 import UnoCSS from "unocss/vite";
 
