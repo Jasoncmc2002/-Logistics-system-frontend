@@ -236,8 +236,7 @@ const importDialog = reactive<DialogOption>({
  * 导入选择的部门ID
  */
 const importDeptId = ref<number>();
-const excelFile = ref<File>();
-const excelFilelist = ref<File[]>([]);
+
 /**
  * 导入被选择的订单类型
  */
@@ -357,7 +356,7 @@ function handleQueryOrder() {
 			totalOrder.value = data.total;
 		})
 		.finally(() => {
-			console.log("false");
+			//console.log("false");
 			loading.value = false;
 		});
 }
@@ -369,7 +368,6 @@ function handleQueryGood() {
 		.then(({ data }) => {
 
 			goodList.value = data.list;
-
 
 			totalGood.value = data.total;
 		})
@@ -677,7 +675,7 @@ onMounted(() => {
 	handleQueryFirstCategory();
 	handleQueryCustomer();
 	handleQueryOrder();
-	handleQueryGood();
+	//handleQueryGood();
 	
 });
 
