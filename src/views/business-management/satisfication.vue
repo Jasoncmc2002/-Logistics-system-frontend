@@ -12,8 +12,6 @@
  * defineOptions : 语法糖，定义本文件name
  */
 
-import * as echarts from "echarts";
-
 defineOptions({
   name: "satisfication",
   inheritAttrs: false,
@@ -40,31 +38,21 @@ const queryParams2 = reactive<ReceiptQuery>({
   pageSize: 1000,
 });
 const userList1 = ref<ReceiptPageVO[]>();
-const formRules = reactive({
-  goal: [{ required: true, message: "请输入分析目标" }],
-});
-const chartTypes = [
-  { value: "折线图", label: "折线图" },
-  { value: "柱状图", label: "柱状图" },
-  { value: "堆叠图", label: "堆叠图" },
-  { value: "饼图", label: "饼图" },
-  { value: "雷达图", label: "雷达图" },
-];
 
-const formData = reactive<genChartByAiUsingPOSTParams>({
-  creator: "admin",
-  goal: "分析",
-  name: "分析",
-  chartType: "折线图",
-});
-const res = reactive<BiResponse>({
-  chartId: 0,
-  genChart: "",
-  genResult: "",
-});
-let chartOption = ref();
-const submitting = ref(false);
-const fileList = ref<UploadUserFile[]>();
+// const formData = reactive<genChartByAiUsingPOSTParams>({
+//   creator: "admin",
+//   goal: "分析",
+//   name: "分析",
+//   chartType: "折线图",
+// });
+// const res = reactive<BiResponse>({
+//   chartId: 0,
+//   genChart: "",
+//   genResult: "",
+// });
+// let chartOption = ref();
+// const submitting = ref(false);
+// const fileList = ref<UploadUserFile[]>();
 function handleExport() {
   exportExcel().then((response: any) => {
     const blob = new Blob([response.data], {
@@ -138,32 +126,32 @@ onMounted(() => {
   <div class="app-container">
     <el-row :gutter="24">
       <!-- 搜索栏 -->
-      <el-col :span="12">
+      <el-col :span="18">
         <div class="search-container">
-          <el-form ref="queryFormRef1" :model="formData" :inline="true">
-            <!--            <el-form-item label="分析目标" :rules="formRules.goal">-->
-            <!--              <el-input-->
-            <!--                type="textarea"-->
-            <!--                placeholder="请输入你的分析需求，比如：分析网站用户的增长情况"-->
-            <!--                v-model="formData.goal"-->
-            <!--              ></el-input>-->
-            <!--            </el-form-item>-->
-            <!--            <el-form-item label="图表名称">-->
-            <!--              <el-input-->
-            <!--                placeholder="请输入图表名称"-->
-            <!--                v-model="formData.name"-->
-            <!--              ></el-input>-->
-            <!--            </el-form-item>-->
-            <!--            <el-form-item label="图表类型">-->
-            <!--              <el-select v-model="formData.chartType">-->
-            <!--                <el-option-->
-            <!--                  v-for="option in chartTypes"-->
-            <!--                  :key="option.value"-->
-            <!--                  :value="option.value"-->
-            <!--                  :label="option.label"-->
-            <!--                ></el-option>-->
-            <!--              </el-select>-->
-            <!--            </el-form-item>-->
+          <el-form ref="queryFormRef1" :inline="true">
+            <!--                        <el-form-item label="分析目标" :rules="formRules.goal">-->
+            <!--                          <el-input-->
+            <!--                            type="textarea"-->
+            <!--                            placeholder="请输入你的分析需求，比如：分析网站用户的增长情况"-->
+            <!--                            v-model="formData.goal"-->
+            <!--                          ></el-input>-->
+            <!--                        </el-form-item>-->
+            <!--                        <el-form-item label="图表名称">-->
+            <!--                          <el-input-->
+            <!--                            placeholder="请输入图表名称"-->
+            <!--                            v-model="formData.name"-->
+            <!--                          ></el-input>-->
+            <!--                        </el-form-item>-->
+            <!--                        <el-form-item label="图表类型">-->
+            <!--                          <el-select v-model="formData.chartType">-->
+            <!--                            <el-option-->
+            <!--                              v-for="option in chartTypes"-->
+            <!--                              :key="option.value"-->
+            <!--                              :value="option.value"-->
+            <!--                              :label="option.label"-->
+            <!--                            ></el-option>-->
+            <!--                          </el-select>-->
+            <!--                        </el-form-item>-->
 
             <el-form-item>
               <el-button @click="resetQuery1"> <i-ep-refresh />重置</el-button>
@@ -191,9 +179,9 @@ onMounted(() => {
             @selection-change="handleSelectionChange"
           >
             <el-table-column
-              key="goodName"
-              label="货物名称"
-              prop="goodName"
+              key="replyClass"
+              label="回复类型"
+              prop="replyClass"
               width="200"
               align="center"
             />
@@ -201,6 +189,13 @@ onMounted(() => {
               key="customerName"
               label="用户姓名"
               prop="customerName"
+              width="200"
+              align="center"
+            />
+            <el-table-column
+              key="number"
+              label="购买数量"
+              prop="number"
               width="200"
               align="center"
             />

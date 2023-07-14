@@ -90,19 +90,16 @@ function logout() {
             </router-link>
             <a
               target="_blank"
-              href="https://github.com/youlaitech/vue3-element-admin"
+              href="https://blog.csdn.net/qq_50971078?type=blog"
             >
-              <el-dropdown-item>Github</el-dropdown-item>
+              <el-dropdown-item>CSDN</el-dropdown-item>
             </a>
             <a target="_blank" href="https://gitee.com/haoxr">
-              <el-dropdown-item>{{ $t("navbar.gitee") }}</el-dropdown-item>
+              <el-dropdown-item>{{ $t("navbar.giteeFront") }}</el-dropdown-item>
             </a>
-            <a
-              target="_blank"
-              href="https://juejin.cn/post/7228990409909108793"
-            >
-              <el-dropdown-item>{{ $t("navbar.document") }}</el-dropdown-item>
-            </a>
+						<a target="_blank" href="https://gitee.com/haoxr">
+							<el-dropdown-item>{{ $t("navbar.giteeBack") }}</el-dropdown-item>
+						</a>
             <el-dropdown-item divided @click="logout">
               {{ $t("navbar.logout") }}
             </el-dropdown-item>

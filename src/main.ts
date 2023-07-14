@@ -19,7 +19,6 @@ import "uno.css";
 //eachart
 import { plugin } from "echarts-for-vue";
 import * as echarts from "echarts";
-
 const app = createApp(App);
 // 全局注册 自定义指令(directive)
 setupDirective(app);

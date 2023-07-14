@@ -25,6 +25,48 @@
 				/>
 			</el-form-item>
 
+			<el-form-item prop="nickname">
+				<div class="p-2 text-white">
+					<svg-icon icon-class="user" />
+				</div>
+				<el-input
+						ref="nickname"
+						v-model="loginData.nickname"
+						class="flex-1"
+						size="large"
+						:placeholder="$t('login.nickname')"
+						name="nickname"
+				/>
+			</el-form-item>
+
+			<el-form-item prop="mobile">
+				<div class="p-2 text-white">
+					<svg-icon icon-class="user" />
+				</div>
+				<el-input
+						ref="mobile"
+						v-model="loginData.mobile"
+						class="flex-1"
+						size="large"
+						:placeholder="$t('login.mobile')"
+						name="mobile"
+				/>
+			</el-form-item>
+
+			<el-form-item prop="email">
+				<div class="p-2 text-white">
+					<svg-icon icon-class="user" />
+				</div>
+				<el-input
+						ref="email"
+						v-model="loginData.email"
+						class="flex-1"
+						size="large"
+						:placeholder="$t('login.email')"
+						name="email"
+				/>
+			</el-form-item>
+
 			<el-tooltip
 					:disabled="isCapslock === false"
 					content="Caps lock is On"
@@ -42,7 +84,6 @@
 							size="large"
 							name="password"
 							@keyup="checkCapslock"
-							@keyup.enter="handleLogin"
 					/>
 					<span class="mr-2" @click="passwordVisible = !passwordVisible">
             <svg-icon
@@ -53,7 +94,32 @@
 				</el-form-item>
 			</el-tooltip>
 
-			<!-- 验证码 -->
+			<el-tooltip
+					:disabled="isCapslock === false"
+					content="Caps lock is On"
+					placement="right"
+			>
+				<el-form-item prop="passwordagain">
+          <span class="p-2 text-white">
+            <svg-icon icon-class="password" />
+          </span>
+					<el-input
+							v-model="loginData.passwordagain"
+							class="flex-1"
+							placeholder="密码"
+							:type="passwordVisible === false ? 'password' : 'input'"
+							size="large"
+							name="passwordagain"
+							@keyup="checkCapslock"
+					/>
+					<span class="mr-2" @click="passwordVisible = !passwordVisible">
+            <svg-icon
+								:icon-class="passwordVisible === false ? 'eye' : 'eye-open'"
+								class="text-white cursor-pointer"
+						/>
+          </span>
+				</el-form-item>
+			</el-tooltip>
 			<el-form-item prop="verifyCode">
         <span class="p-2 text-white">
           <svg-icon icon-class="verify_code" />
@@ -63,7 +129,7 @@
 						auto-complete="off"
 						:placeholder="$t('login.verifyCode')"
 						class="w-[60%]"
-						@keyup.enter="handleLogin"
+						@keyup.enter="handleSign"
 				/>
 
 				<div class="captcha">
@@ -76,25 +142,25 @@
 					:loading="loading"
 					type="primary"
 					class="w-full"
-					@click.prevent="handleLogin"
-			>{{ $t("login.login") }}
+					@click.prevent="handleSign"
+			>{{ $t("login.signIn") }}
 			</el-button>
-      <br>
+			<br>
 			<br>
 			<el-button
 					size="default"
 					:loading="loading"
 					type="primary"
 					class="w-full"
-					@click.prevent="handleSignIn"
-			>{{ $t("login.toSign") }}
+					@click.prevent="toLogin"
+			>{{ $t("login.toLogin") }}
 			</el-button>
 
-			<!-- 账号密码提示 -->
-			<div class="mt-4 text-white text-sm">
-				<span>{{ $t("login.username") }}: admin</span>
-				<span class="ml-4"> {{ $t("login.password") }}: 123456</span>
-			</div>
+<!--			&lt;!&ndash; 账号密码提示 &ndash;&gt;-->
+<!--			<div class="mt-4 text-white text-sm">-->
+<!--				<span>{{ $t("login.username") }}: admin</span>-->
+<!--				<span class="ml-4"> {{ $t("login.password") }}: 123456</span>-->
+<!--			</div>-->
 		</el-form>
 	</div>
 </template>
@@ -106,9 +172,9 @@ import router from "@/router";
 import {useUserStore} from "@/store/modules/user";
 
 // API依赖
-import {LocationQuery, LocationQueryValue, useRoute} from "vue-router";
+import {useRoute} from "vue-router";
 import {getCaptchaApi} from "@/api/auth";
-import {LoginData} from "@/api/auth/types";
+import {SignInData} from "@/api/auth/types";
 
 const userStore = useUserStore();
 const route = useRoute();
@@ -135,15 +201,23 @@ const captchaBase64 = ref();
  */
 const loginFormRef = ref(ElForm);
 
-const loginData = ref<LoginData>({
+const loginData = ref<SignInData>({
 	username: "admin",
 	password: "123456",
+	nickname: "",
+	email: "",
+	passwordagain: "",
+	mobile: "",
 });
 
 const loginRules = {
 	username: [{ required: true, trigger: "blur" }],
 	password: [{ required: true, trigger: "blur", validator: passwordValidator }],
-	verifyCode: [{ required: true, trigger: "blur" }],
+	// // verifyCode: [{ required: true, trigger: "blur" }],
+	// nickname: [{ required: true, trigger: "blur" }],
+	// mobile: [{ required: true, trigger: "blur" }],
+	// email: [{ required: true, trigger: "blur" }],
+	// passwordagain: [{ required: true, trigger: "blur" }],
 };
 
 /**
@@ -164,7 +238,9 @@ function checkCapslock(e: any) {
 	const { key } = e;
 	isCapslock.value = key && key.length === 1 && key >= "A" && key <= "Z";
 }
-
+function toLogin() {
+	router.push("/login");
+}
 /**
  * 获取验证码
  */
@@ -179,35 +255,18 @@ function getCaptcha() {
 /**
  * 登录
  */
-function handleSignIn() {
-	router.push("/signIn");
-}
-
-function handleLogin() {
+function handleSign() {
 	loginFormRef.value.validate((valid: boolean) => {
 		if (valid) {
 			loading.value = true;
 			userStore
-			.login(loginData.value)
+			.sign(loginData.value)
 			.then(() => {
-				const query: LocationQuery = route.query;
-
-				const redirect = (query.redirect as LocationQueryValue) ?? "/";
-
-				const otherQueryParams = Object.keys(query).reduce(
-						(acc: any, cur: string) => {
-							if (cur !== "redirect") {
-								acc[cur] = query[cur];
-							}
-							return acc;
-						},
-						{}
-				);
-
-				router.push({ path: redirect, query: otherQueryParams });
+				router.push("/login");
 			})
 			.catch(() => {
 				// 验证失败，重新生成验证码
+				loading.value = false;
 				getCaptcha();
 			})
 			.finally(() => {

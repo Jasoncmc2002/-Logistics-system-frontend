@@ -1,15 +1,15 @@
 import vue from "@vitejs/plugin-vue";
 
-import { UserConfig, ConfigEnv, loadEnv, defineConfig } from "vite";
+import {ConfigEnv, defineConfig, loadEnv, UserConfig} from "vite";
 
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
-import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
+import {ElementPlusResolver} from "unplugin-vue-components/resolvers";
 
 import Icons from "unplugin-icons/vite";
 import IconsResolver from "unplugin-icons/resolver";
 
-import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
+import {createSvgIconsPlugin} from "vite-plugin-svg-icons";
 
 import UnoCSS from "unocss/vite";
 
@@ -76,7 +76,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       proxy: {
         // 反向代理解决跨域
         [env.VITE_APP_BASE_API]: {
-          target: "http://10.25.38.137:10010",
+          target: "http://172.22.149.61:10010",
           // target: "http://vapi.youlai.tech", // 线上接口地址
           //target: 'http://localhost:8989',  // 本地接口地址 , 后端工程仓库地址：https://gitee.com/youlaiorg/youlai-boot
           changeOrigin: true,

@@ -22,6 +22,29 @@ export interface LoginData {
   verifyCode?: string;
 }
 
+export interface SignInData {
+	/**
+	 * 用户名
+	 */
+	username?: string;
+	/**
+	 * 密码
+	 */
+	password?: string;
+	nickname?: string;
+	email?: string;
+	mobile?: string;
+	passwordagain?: string;
+	/**
+	 * 验证码缓存key
+	 */
+	verifyCodeKey?: string;
+
+	/**
+	 * 验证码
+	 */
+	verifyCode?: string;
+}
 /**
  * 登录响应
  */

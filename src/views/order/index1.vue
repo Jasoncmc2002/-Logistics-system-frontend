@@ -41,7 +41,7 @@ import {
 import { useUserStore } from "@/store/modules/user";
 const userStore = useUserStore();
 // new api
-import { getOrderPage ,getGoodPage1, CancelOrderfunction} from "@/api/order";
+import { getOrderPage ,getGoodPage1, CancelOrderfunction, AddOrderGoodfunction} from "@/api/order";
 import { getCustomerPage,getCustomerForm ,addCustomer} from "@/api/customer";
 
 
@@ -147,7 +147,7 @@ const queryParamsOrderByCondition = reactive<OrderQuery>({
 	pageNum: 1,
 	pageSize: 5,
 	customerName:"",
-	id:0,
+	id:null,
 	receiveName:"",
 	startTime:"",
 	endTime:"",
@@ -434,8 +434,8 @@ function AddtoGoodlist(row:any) {
 	getGoodPage1(queryParams1)
 
 		.then(({data})=>{
-			goodList.value=data.list;
 
+			goodList.value=data.list;
 			CreatOrderData.Orders.goodSum+=(goodList.value[0].goodPrice*num1);
 			console.log(goodList.value[0].goodPrice);
 
@@ -449,7 +449,7 @@ function AddtoGoodlist(row:any) {
 					goodSubclass:goodList.value[0].goodSubClassName,
 					goodCost:goodList.value[0].goodCost,
 					goodFactory:goodList.value[0].goodFactory,
-
+					goodId:goodList.value[0].id,
 					keyId:CreatOrderData.Orders.customerId,
 					goodNumber:num1,
 					goodSale:goodList.value[0].goodSale,
@@ -583,23 +583,32 @@ function openEditOrderdialog(row: { [key: string]: any }) {
 function openAddGooddialog(row: { [key: string]: any }) {
 
 	
-AddGooddialog.title = "增加下单商品";
+    AddGooddialog.title = "增加下单商品";
 
-AddGooddialog.visible = true;
-           queryParamsGood.keyId=row.id;
+    AddGooddialog.visible = true;
+	        
+           
           {
-			getGoodPage(queryParamsGood)
-			.then(({ data }) => {
-			goodList2.value=data.list;
-		    console.log(goodList2);
-			})
-		.finally(() => {
+			//goodList2.value=data.list;
+			CreatOrderData.Orders.id=row.id;
+			CreatOrderData.Orders.creater=row.creater;
+			CreatOrderData.Orders.goodSum=row.goodSum;
+			CreatOrderData.Orders.explain=row.explain;
+			CreatOrderData.Orders.orderDate=row.orderDate;
+			CreatOrderData.Orders.deliveryDate=row.deliveryDate;
+			CreatOrderData.Orders.orderStatus=row.orderStatus;
+			CreatOrderData.Orders.customerAddress=row.customerAddress;
+			CreatOrderData.Orders.customerId=row.customerId;
+			CreatOrderData.Orders.customerName=row.customerName;
+			CreatOrderData.Orders.receiveName=row.receiveName;
+			CreatOrderData.Orders.mobilephone=row.mobilephone;
+			CreatOrderData.Orders.postcode=row.postcode;
+			CreatOrderData.Orders.isInvoice=row.isInvoice;
+			CreatOrderData.Orders.orderType=row.orderType;
+			CreatOrderData.Orders.substation=row.substation;
+			}
 			loading.value = false;
-		});
-		}
-
-
-
+		
 }
 
 function EditOrder(){
@@ -636,17 +645,15 @@ function handleCancel(row: { [key: string]: any }){
 	}
 }
 
-function handleAddgood(row: { [key: string]: any }){
+function handleAddOrderGood(){
 	{   
-		CancelOrderData.id=row.id;
-		CancelOrderData.orderStatus="已撤销";
-
-
 		loading.value = true;
-		CancelOrderfunction(CancelOrderData)
+		AddOrderGoodfunction(CreatOrderData)
 			.then(() => {
-				ElMessage.success("撤销订单成功");
-				
+
+
+				ElMessage.success("新增下单成功");
+				closeAddGooddialog();
 
 				
 			})
@@ -670,7 +677,7 @@ function closeEditOrderdialog() {
 function closeAddGooddialog() {
 	AddGooddialog.visible = false;
 	//handleQueryOrder();
-	//resetEditOrderData();
+	resetCreatOrderData();
 }
 /**
  * 重置表单
@@ -749,7 +756,7 @@ onMounted(() => {
 									clearable
 									type="number"
 									style="width: 200px"
-									@keyup.enter="handleQueryCustomer"
+									@keyup.enter="handleQueryOrder"
 							/>
 						</el-form-item>
 					</el-col>
@@ -856,7 +863,7 @@ onMounted(() => {
 								prop="creater"
 						/>
 						<el-table-column
-								label="货物数量"
+								label="商品总额"
 								width="100"
 								align="center"
 								prop="goodSum"
@@ -874,6 +881,13 @@ onMounted(() => {
 								prop="orderDate"
 								width="100"
 						/>
+						<el-table-column
+								label="送货日期"
+								align="center"
+								prop="deliveryDate"
+								width="100"
+						/>
+
 						<el-table-column
 								label="订单状态"
 								align="center"
@@ -919,6 +933,18 @@ onMounted(() => {
 								label="是否用发票"
 								align="center"
 								prop="isInvoice"
+								width="100"
+						/>
+						<el-table-column
+								label="订单类型"
+								align="center"
+								prop="orderType"
+								width="100"
+						/>
+						<el-table-column
+								label="分站"
+								align="center"
+								prop="substation"
 								width="100"
 						/>
 						
@@ -1455,9 +1481,9 @@ onMounted(() => {
 					/> 
 
 					 <el-form ref="CustomerFormRef" inline="true" >
-						<el-form-item label="商品总额是" props="GoodSum" >
+						<el-form-item label="新增后订单商品总额是" props="goodSum" >
 							<el-input
-									v-model="goodList2.goodSum"
+									v-model="CreatOrderData.Orders.goodSum"
 									readonly="readonly"
 									style=""
 							>
@@ -1471,7 +1497,7 @@ onMounted(() => {
 
 					<el-table
 							v-loading="loading"
-							:data="goodList2"
+							:data="CreatOrderData.Goods"
 							@selection-change="handleSelectionChangeOrder">
 
 						<el-table-column
@@ -1530,6 +1556,20 @@ onMounted(() => {
 							v-model:limit="queryParamsGood1.pageSize"
 							@pagination="handleQueryGood"
 					/> 
+					<template #footer>
+				<div class="dialog-footer">
+					<el-row >
+
+						
+			<el-button style="margin-top: 12px" @click="closeAddGooddialog">取 消</el-button>
+
+
+	<el-button type="primary"  style="margin-top: 12px;"  @click="handleAddOrderGood()">新增下单</el-button>
+
+
+					</el-row>
+				</div>
+			</template>
 	
 	</el-dialog>
 
