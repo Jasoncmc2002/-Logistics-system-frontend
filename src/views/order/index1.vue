@@ -22,7 +22,6 @@ defineOptions({
 /**
  * 导入UI
  */
-import { UploadFile } from "element-plus";
 
 /**
  * 导入需要的user相关API
@@ -41,7 +40,7 @@ import {
 import { useUserStore } from "@/store/modules/user";
 const userStore = useUserStore();
 // new api
-import { getOrderPage ,getGoodPage1, CancelOrderfunction, AddOrderGoodfunction} from "@/api/order";
+import { getOrderPage ,getGoodPage1, CancelOrderfunction, AddOrderGoodfunction, UnSubOrderGoodfunction,SalesExchangefunction, SalesReturnfunction} from "@/api/order";
 import { getCustomerPage,getCustomerForm ,addCustomer} from "@/api/customer";
 
 
@@ -52,16 +51,16 @@ import { UserForm, UserQuery, UserPageVO } from "@/api/user/types";
 
 // new type
 
-import { GoodQuery,GoodPageVO,GoodForm,GoodQuery1, OrderForm, OrderPageVO, OrderQuery,CancelOrder } from "@/api/order/types";
+import { GoodQuery,GoodPageVO,GoodQuery1, OrderForm, OrderPageVO, OrderQuery,CancelOrder } from "@/api/order/types";
 import { getGoodPage ,EditOrderfunction,getOrderPageByCondition} from "@/api/order";
 
 import { CustomerQuery ,CustomerPageVO,CustomerForm} from "@/api/customer/types";
 
-import{getFirstCategoryPage,getSecondaryCategoryForm,getSecondaryCategoryPage,getFirstCategoryForm} from "@/api/good"
+import{getFirstCategoryPage,getSecondaryCategoryPage,getFirstCategoryForm} from "@/api/good"
 
-import {CentralStationPageVO,CentralStationForm,CentralStationQuery } from "@/api/good/types";
+import {CentralStationQuery } from "@/api/good/types";
 
-import {FirstCategoryPageVO,FirstCategoryForm,FirstCategoryQuery,SecondaryCategoryForm,SecondaryCategoryPageVO,SecondaryCategoryQuery } from "@/api/good/types";
+import {FirstCategoryForm,SecondaryCategoryForm } from "@/api/good/types";
 /**
  * 定义ElementUI组件
  */
@@ -103,9 +102,6 @@ const totalOrder = ref(0);
 const totalGood= ref(0);
 const totalGood1= ref(0);
 
-const dialog = reactive<DialogOption>({
-	visible: false,
-});
 
 const EditOrderdialog = reactive<DialogOption>({
 	visible: false,
@@ -114,11 +110,16 @@ const EditOrderdialog = reactive<DialogOption>({
 const AddGooddialog = reactive<DialogOption>({
 	visible: false,
 });
-const queryParams = reactive<UserQuery>({
-	pageNum: 1,
-	pageSize: 10,
+const UnSubdialog = reactive<DialogOption>({
+	visible: false,
 });
 
+const SalesReturndialog = reactive<DialogOption>({
+	visible: false,
+});
+const SalesExchangedialog = reactive<DialogOption>({
+	visible: false,
+});
 
 const queryParams1 = reactive<CentralStationQuery>({
 	pageNum: 1,
@@ -140,7 +141,7 @@ const queryParamsOrder = reactive<OrderQuery>({
 	receiveName:"",
 	startTime:"",
 	endTime:"",
-  orderType:""
+    orderType:""
 });
 
 const queryParamsOrderByCondition = reactive<OrderQuery>({
@@ -151,12 +152,13 @@ const queryParamsOrderByCondition = reactive<OrderQuery>({
 	receiveName:"",
 	startTime:"",
 	endTime:"",
-  orderType:""
+    orderType:""
 });
 
 const queryParamsGood = reactive<GoodQuery>({
 	pageNum: 1,
 	pageSize: 5,
+	keyId:null
 
 });
 
@@ -179,9 +181,6 @@ const queryParamsCustomer = reactive<CustomerQuery>({
 	mobilephone: "",
 
 });
-
-const userList = ref<UserPageVO[]>();
-const customerList=ref<CustomerPageVO[]>();
 
 // new pagevo
 const orderList = ref<OrderPageVO[]>();
@@ -211,9 +210,6 @@ const CancelOrderData=reactifyObject<CancelOrder>({
 const formDataOrder = reactive<OrderForm>({
 });
 
-const formDataCustomer=reactive<CustomerForm>({
-
-});
 
 //格式规则
 const rules = reactive({
@@ -246,21 +242,7 @@ const rules = reactive({
 	],
 });
 
-const searchDeptName = ref();
-const deptList = ref<OptionType[]>();
-const roleList = ref<OptionType[]>();
 
-const importDialog = reactive<DialogOption>({
-	title: "用户导入",
-	visible: false,
-});
-
-/**
- * 导入选择的部门ID
- */
-const importDeptId = ref<number>();
-const excelFile = ref<File>();
-const excelFilelist = ref<File[]>([]);
 /**
  * 导入被选择的订单类型
  */
@@ -311,6 +293,7 @@ var secondaryCategoryList=reactive<SecondaryCategoryForm>({});
 
 import { ref } from 'vue'
 import { number } from "echarts";
+import { parseInt } from "lodash";
 
 const active = ref(1);
 
@@ -337,34 +320,9 @@ var  num1=0;
 /**
  * 查询
  */
-function handleQuery() {
-	loading.value = true;
-	getUserPage(queryParams)
-		.then(({ data }) => {
-			userList.value = data.list;
-
-			console.log(userList);
-			total.value = data.total;
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
 /**
  * 查询
  */
-function handleQueryCustomer() {
-	loading.value = true;
-	getCustomerPage(queryParamsCustomer)
-		.then(({ data }) => {
-			customerList.value = data.list;
-			console.log(customerList);
-			total.value = data.total;
-		})
-		.finally(() => {
-			loading.value = false;
-		});
-}
 
 // new handleQuery
 
@@ -418,13 +376,8 @@ function handleQueryGood1() {
 			loading.value = false;
 		});
 }
-function computeGoodSum( ){
-	return{
-
-	}
 
 
-}
 //将选中商品添加到数组中
 function AddtoGoodlist(row:any) {
 	loading.value = true;
@@ -459,7 +412,7 @@ function AddtoGoodlist(row:any) {
 					type:goodList.value[0].type,
 					isReturn:goodList.value[0].isReturn,
 					isChange:goodList.value[0].isChange,
-					//username:goodList.value[0].username,
+					
 
 				});
 
@@ -473,6 +426,39 @@ function AddtoGoodlist(row:any) {
 		loading.value = false;
 	});
 }
+
+function AddtoUnSublist(row: { [key: string]: any },$index:any) {
+	    
+		//CreatOrderData.Orders.goodSum=0;
+		CreatOrderData.Orders.goodSum+=(goodList1.value[($index)].goodPrice*row.changeNumber);
+			
+			CreatOrderData.Goods.push(
+				{   id:goodList1.value[$index].id,
+					goodPrice:goodList1.value[$index].goodPrice,
+					goodClass:goodList1.value[$index].goodClass,
+					goodName:goodList1.value[$index].goodName,
+					goodSubclass:goodList1.value[$index].goodSubclass,
+					goodCost:goodList1.value[$index].goodCost,
+					goodFactory:goodList1.value[$index].goodFactory,
+					goodId:goodList1.value[$index].goodId,
+					keyId:CreatOrderData.Orders.customerId,
+					goodNumber:goodList1.value[$index].goodNumber,
+					changeNumber:row.changeNumber,
+					goodSale:goodList1.value[$index].goodSale,
+					goodUnit:goodList1.value[$index].goodUnit,
+					supply:goodList1.value[$index].supplyName,
+					remark:goodList1.value[$index].remark,
+					type:goodList1.value[$index].type,
+					isReturn:goodList1.value[$index].isReturn,
+					isChange:goodList1.value[$index].isChange,
+					
+					
+				});
+				console.log(CreatOrderData);	
+			
+					
+
+	}
 
 
 
@@ -540,22 +526,6 @@ function displayOrderInfo(row: { [key: string]: any }) {
 
 }
 
-/**
- * 打开用户弹窗
- */
-async function openDialog(userId?: number) {
-
-	dialog.visible = true;
-	formDataCustomer.address="";
-	formDataCustomer.addressphone="";
-	formDataCustomer.email="";
-	formDataCustomer.idcard="";
-	formDataCustomer.is_deleted="";
-	formDataCustomer.mobilephone="";
-	formDataCustomer.name="";
-	formDataCustomer.postcode="";
-	formDataCustomer.work="";
-}
 
 /**
  * 打开订单创建弹窗
@@ -586,10 +556,9 @@ function openAddGooddialog(row: { [key: string]: any }) {
     AddGooddialog.title = "增加下单商品";
 
     AddGooddialog.visible = true;
-	        
-           
+	                  
           {
-			//goodList2.value=data.list;
+			
 			CreatOrderData.Orders.id=row.id;
 			CreatOrderData.Orders.creater=row.creater;
 			CreatOrderData.Orders.goodSum=row.goodSum;
@@ -610,6 +579,106 @@ function openAddGooddialog(row: { [key: string]: any }) {
 			loading.value = false;
 		
 }
+
+function openUnSubdialog(row: { [key: string]: any }) {
+
+	UnSubdialog.title = "退订商品";
+	UnSubdialog.visible = true;			  
+	  
+		CreatOrderData.Orders.id=row.id;
+		CreatOrderData.Orders.orNumber=row.id;
+		CreatOrderData.Orders.creater=row.creater;
+		CreatOrderData.Orders.goodSum=0;
+		CreatOrderData.Orders.explain=row.explain;
+		CreatOrderData.Orders.orderDate=row.orderDate;
+		CreatOrderData.Orders.deliveryDate=row.deliveryDate;
+		CreatOrderData.Orders.orderStatus=row.orderStatus;
+		CreatOrderData.Orders.customerAddress=row.customerAddress;
+		CreatOrderData.Orders.customerId=row.customerId;
+		CreatOrderData.Orders.customerName=row.customerName;
+		CreatOrderData.Orders.receiveName=row.receiveName;
+		CreatOrderData.Orders.mobilephone=row.mobilephone;
+		CreatOrderData.Orders.postcode=row.postcode;
+		CreatOrderData.Orders.isInvoice=row.isInvoice;
+		CreatOrderData.Orders.orderType="退订";
+		CreatOrderData.Orders.substation=row.substation;
+
+		queryParamsGood.keyId=row.id;
+		getGoodPage(queryParamsGood)
+		.then(({ data }) => {
+			goodList1.value=data.list		
+		})
+		.finally(() => {
+			loading.value = false;
+		});
+
+		}
+function openSalesReturndialog(row: { [key: string]: any }) {
+
+	SalesReturndialog.title = "退货";
+	SalesReturndialog.visible = true;			  
+  
+	CreatOrderData.Orders.id=row.id;
+	CreatOrderData.Orders.orNumber=row.id;
+	CreatOrderData.Orders.creater=row.creater;
+	CreatOrderData.Orders.goodSum=0;
+	CreatOrderData.Orders.explain=row.explain;
+	CreatOrderData.Orders.orderDate=row.orderDate;
+	CreatOrderData.Orders.deliveryDate=row.deliveryDate;
+	CreatOrderData.Orders.orderStatus=row.orderStatus;
+	CreatOrderData.Orders.customerAddress=row.customerAddress;
+	CreatOrderData.Orders.customerId=row.customerId;
+	CreatOrderData.Orders.customerName=row.customerName;
+	CreatOrderData.Orders.receiveName=row.receiveName;
+	CreatOrderData.Orders.mobilephone=row.mobilephone;
+	CreatOrderData.Orders.postcode=row.postcode;
+	CreatOrderData.Orders.isInvoice=row.isInvoice;
+	CreatOrderData.Orders.orderType="退货";
+	CreatOrderData.Orders.substation=row.substation;
+
+	queryParamsGood.keyId=row.id;
+	getGoodPage(queryParamsGood)
+	.then(({ data }) => {
+		goodList1.value=data.list		
+	})
+	.finally(() => {
+		loading.value = false;
+	});
+
+	}	
+function openSalesExchangedialog(row: { [key: string]: any }) {
+
+		SalesExchangedialog.title = "换货";
+		SalesExchangedialog.visible = true;			  
+
+			CreatOrderData.Orders.id=row.id;
+			CreatOrderData.Orders.orNumber=row.id;
+			CreatOrderData.Orders.creater=row.creater;
+			CreatOrderData.Orders.goodSum=0;
+			CreatOrderData.Orders.explain=row.explain;
+			CreatOrderData.Orders.orderDate=row.orderDate;
+			CreatOrderData.Orders.deliveryDate=row.deliveryDate;
+			CreatOrderData.Orders.orderStatus=row.orderStatus;
+			CreatOrderData.Orders.customerAddress=row.customerAddress;
+			CreatOrderData.Orders.customerId=row.customerId;
+			CreatOrderData.Orders.customerName=row.customerName;
+			CreatOrderData.Orders.receiveName=row.receiveName;
+			CreatOrderData.Orders.mobilephone=row.mobilephone;
+			CreatOrderData.Orders.postcode=row.postcode;
+			CreatOrderData.Orders.isInvoice=row.isInvoice;
+			CreatOrderData.Orders.orderType="换货";
+			CreatOrderData.Orders.substation=row.substation;
+
+			queryParamsGood.keyId=row.id;
+			getGoodPage(queryParamsGood)
+			.then(({ data }) => {
+				goodList1.value=data.list		
+			})
+			.finally(() => {
+				loading.value = false;
+			});
+
+			}	
 
 function EditOrder(){
 	{
@@ -660,35 +729,94 @@ function handleAddOrderGood(){
 			.finally(() => (loading.value = false));
 	}
 }
-/**
- * 关闭弹窗
- */
-function closeDialog() {
-	dialog.visible = false;
-	//resetForm();
+
+function handleUnSubOrderGood(){
+	{   
+		loading.value = true;
+		UnSubOrderGoodfunction(CreatOrderData)
+			.then(() => {
+
+
+				ElMessage.success("退订商品成功");
+				closeUnSubdialog();
+                resetCreatOrderData();
+				
+			})
+			.finally(() => (
+				
+			loading.value = false));
+	}
 }
 
+function handleSalesReturn(){
+	{   
+		loading.value = true;
+		SalesReturnfunction(CreatOrderData)
+			.then(() => {
+
+
+				ElMessage.success("订单退货成功");
+				closeSalesReturndialog();
+                resetCreatOrderData();
+				
+			})
+			.finally(() => (
+				
+			loading.value = false));
+	}
+}
+function handleSalesExchange(){
+	{   
+		loading.value = true;
+		SalesExchangefunction(CreatOrderData)
+			.then(() => {
+
+
+				ElMessage.success("换货申请成功");
+				closeSalesReturndialog();
+                resetCreatOrderData();
+				
+			})
+			.finally(() => (
+				
+			loading.value = false));
+	}
+}
+/**
+ * 关闭编辑订单信息弹窗
+ */
 function closeEditOrderdialog() {
 	EditOrderdialog.visible = false;
 	handleQueryOrder();
 	resetEditOrderData();
 }
-
+/**
+ * 关闭添加订单商品弹窗
+ */
 function closeAddGooddialog() {
 	AddGooddialog.visible = false;
 	//handleQueryOrder();
 	resetCreatOrderData();
 }
 /**
- * 重置表单
+ * 关闭退订弹窗
  */
-function resetForm() {
-	userFormRef.value.resetFields();
-	userFormRef.value.clearValidate();
-
-	formData.id = undefined;
-	formData.status = 1;
+function closeUnSubdialog() {
+	UnSubdialog.visible = false;
+	
+	resetCreatOrderData();
 }
+function closeSalesReturndialog() {
+	SalesReturndialog.visible = false;
+	
+	resetCreatOrderData();
+}
+function closeSalesExchangedialog() {
+	SalesExchangedialog.visible = false;
+	
+	resetCreatOrderData();
+}
+
 
 function resetCreatOrderData() {
 	CreatOrderData.Orders={
@@ -703,32 +831,9 @@ function resetEditOrderData() {
 
 }
 
-/**
- * 表单提交
- */
-const handleSubmit = useThrottleFn(() => {
-	CustomerFormRef.value.validate((valid: any) => {
-		if (valid) {
-			//const CustomerId = formDataCustomer.id;
-			loading.value = true;
-			addCustomer(formDataCustomer)
-				.then(() => {
-					ElMessage.success("新增用户成功");
-					closeDialog();
-					resetQuery();
-					handleQueryCustomer();
-				})
-				.finally(() => (loading.value = false));
-		}
-	});
-}, 3000);
-
-
 
 onMounted(() => {
 
-	handleQueryOrder();
-	handleQueryGood();
 	
 	handleQuerySecondaryCategory();
 	handleQueryFirstCategory();
@@ -824,12 +929,6 @@ onMounted(() => {
 
 				</el-row>
 
-
-
-
-
-
-
 			</el-form>
 
 		</div>
@@ -847,7 +946,7 @@ onMounted(() => {
 
 					>
 
-						<!-- 具体数据 -->
+						<!-- 订单信息具体数据 -->
 						<el-table-column
 								key="id"
 								label="订单编号"
@@ -904,7 +1003,7 @@ onMounted(() => {
 								label="客户id"
 								align="center"
 								prop="customerId"
-								width="100"
+								width="80"
 						/>
 						<el-table-column
 								label="客户姓名"
@@ -939,7 +1038,7 @@ onMounted(() => {
 								label="订单类型"
 								align="center"
 								prop="orderType"
-								width="100"
+								width="80"
 						/>
 						<el-table-column
 								label="分站"
@@ -950,14 +1049,14 @@ onMounted(() => {
 						
 
 						<!-- 一些操作按钮 -->
-						<el-table-column label="操作" fixed="right" width="200">
+						<el-table-column label="操作" fixed="right" width="280">
 							<template #default="scope">
 								<el-button
 									type="primary"
 									size="small"
 									link
 									@click="displayOrderInfo(scope.row)"
-							        >详细信息</el-button>
+							        ><i-ep-paperclip/>详细信息</el-button>
 
 								<el-button
 									v-if="scope.row.orderStatus=='可分配'||scope.row.orderStatus=='缺货'" 
@@ -965,11 +1064,9 @@ onMounted(() => {
 									link
 									size="small"
 									@click="openEditOrderdialog(scope.row)"
-									><i-ep-edit />编辑订单信息</el-button
+									><i-ep-edit />编辑订单</el-button
 									>
-									
 									<el-button
-									
 									type="primary"
 									link
 									size="small"
@@ -982,7 +1079,7 @@ onMounted(() => {
 									link
 									size="small"
 									@click="openAddGooddialog(scope.row)"
-									><i-ep-plus />新增下单商品</el-button>
+									><i-ep-plus />新增下单</el-button>
 
 									
 									<el-button
@@ -990,8 +1087,23 @@ onMounted(() => {
 									type="primary"
 									link
 									size="small"
-									@click="handleDelete(scope.row.id)"
+									@click="openUnSubdialog(scope.row)"
 									><i-ep-minus />退订</el-button>
+									<el-button
+									v-if="scope.row.orderStatus=='可分配'||scope.row.orderStatus=='缺货'"
+									type="primary"
+									link
+									size="small"
+									@click="openSalesReturndialog(scope.row)"
+									><i-ep-refresh />退货</el-button>
+									
+									<el-button
+									v-if="scope.row.orderStatus=='可分配'||scope.row.orderStatus=='缺货'"
+									type="primary"
+									link
+									size="small"
+									@click="openSalesExchangedialog(scope.row)"
+									><i-ep-refresh />换货</el-button>
 
 							</template>
 						</el-table-column>
@@ -1007,9 +1119,7 @@ onMounted(() => {
 
 		</el-card>
 
-		<!-- <el-col :lg="20" :xs="24"> -->
-
-		<!-- </el-col> -->
+		
 		<el-container>
 			<el-card>
 				<el-header>商品详情</el-header>
@@ -1098,97 +1208,7 @@ onMounted(() => {
 		<!-- 表单结束位置 -->
 
 
-
-		<!-- 表单弹窗1 -->
-		<el-dialog
-				v-model="dialog.visible"
-				:title="dialog.title"
-				width="600px"
-				append-to-body
-				@close="closeDialog"
-		>
-			<!--记得写rules-->
-
-			<el-form
-					ref="CustomerFormRef"
-					:model="formDataCustomer"
-
-					:rules="rules"
-					label-width="80px"
-			>
-				<el-form-item label="用户名" prop="name">
-					<el-input
-							v-model="formDataCustomer.name"
-
-							placeholder="请输入用户名"
-					/>
-				</el-form-item>
-				<el-form-item label="身份证号码" prop="idcard">
-					<el-input
-							v-model="formDataCustomer.idcard"
-
-							placeholder="请输入身份证号码"
-					/>
-				</el-form-item>
-				<el-form-item label="地址" prop="address">
-					<el-input
-							v-model="formDataCustomer.address"
-
-							placeholder="请输入地址"
-					/>
-				</el-form-item>
-				<el-form-item label="固定电话号码" prop="addressphone">
-					<el-input
-							v-model="formDataCustomer.addressphone"
-
-							placeholder="请输入固定电话号码"
-					/>
-				</el-form-item>
-
-				<el-form-item label="手机号码" prop="mobilephone">
-					<el-input
-							v-model="formDataCustomer.mobilephone"
-							placeholder="请输入手机号码"
-							maxlength="11"
-					/>
-				</el-form-item>
-
-				<el-form-item label="工作单位" prop="work">
-					<el-input
-							v-model="formDataCustomer.work"
-
-							placeholder="请输入工作单位"
-					/>
-				</el-form-item>
-				<el-form-item label="邮编" prop="postcode">
-					<el-input
-							v-model="formDataCustomer.postcode"
-
-							placeholder="请输入邮编"
-					/>
-				</el-form-item>
-
-				<el-form-item label="邮箱" prop="email">
-					<el-input
-							v-model="formDataCustomer.email"
-							placeholder="请输入邮箱"
-							maxlength="50"
-					/>
-				</el-form-item>
-
-
-			</el-form>
-			<template #footer>
-				<div class="dialog-footer">
-					<el-button type="primary" @click="handleSubmit">确 定</el-button>
-					<el-button @click="closeDialog">取 消</el-button>
-				</div>
-			</template>
-		</el-dialog>
-
-
-
-		<!-- 表单弹窗2-edit-order -->
+		<!-- 编辑订单信息弹窗-edit-order -->
 		<el-dialog
 				v-model="EditOrderdialog.visible"
 				:title="EditOrderdialog.title"
@@ -1200,10 +1220,7 @@ onMounted(() => {
 
 			<!--记得写rules-->
 
-			<!-- <el-steps :active="active" finish-status="success">
-				<el-step title="第一步" />
-				
-			</el-steps> -->
+			
 
 			<div
 					:model="EditOrderData">
@@ -1352,7 +1369,7 @@ onMounted(() => {
 				</div>
 			</template>
 		</el-dialog>
-
+<!--增加订单商品弹窗-->
 		<el-dialog
 				v-model="AddGooddialog.visible"
 				:title="AddGooddialog.title"
@@ -1573,7 +1590,567 @@ onMounted(() => {
 	
 	</el-dialog>
 
+<!--退订弹窗-->
 
+	<el-dialog
+				v-model="UnSubdialog.visible"
+				:title="UnSubdialog.title"
+				width="1100px"
+				append-to-body
+				@close="closeUnSubdialog"
+		>
+	
+					<el-table
+							v-loading="loading"
+							:data="goodList1"
+							@selection-change="handleSelectionChangeOrder"
+					>
+	
+
+						<!-- 具体数据 -->
+						
+				
+						 <el-table-column
+								key="id"
+								label="商品id"
+								align="center"
+								prop="id"
+								width="100"
+						/>
+						<el-table-column
+
+								label="商品类"
+								align="center"
+								prop="goodClass"
+								width="100"
+						/>
+						<el-table-column
+								label="商品子类"
+								width="100"
+								align="center"
+								prop="goodSubclass"
+						/>
+						<el-table-column
+								label="商品名"
+								align="center"
+								prop="goodName"
+								width="100"
+
+						/>
+
+						<el-table-column
+								label="退订数量"
+								align="center"
+								prop="goodNumber"
+								width="150"
+
+						>
+						<template #default="scope">
+							<el-input-number 
+							id="sum" 
+							v-model="scope.row.changeNumber" 
+							size="small" 
+							:min="0" 
+							:max="scope.row.goodNumber" 
+							clearable 
+							label="描述文字">
+							</el-input-number>
+							</template>
+						
+						</el-table-column>
+
+
+						<el-table-column
+								label="商品价格"
+								align="center"
+								prop="goodPrice"
+								width="100"
+
+						/>
+						<el-table-column
+								label="商品备注"
+								align="center"
+								prop="remark"
+								width="100"
+
+
+						/>
+
+						<el-table-column label="操作" fixed="right" width="150">
+							<template #default="scope">
+
+								<el-button type="primary" @click="AddtoUnSublist(scope.row,scope.$index)"
+								>确定退订数量</el-button>
+
+							</template>
+
+						</el-table-column>
+
+
+
+					</el-table> 
+
+					 <pagination
+							v-if="total > 0"
+							v-model:total="total"
+							v-model:page="queryParamsGood1.pageNum"
+							v-model:limit="queryParamsGood1.pageSize"
+							@pagination="handleQueryGood"
+					/> 
+
+					 <el-form ref="CustomerFormRef" inline="true" >
+						<el-form-item label="退订的订单商品总额是" props="goodSum" >
+							<el-input
+									v-model="CreatOrderData.Orders.goodSum"
+									readonly="readonly"
+									style=""
+							>
+
+							</el-input>
+						</el-form-item>
+					</el-form> 
+
+
+
+
+					<el-table
+							v-loading="loading"
+							:data="CreatOrderData.Goods"
+							@selection-change="handleSelectionChangeOrder">
+				
+						<el-table-column
+								key="id"
+								label="编号"
+								align="center"
+								prop="id"
+								width="100"
+						/>
+						<el-table-column
+
+								label="商品类"
+								align="center"
+								prop="goodClass"
+								width="100"
+						/>
+						<el-table-column
+								label="商品子类"
+								width="100"
+								align="center"
+								prop="goodSubclass"
+						/>
+						<el-table-column
+								label="商品名"
+								align="center"
+								prop="goodName"
+								width="150"
+
+						/>
+						<el-table-column
+								label="退订商品数量"
+								align="center"
+								prop="changeNumber"
+								width="100"
+
+						/>
+						<el-table-column
+								label="商品价格"
+								align="center"
+								prop="goodPrice"
+								width="140"
+
+						/>
+						<el-table-column
+								label="商品备注"
+								align="center"
+								prop="remark"
+								width="140"
+
+						/>
+					</el-table>
+					<pagination
+							v-if="total > 0"
+							v-model:total="total"
+							v-model:page="queryParamsGood1.pageNum"
+							v-model:limit="queryParamsGood1.pageSize"
+							@pagination="handleQueryGood"
+					/> 
+					<template #footer>
+				<div class="dialog-footer">
+					<el-row >
+
+						
+			<el-button style="margin-top: 12px" @click="closeUnSubdialog">取 消</el-button>
+
+
+	<el-button type="primary"  style="margin-top: 12px;"  @click="handleUnSubOrderGood()">确认退订</el-button>
+
+
+					</el-row>
+				</div>
+			</template>
+	
+	</el-dialog>
+
+	<!--退货弹窗-->
+	<el-dialog
+				v-model="SalesReturndialog.visible"
+				:title="SalesReturndialog.title"
+				width="1100px"
+				append-to-body
+				@close="closeSalesReturndialog"
+		>
+	
+					<el-table
+							v-loading="loading"
+							:data="goodList1"
+							@selection-change="handleSelectionChangeOrder">
+	
+						 <el-table-column
+								key="id"
+								label="商品id"
+								align="center"
+								prop="id"
+								width="100"
+						/>
+						<el-table-column
+
+								label="商品类"
+								align="center"
+								prop="goodClass"
+								width="100"
+						/>
+						<el-table-column
+								label="商品子类"
+								width="100"
+								align="center"
+								prop="goodSubclass"
+						/>
+						<el-table-column
+								label="商品名"
+								align="center"
+								prop="goodName"
+								width="100"
+
+						/>
+
+						<el-table-column
+								label="退货数量"
+								align="center"
+								prop="goodNumber"
+								width="150"
+
+						>
+						<template #default="scope">
+							<el-input-number 
+							id="sum" 
+							v-model="scope.row.changeNumber" 
+							size="small" 
+							:min="0" 
+							:max="scope.row.goodNumber" 
+							clearable 
+							label="描述文字">
+							</el-input-number>
+							</template>
+						
+						</el-table-column>
+
+
+						<el-table-column
+								label="商品价格"
+								align="center"
+								prop="goodPrice"
+								width="100"
+
+						/>
+						<el-table-column
+								label="商品备注"
+								align="center"
+								prop="remark"
+								width="100"
+
+
+						/>
+
+						<el-table-column label="操作" fixed="right" width="150">
+							<template #default="scope">
+
+								<el-button type="primary" @click="AddtoUnSublist(scope.row,scope.$index)"
+								>确定退货数量</el-button>
+
+							</template>
+
+						</el-table-column>
+
+
+
+					</el-table> 
+
+					 <pagination
+							v-if="total > 0"
+							v-model:total="total"
+							v-model:page="queryParamsGood1.pageNum"
+							v-model:limit="queryParamsGood1.pageSize"
+							@pagination="handleQueryGood"
+					/> 
+
+					
+					<el-table
+							v-loading="loading"
+							:data="CreatOrderData.Goods"
+							@selection-change="handleSelectionChangeOrder">
+				
+						<el-table-column
+								key="id"
+								label="编号"
+								align="center"
+								prop="id"
+								width="100"
+						/>
+						<el-table-column
+
+								label="商品类"
+								align="center"
+								prop="goodClass"
+								width="100"
+						/>
+						<el-table-column
+								label="商品子类"
+								width="100"
+								align="center"
+								prop="goodSubclass"
+						/>
+						<el-table-column
+								label="商品名"
+								align="center"
+								prop="goodName"
+								width="150"
+
+						/>
+						<el-table-column
+								label="退货商品数量"
+								align="center"
+								prop="changeNumber"
+								width="100"
+
+						/>
+						<el-table-column
+								label="商品价格"
+								align="center"
+								prop="goodPrice"
+								width="140"
+
+						/>
+						<el-table-column
+								label="商品备注"
+								align="center"
+								prop="remark"
+								width="140"
+
+						/>
+					</el-table>
+					<pagination
+							v-if="total > 0"
+							v-model:total="total"
+							v-model:page="queryParamsGood1.pageNum"
+							v-model:limit="queryParamsGood1.pageSize"
+							@pagination="handleQueryGood"
+					/> 
+					<template #footer>
+				<div class="dialog-footer">
+					<el-row >
+
+						
+			<el-button style="margin-top: 12px" @click="closeSalesReturndialog">取 消</el-button>
+
+
+	<el-button type="primary"  style="margin-top: 12px;"  @click="handleSalesReturn()">确认退货</el-button>
+
+
+					</el-row>
+				</div>
+			</template>
+	
+	</el-dialog>
+    <!--换货弹窗-->
+	<el-dialog
+				v-model="SalesExchangedialog.visible"
+				:title="SalesExchangedialog.title"
+				width="1100px"
+				append-to-body
+				@close="closeSalesExchangedialog"
+		>
+	
+					<el-table
+							v-loading="loading"
+							:data="goodList1"
+							@selection-change="handleSelectionChangeOrder">
+	
+						 <el-table-column
+								key="id"
+								label="商品id"
+								align="center"
+								prop="id"
+								width="100"
+						/>
+						<el-table-column
+
+								label="商品类"
+								align="center"
+								prop="goodClass"
+								width="100"
+						/>
+						<el-table-column
+								label="商品子类"
+								width="100"
+								align="center"
+								prop="goodSubclass"
+						/>
+						<el-table-column
+								label="商品名"
+								align="center"
+								prop="goodName"
+								width="100"
+
+						/>
+
+						<el-table-column
+								label="换货数量"
+								align="center"
+								prop="goodNumber"
+								width="150"
+
+						>
+						<template #default="scope">
+							<el-input-number 
+							id="sum" 
+							v-model="scope.row.changeNumber" 
+							size="small" 
+							:min="0" 
+							:max="scope.row.goodNumber" 
+							clearable 
+							label="描述文字">
+							</el-input-number>
+							</template>
+						
+						</el-table-column>
+
+
+						<el-table-column
+								label="商品价格"
+								align="center"
+								prop="goodPrice"
+								width="100"
+
+						/>
+						<el-table-column
+								label="商品备注"
+								align="center"
+								prop="remark"
+								width="100"
+
+
+						/>
+
+						<el-table-column label="操作" fixed="right" width="150">
+							<template #default="scope">
+
+								<el-button type="primary" @click="AddtoUnSublist(scope.row,scope.$index)"
+								>确定换货数量</el-button>
+
+							</template>
+
+						</el-table-column>
+
+
+
+					</el-table> 
+
+					 <pagination
+							v-if="total > 0"
+							v-model:total="total"
+							v-model:page="queryParamsGood1.pageNum"
+							v-model:limit="queryParamsGood1.pageSize"
+							@pagination="handleQueryGood"
+					/> 
+
+					
+					<el-table
+							v-loading="loading"
+							:data="CreatOrderData.Goods"
+							@selection-change="handleSelectionChangeOrder">
+				
+						<el-table-column
+								key="id"
+								label="编号"
+								align="center"
+								prop="id"
+								width="100"
+						/>
+						<el-table-column
+
+								label="商品类"
+								align="center"
+								prop="goodClass"
+								width="100"
+						/>
+						<el-table-column
+								label="商品子类"
+								width="100"
+								align="center"
+								prop="goodSubclass"
+						/>
+						<el-table-column
+								label="商品名"
+								align="center"
+								prop="goodName"
+								width="150"
+
+						/>
+						<el-table-column
+								label="换货商品数量"
+								align="center"
+								prop="changeNumber"
+								width="100"
+
+						/>
+						<el-table-column
+								label="商品价格"
+								align="center"
+								prop="goodPrice"
+								width="140"
+
+						/>
+						<el-table-column
+								label="商品备注"
+								align="center"
+								prop="remark"
+								width="140"
+
+						/>
+					</el-table>
+					<pagination
+							v-if="total > 0"
+							v-model:total="total"
+							v-model:page="queryParamsGood1.pageNum"
+							v-model:limit="queryParamsGood1.pageSize"
+							@pagination="handleQueryGood"
+					/> 
+					<template #footer>
+				<div class="dialog-footer">
+					<el-row >
+
+						
+			<el-button style="margin-top: 12px" @click="closeSalesExchangedialog()">取 消</el-button>
+
+
+	<el-button type="primary"  style="margin-top: 12px;"  @click="handleSalesExchange()">确认换货</el-button>
+
+
+					</el-row>
+				</div>
+			</template>
+	
+	</el-dialog>
 	</div>
 </template>
 <style>

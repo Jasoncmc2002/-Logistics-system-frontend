@@ -71,6 +71,27 @@ export function AddOrderGoodfunction(queryParams: CreatOrder) {
     data: queryParams,
   });
 }
+export function UnSubOrderGoodfunction(queryParams: CreatOrder) {
+  return request({
+    url: "/customer/addUnsubscribe",
+    method: "post",
+    data: queryParams,
+  });
+}
+export function SalesReturnfunction(queryParams: CreatOrder) {
+  return request({
+    url: "/customer/addReturn",
+    method: "post",
+    data: queryParams,
+  });
+}
+export function SalesExchangefunction(queryParams: CreatOrder) {
+  return request({
+    url: "/customer/addReturn",
+    method: "post",
+    data: queryParams,
+  });
+}
 
 export function EditOrderfunction(queryParams: EditOrder){
   return request({

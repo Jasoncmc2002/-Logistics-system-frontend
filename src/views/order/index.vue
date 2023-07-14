@@ -131,7 +131,7 @@ const queryParams2 = reactive<CentralStationQuery>({
 
 const queryParamsOrder = reactive<OrderQuery>({
 	pageNum: 1,
-	pageSize: 6,
+	pageSize: 5,
 });
 
 const queryParamsGood = reactive<GoodQuery>({
@@ -434,7 +434,7 @@ function AddtoGoodlist(row:any) {
 	queryParams1.goodSubclassId=row.goodSubclassId;
 	queryParams1.keywords=row.goodName;
 	if(num1>0){
-		console.log("num1>0");
+		//console.log("num1>0");
 		getGoodPage1(queryParams1)
 			.then(({data})=>{
 				goodList.value=data.list;
@@ -743,25 +743,26 @@ onMounted(() => {
 						label="编号"
 						align="center"
 						prop="id"
-						width="100"
+						width="80"
 				/>
 				<el-table-column
 						key="name"
 						label="用户名"
 						align="center"
+						width="80"
 						prop="name"
 				/>
 
 				<el-table-column
 						label="身份证号码"
-						width="100"
+						width="160"
 						align="center"
 						prop="idcard"
 				/>
 
 				<el-table-column
 						label="地址"
-						width="120"
+						width="100"
 						align="center"
 						prop="address"
 				/>
@@ -773,7 +774,7 @@ onMounted(() => {
 				/>
 				<el-table-column
 						label="固定电话"
-						width="120"
+						width="130"
 						align="center"
 						prop="addressphone"
 				/>
@@ -781,23 +782,23 @@ onMounted(() => {
 						label="工作单位"
 						align="center"
 						prop="work"
-						width="180"
+						width="130"
 				/>
 				<el-table-column
 						label="邮编"
 						align="center"
 						prop="postcode"
-						width="180"
+						width="80"
 				/>
 				<el-table-column
 						label="email"
 						align="center"
 						prop="email"
-						width="180"
+						width="200"
 				>
 				</el-table-column>
 
-				<el-table-column label="操作" fixed="right" width="220">
+				<el-table-column label="操作" fixed="right" width="100">
 					<template #default="scope">
 
 
@@ -854,7 +855,7 @@ onMounted(() => {
 						/>
 						<el-table-column
 								label="货物数量"
-								width="100"
+								width="80"
 								align="center"
 								prop="goodSum"
 						/>
@@ -880,7 +881,7 @@ onMounted(() => {
 								label="订单状态"
 								align="center"
 								prop="orderStatus"
-								width="100"
+								width="80"
 						/>
 						<el-table-column
 								label="送货地址"
@@ -925,14 +926,14 @@ onMounted(() => {
 						/>
 
 						<!-- 一些操作按钮 -->
-						<el-table-column label="操作" fixed="right" width="70">
+						<el-table-column label="操作" fixed="right" width="80">
 							<template #default="scope">
 								<el-button
 										type="primary"
 										size="small"
 										link
 										@click="displayOrderInfo(scope.row)"
-								>详细信息</el-button>
+								><i-ep-paperclip/>详细信息</el-button>
 
 							</template>
 						</el-table-column>
