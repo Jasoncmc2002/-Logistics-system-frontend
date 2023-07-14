@@ -1,6 +1,6 @@
 <script>
-import { ref, reactive, onMounted } from "vue";
-import { listMyChartByPageUsingPOST } from "@/api/bi";
+import {onMounted, reactive, ref} from "vue";
+import {listMyChartByPageUsingPOST} from "@/api/bi";
 
 export default {
   setup() {
@@ -115,7 +115,7 @@ export default {
   <div class="my-chart-page">
     <div class="search-container">
       <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-        <el-form-item label="供应商名称">
+        <el-form-item label="图表名称">
           <el-input
             v-model="queryParams.chartName"
             placeholder="请输入图表名称（支持模糊搜索）"
@@ -180,9 +180,6 @@ export default {
             <h3>{{ item.chartName }}</h3>
             <p v-if="item.chartType">图表类型：{{ item.chartType }}</p>
           </div>
-          <el-card header="分析结论">
-            <div>{{ item.genResult }}</div>
-          </el-card>
           <template v-if="item.chartStatus === 'wait'">
             <el-result
               status="warning"
@@ -199,8 +196,13 @@ export default {
           </template>
           <template v-if="item.chartStatus === 'succeed'">
             <div style="margin-bottom: 16px"></div>
+
             <p>{{ "分析目标：" + item.goal }}</p>
+						<el-card header="分析结论">
+							<div>{{ item.genResult }}</div>
+						</el-card>
             <div style="margin-bottom: 16px"></div>
+
             <div style="height: 400px">
               <ECharts ref="chart" :option="JSON.parse(item.genChart)" />
             </div>

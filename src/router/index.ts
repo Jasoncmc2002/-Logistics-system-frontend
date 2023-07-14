@@ -1,7 +1,8 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
+import {createRouter, createWebHashHistory, RouteRecordRaw} from "vue-router";
 
 export const Layout = () => import("@/layout/index.vue");
 
+export const Layoutcom = () => import("@/components/common/LayoutCom.vue");
 // 静态路由
 export const constantRoutes: RouteRecordRaw[] = [
   {
@@ -21,6 +22,11 @@ export const constantRoutes: RouteRecordRaw[] = [
     component: () => import("@/views/login/index.vue"),
     meta: { hidden: true },
   },
+	{
+		path: "/signIn",
+		component: () => import("@/views/login/signIn.vue"),
+		meta: { hidden: true },
+	},
 
   {
     path: "/",
@@ -45,6 +51,52 @@ export const constantRoutes: RouteRecordRaw[] = [
       },
     ],
   },
+	{
+		path: "/company",
+		redirect: "/companyindex",
+		meta: {
+			// true 就代表着要鉴权，如果为 false 就不需要
+			requireAuth: false,
+			keepAlive: true,
+		},
+		children: [
+			{
+				path: '/companyindex',
+				name: 'index',
+				component: () => import('@/views/companyIntroduction/IndexView.vue')
+			},
+			{
+				path: '/product',
+				name: 'product',
+				component: () => import('@/views/companyIntroduction/ProductView.vue'),
+			},
+			{
+				path: '/product/productId/:productId',
+				name: 'productDetails',
+				component: () => import("@/views/companyIntroduction/ProductDetailsView.vue")
+			},
+			{
+				path: '/example',
+				name: 'example',
+				component: () => import('@/views/companyIntroduction/ExampleView.vue')
+			},
+			{
+				path: '/news',
+				name: 'news',
+				component: () => import('@/views/companyIntroduction/NewsView.vue')
+			},
+			{
+				path: '/news/newsId/:newsId',
+				name: 'newsDetails',
+				component: () => import('@/views/companyIntroduction/NewsDetailsView.vue')
+			},
+			{
+				path: '/about',
+				name: 'about',
+				component: () => import('@/views/companyIntroduction/AboutView.vue')
+			},
+		],
+	},
 
   // 外部链接
   /*{

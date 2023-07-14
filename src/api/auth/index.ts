@@ -1,6 +1,6 @@
 import request from "@/utils/request";
-import { AxiosPromise } from "axios";
-import { CaptchaResult, LoginData, LoginResult } from "./types";
+import {AxiosPromise} from "axios";
+import {CaptchaResult, LoginData, LoginResult, SignInData} from "./types";
 
 /**
  * 登录API
@@ -15,6 +15,14 @@ export function loginApi(data: LoginData): AxiosPromise<LoginResult> {
     method: "post",
     params: data,
   });
+}
+export function signApi(data: SignInData){
+	return request({
+		url: "/api/v1/users/signIn",
+		method: "post",
+		params: data,
+		data: data,
+	});
 }
 
 /**
