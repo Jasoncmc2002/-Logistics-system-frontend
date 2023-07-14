@@ -1,3 +1,51 @@
+////////////////////////////---Query---//////////////////////////////////
+/**
+ * 根据任务单号查询商品列表
+ */
+export interface TaskQuery extends PageQuery {
+  /**
+   * 任务单号
+   */
+  id?: number;
+}
+
+
+////////////////////////////---PageVO---//////////////////////////////////
+/**
+ * 出入库页面数据
+ */
+export interface GoodPageVO {   	
+  /**
+   * 商品分类
+   */
+  goodClass?: string;
+  /**
+   * 商品代码
+   */
+  goodId?: number;
+  /**
+   * 商品名称
+   */
+  goodName?: string;
+  /**
+   * 退货数量
+   */
+  goodNumber?: number;
+  /**
+   * 实际退货数量
+   */
+  realNumber?: number;
+}
+////////////////////////////---PageResult---//////////////////////////////////
+export type GoodPageResult = PageResult<GoodPageVO[]>;
+
+
+
+
+
+
+
+//////////////////////////////////复制过来的记得删除//////////////////////////////////////
 // 表单对应的数据结构
 export interface BuyPageVO {
   /**
@@ -204,36 +252,7 @@ export interface InOutQuery extends PageQuery{
  */
 export type AllocationPageResultByID = PageResult<GoodPageVO[]>;
 
-/**
- * 出入库页面数据
- */
-export interface GoodPageVO {   	
-  /**
-   * 商品名称
-   */
-  goodName?: string;
-  /**
-   * 一级类别
-   */
-  goodClass?: string;
-  /**
-   * 二级类别
-   */
-  goodSubClass?: string;
-  /**
-   * 商品单位
-   */
-  goodUnit?: string;
-  /**
-   * 应入库数量
-   */
-  goodNumber?: number;
-  /**
-   * 实际入库数量
-   */
-  realNumber?: number;
 
-}
 
 /**
  * 分站入库需要的数据
@@ -340,7 +359,7 @@ export type SubmitReceiveData = {
   stationId?: number;
 }
 
-export type GoodPageResult = PageResult<GoodPageVO[]>;
+
 
 /**
  * 用于渲染领货单相关数据，以及提交领货时手动填写的数据

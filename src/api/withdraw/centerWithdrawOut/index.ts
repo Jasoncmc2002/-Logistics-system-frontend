@@ -2,8 +2,54 @@
 import request from "@/utils/request";
 import { AxiosPromise } from "axios";
 // 按照需求导入相应的数据类型或者需要的连表类型
-import { BuyQuery , BuyPageResult, InOutStation, AllocationQuery , AllocationPageResult, DetailQuery, DetailPageResult, CenterOutData, InOutQuery , SubInData , AllocationPageResultByID, AllocationData, AlloQuery, ReceiveQuery, GoodPageResult, ReceiveQueryResult, SubmitReceiveData} from "./types";
+import { BuyQuery , BuyPageResult, InOutStation, AllocationQuery , AllocationPageResult, DetailQuery, DetailPageResult, CenterOutData, InOutQuery , SubInData , DefaultRespond , AllocationPageResultByID, AllocationData, ReceiveQuery, GoodPageResult, ReceiveQueryResult, SubmitReceiveData, GoodQuery, SubOutData, SubmitWithdrawData} from "./types";
 import { pa } from "element-plus/es/locale";
+
+/**
+ * 字典类型分页列表
+ *
+ * @param queryParams
+ */
+export function getGoodListByKey(
+  queryParams: GoodQuery
+): AxiosPromise<GoodPageResult> {
+  return request({
+    url: "/warehouse/inoutstation/getOut",
+    method: "post",
+    data: queryParams,
+  });
+}
+
+
+/**
+ * 字典类型分页列表
+ *
+ * @param queryParams
+ */
+export function getGoodListByAlloId(
+  queryParams: GoodQuery
+): AxiosPromise<GoodPageResult> {
+  return request({
+    url: "/dispatch/getGoodListByAlloId",
+    method: "post",
+    data: queryParams,
+  });
+}
+
+/**
+ * 提交中心库房退货出库
+ */
+export function centralStationReturn(
+  submitData: SubmitWithdrawData
+): AxiosPromise<DefaultRespond>{
+  return request({
+    url: "/warehouse/centralcontroller/centralStationReturn",
+    method: "post",
+    data: submitData
+  })
+}
+
+//////////////////////记得删///////////////////
 
 /**
  * 字典类型分页列表
@@ -105,20 +151,6 @@ export function subInSubmit(
 
 
 ////////////////////////领货//////////////////////////
-/**
- * 字典类型分页列表
- *
- * @param queryParams
- */
-export function getGoodListByTaskId(
-  queryParams: ReceiveQuery
-): AxiosPromise<ReceiveQueryResult> {
-  return request({
-    url: "/dispatch/getDelivery",
-    method: "post",
-    data: queryParams,
-  });
-}
 
 /**
  * 确认领货

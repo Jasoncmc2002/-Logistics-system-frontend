@@ -6,10 +6,10 @@ defineOptions({
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////---import---///////////////////////////////////////////////////////////////////////////////
 // 导入需要的api方法,需要用{}括起来（哪怕只引入一种方法）
-import { getGoodListByTaskId , submitCenterIn} from "@/api/warehouse";
+import { getGoodListByTaskId , submitCenterIn} from "@/api/withdraw/withdrawCheckIn";
 
 // 导入需要的数据类型，需要用{}括起来（哪怕只引入一种数据）
-import { BuyQuery , BuyPageVO , InOutStation, ReceiveQuery, GoodPageVO , ReceiveData, ReceiveQueryResult , SubmitReceiveData } from "@/api/warehouse/types";
+import { TaskQuery , GoodPageVO , ReceiveData, ReceiveQueryResult , SubmitReceiveData } from "@/api/withdraw/withdrawCheckIn/types";
 
 // 导入时间选择器等插件
 import { ElDatePicker } from "element-plus";
@@ -40,9 +40,10 @@ const dialog = reactive<DialogOption>({
 ///////////////////////---调用后端所需要的数据结构---//////////////////////////
 
 // 查询参数
-const queryParams = reactive<ReceiveQuery>({
+const queryParams = reactive<TaskQuery>({
   pageNum: 1,
-  pageSize: 10
+  pageSize: 10,
+  id:0
 });
 
 // 提交领货信息的数据体
@@ -52,9 +53,6 @@ const submitReceiveData = reactive<SubmitReceiveData>({});
 
 // 表格显示的数据
 const goodList = ref<GoodPageVO[]>([]);
-
-// 填表所需数据
-const receiveData = ref<ReceiveData>({});
 
 
 
@@ -79,9 +77,8 @@ function handleQuery() {
   getGoodListByTaskId(queryParams)
     .then(({ data }) => {
       loading.value = true;
-      goodList.value = data.pageInfo?.list;
-      receiveData.value = data.task;
-      total.value = data.pageInfo?.total;
+      goodList.value = data.list;
+      total.value = data.total;
     })
     .finally(() => {
       loading.value = false;
@@ -94,7 +91,7 @@ function handleQuery() {
  */
 function resetQuery() {
   queryFormRef.value.resetFields();
-  queryParams.taskId = undefined;
+  queryParams.id = undefined;
   goodList.value = undefined;
 }
 
@@ -111,27 +108,24 @@ function handleSelectionChange(selection: any) {
 ///////////////////////---按钮事件---//////////////////////////
 
 /**
- * 确认领货
+ * 登记退货
  */
-function receiveCommit(){
-  submitReceiveData.goods = goodList.value;
-  submitReceiveData.taskId = queryParams.taskId;
-  submitReceiveData.distributor = receiveData.value.distributor
-  submitReceive();
+function checkIn(){
+    for(let i=0 ; i<goodList.value.length ; i++){
+      if(goodList.value.at(i).goodNumber != goodList.value.at(i).realNumber){
+        ElMessageBox.confirm("退货数量与实际退货数量不符?", "警告", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }).then(function () {
+          
+        });
+      }
+      return;
+    }
+    
 }
 
-/**
- * 清空领货
- */
-function clearReceive(){
-  receiveData.value.orderId = undefined;
-  receiveData.value.taskDate = undefined;
-  receiveData.value.substation = undefined;
-  receiveData.value.postman = undefined;
-  receiveData.value.taskType = undefined;
-  receiveData.value.receiveName = undefined;
-  receiveData.value.receiveDate = undefined;
-}
 
 ///////////////////////---挂载时自动渲染---//////////////////////////
 
@@ -149,7 +143,7 @@ onMounted(() => {
         <!-- date picker的model报错是因为element-plus的版本问题，不影响正常使用  -->
         <el-form-item label="任务单号" prop="taskId">
           <el-input
-            v-model="queryParams.taskId"
+            v-model="queryParams.id"
             placeholder=""
             clearable
             @keyup.enter="handleQuery"
@@ -162,90 +156,10 @@ onMounted(() => {
             ><i-ep-search />搜索</el-button
           >
           <el-button @click="resetQuery()"><i-ep-refresh />重置</el-button>
+          <el-button @click="checkIn()"><i-ep-edit />退货登记</el-button>
         </el-form-item>
       </el-form>
     </div>
-
-    <!-- 领货详细信息录入栏 -->
-    <el-card>
-      <el-form ref="queryFormRef" :model="receiveData" :inline="true">
-        <!-- 搜索关键字 -->
-        <!-- date picker的model报错是因为element-plus的版本问题，不影响正常使用  -->
-        <el-form-item label="订单号" prop="orderId" style="width: 300px;">
-          <el-input
-            v-model="receiveData.orderId"
-            placeholder=""
-            clearable
-            @keyup.enter="handleQuery"
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="任务分配日期" prop="taskDate" style="width: 300px;">
-          <el-input
-            v-model="receiveData.taskDate"
-            placeholder=""
-            clearable
-            @keyup.enter="handleQuery"
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="送货分站" prop="substation" style="width: 300px;">
-          <el-input
-            v-model="receiveData.substation"
-            placeholder=""
-            clearable
-            @keyup.enter="handleQuery"
-            style="width: 200px"
-          />
-        </el-form-item>
-        <br>
-        <el-form-item label="配送员" prop="postman" style="width: 300px;">
-          <el-input
-            v-model="receiveData.postman"
-            placeholder=""
-            clearable
-            @keyup.enter="handleQuery"
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="任务类型" prop="taskType" style="width: 300px;">
-          <el-input
-            v-model="receiveData.taskType"
-            placeholder=""
-            clearable
-            @keyup.enter="handleQuery"
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="领货人" prop="receiveName" style="width: 300px;">
-          <el-input
-            v-model="receiveData.receiveName"
-            placeholder=""
-            clearable
-            @keyup.enter="handleQuery"
-            style="width: 200px"
-          />
-        </el-form-item>
-        <el-form-item label="领货日期" prop="receiveDate" style="width: 300px;">
-          <el-date-picker
-            v-model="receiveData.receiveDate"
-            placeholder=""
-            clearable
-            style="width: 200px"
-            @keyup.enter="handleQuery"
-          />
-          
-        </el-form-item>
-        <br>
-        <!-- 按钮 -->
-        <el-form-item>
-          <el-button type="primary" @click="receiveCommit()"
-            ><i-ep-search />确认领货</el-button
-          >
-          <el-button @click="clearReceive()"><i-ep-refresh />清空</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
     <!-- 表单部分 -->
     <el-card shadow="never">
       <!-- 表单开始位置 -->
@@ -276,7 +190,20 @@ onMounted(() => {
               prop="id"
               width="100"
             /> -->
-
+        <el-table-column
+          key="goodClass"
+          label="商品类型"
+          align="center"
+          prop="goodClass"
+          min-width="12%"
+        />
+        <el-table-column
+          key="goodId"
+          label="商品代码"
+          align="center"
+          prop="goodId"
+          min-width="12%"
+        />
         <el-table-column
           key="goodName"
           label="商品名称"
@@ -285,29 +212,8 @@ onMounted(() => {
           min-width="12%"
         />
         <el-table-column
-          key="goodClass"
-          label="一级类别"
-          align="center"
-          prop="goodClass"
-          min-width="12%"
-        />
-        <el-table-column
-          key="goodSubclass"
-          label="二级类别"
-          align="center"
-          prop="goodSubclass"
-          min-width="12%"
-        />
-        <el-table-column
-          key="goodUnit"
-          label="商品单位"
-          align="center"
-          prop="goodUnit"
-          min-width="12%"
-        />
-        <el-table-column
           key="goodNumber"
-          label="应领货数量"
+          label="退货数量"
           align="center"
           prop="goodNumber"
           min-width="12%"
@@ -315,7 +221,7 @@ onMounted(() => {
         <el-table-column label="实际领货数量" fixed="right" width="220">
               <template #default="scope">
                 <el-input 
-                v-model="scope.row.number"
+                v-model="scope.row.realNumber"
                 placeholder=""
                 clearable
                 style="min-width=12%">

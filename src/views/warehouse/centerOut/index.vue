@@ -30,9 +30,10 @@ const detailTotal = ref(0);
 const queryParams = reactive<AllocationQuery>({
   pageNum: 1,
   pageSize: 10, 
-  endLine: new Date(2023, 10, 10, 10, 10),
-  startLine: new Date(2021, 10, 11, 10, 10),  
-  alloType: 1
+  endTime: new Date(2023, 10, 10, 10, 10),
+  startTime: new Date(2021, 10, 11, 10, 10),  
+  alloType: 1,
+  id: ""
 });
 
 const detailParams = reactive<DetailQuery>({
@@ -208,7 +209,7 @@ onMounted(() => {
         <!-- date picker的model报错是因为element-plus的版本问题，不影响正常使用  -->
         <el-form-item label="时间范围" prop="startLine">
           <el-date-picker
-            v-model="queryParams.startLine"
+            v-model="queryParams.startTime"
             placeholder="时间左界限"
             clearable
             style="width: 200px"
@@ -218,7 +219,7 @@ onMounted(() => {
         <el-form-item>-</el-form-item>
         <el-form-item label="" prop="endLine">
           <el-date-picker
-            v-model="queryParams.endLine"
+            v-model="queryParams.endTime"
             placeholder="时间右界限"
             clearable
             style="width: 200px"

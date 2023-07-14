@@ -83,9 +83,10 @@ export interface AllocationQuery extends PageQuery {
   /**
    * 时间左界限
    */
-  startLine?: string|Date;
-  endLine?: string|Date;
+  startTime?: string|Date;
+  endTime?: string|Date;
   alloType: number;
+  id?: string;
 }
 
 export interface DetailQuery extends PageQuery {

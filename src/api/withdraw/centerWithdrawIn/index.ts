@@ -2,8 +2,54 @@
 import request from "@/utils/request";
 import { AxiosPromise } from "axios";
 // 按照需求导入相应的数据类型或者需要的连表类型
-import { BuyQuery , BuyPageResult, InOutStation, AllocationQuery , AllocationPageResult, DetailQuery, DetailPageResult, CenterOutData, InOutQuery , SubInData , AllocationPageResultByID, AllocationData, AlloQuery, ReceiveQuery, GoodPageResult, ReceiveQueryResult, SubmitReceiveData} from "./types";
+import { BuyQuery , BuyPageResult, InOutStation, AllocationQuery , AllocationPageResult, DetailQuery, DetailPageResult, CenterOutData, InOutQuery , SubInData , DefaultRespond , AllocationPageResultByID, AllocationData, AlloQuery, ReceiveQuery, GoodPageResult, ReceiveQueryResult, SubmitReceiveData, GoodQuery, SubOutData} from "./types";
 import { pa } from "element-plus/es/locale";
+
+/**
+ * 字典类型分页列表
+ *
+ * @param queryParams
+ */
+export function getAlloListByKey(
+  queryParams: AlloQuery
+): AxiosPromise<AllocationPageResult> {
+  return request({
+    url: "/dispatch/getAllocation",
+    method: "post",
+    data: queryParams,
+  });
+}
+
+
+/**
+ * 字典类型分页列表
+ *
+ * @param queryParams
+ */
+export function getGoodListByAlloId(
+  queryParams: GoodQuery
+): AxiosPromise<GoodPageResult> {
+  return request({
+    url: "/dispatch/getGoodListByAlloId",
+    method: "post",
+    data: queryParams,
+  });
+}
+
+/**
+ * 提交分站出库
+ */
+export function centerInDataSubmit(
+  subOutData: SubOutData
+): AxiosPromise<DefaultRespond>{
+  return request({
+    url: "/warehouse/centralcontroller/returnGoodsToCenter",
+    method: "post",
+    data: subOutData
+  })
+}
+
+//////////////////////记得删///////////////////
 
 /**
  * 字典类型分页列表
@@ -105,20 +151,6 @@ export function subInSubmit(
 
 
 ////////////////////////领货//////////////////////////
-/**
- * 字典类型分页列表
- *
- * @param queryParams
- */
-export function getGoodListByTaskId(
-  queryParams: ReceiveQuery
-): AxiosPromise<ReceiveQueryResult> {
-  return request({
-    url: "/dispatch/getDelivery",
-    method: "post",
-    data: queryParams,
-  });
-}
 
 /**
  * 确认领货
