@@ -265,7 +265,9 @@ function addBuy() {
   // console.log(queryParams3);
   loading.value = true;
   addBuyList(queryParams3)
-    .then(({ data }) => {})
+    .then(({ data }) => {
+      ElMessage.success("批量新增进货单成功");
+    })
 
     .finally(() => {
       loading.value = false;
@@ -275,7 +277,9 @@ function addRegister() {
   // console.log(queryParams3);
   loading.value = true;
   addRegisterList(queryParams3)
-    .then(({ data }) => {})
+    .then(({ data }) => {
+      ElMessage.success("批量新增购货入库调拨单成功");
+    })
 
     .finally(() => {
       loading.value = false;
