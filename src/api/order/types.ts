@@ -112,7 +112,7 @@ export interface OrderQuery extends PageQuery {
 	pageNum: number,
 	pageSize: number,
 	customerName?:string,
-	id?:number,
+	id?:string,
 	receiveName?:string,
 	startTime?:string,
 	endTime?:string,
@@ -164,7 +164,7 @@ export interface Good {
 
 export interface CreatOrder {
   Orders: {
-    id?:number;
+    id?:string;
     orNumber?:number;
     explain?: string;
     orderType?: string;
