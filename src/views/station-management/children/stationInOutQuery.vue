@@ -170,10 +170,10 @@ onMounted(() => {
       <el-col>
         <div class="search-container">
           <el-form ref="queryFormRef1" :model="queryParams1" :inline="true">
-            <el-form-item label="库房名称" prop="stationClass">
+            <el-form-item label="库房级别" prop="stationClass">
               <el-select
                 v-model="queryParams1.stationKeyword"
-                placeholder="请选择库房类别名"
+                placeholder="请选择库房级别"
                 clearable
               >
                 <el-option
@@ -194,12 +194,6 @@ onMounted(() => {
               />
             </el-form-item>
             <el-form-item label="起始时间" prop="startTime">
-              <!--				  <el-input-->
-              <!--						  v-model="queryParams1.startTime"-->
-              <!--						  placeholder="起始时间"-->
-              <!--						  clearable-->
-              <!--						  style="width: 200px"-->
-              <!--				  />-->
               <el-date-picker
                 v-model="queryParams1.startTime"
                 placeholder="选择起始时间"
@@ -209,12 +203,6 @@ onMounted(() => {
               />
             </el-form-item>
             <el-form-item label="结束时间" prop="endTime">
-              <!--				  <el-input-->
-              <!--						  v-model="queryParams1.endTime"-->
-              <!--						  placeholder="结束时间"-->
-              <!--						  clearable-->
-              <!--						  style="width: 200px"-->
-              <!--				  />-->
               <el-date-picker
                 v-model="queryParams1.endTime"
                 placeholder="选择结束时间"
@@ -374,15 +362,16 @@ onMounted(() => {
         :rules="rules"
         label-width="80px"
       >
-        <el-form-item label="库房名" prop="name">
-          <el-input v-model="formData1.name" placeholder="请输入库房名" />
+        <el-form-item label="库房名" prop="stationName">
+          <el-input
+            v-model="formData1.stationName"
+            placeholder="请输入库房名"
+          />
         </el-form-item>
-        <el-form-item label="地址" prop="description">
-          <el-input v-model="formData1.address" placeholder="请输入地址" />
+        <el-form-item label="出入库数量" prop="description">
+          <el-input v-model="formData1.number" placeholder="请输入出入库数量" />
         </el-form-item>
-        <el-form-item label="管理人" prop="admin">
-          <el-input v-model="formData1.admin" placeholder="请输入管理人" />
-        </el-form-item>
+
         <el-form-item label="库房级别" prop="stationInOutClass">
           <el-select
             v-model="formData1.stationClass"
@@ -397,6 +386,13 @@ onMounted(() => {
             >
             </el-option>
           </el-select>
+        </el-form-item>
+
+        <el-form-item label="备注" prop="admin">
+          <el-input v-model="formData1.remark" placeholder="请输入备注" />
+        </el-form-item>
+        <el-form-item label="出入库类型" prop="admin">
+          <el-input v-model="formData1.type" placeholder="请输入出入库类型" />
         </el-form-item>
         <!--		  <el-form-item label="级别" prop="grade">-->
         <!--			  <el-input v-model="formData1.grade" placeholder="请输入级别" />-->
