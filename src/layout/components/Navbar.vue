@@ -94,12 +94,12 @@ function logout() {
             >
               <el-dropdown-item>CSDN</el-dropdown-item>
             </a>
-            <a target="_blank" href="https://gitee.com/haoxr">
+            <a target="_blank" href="https://gitee.com/JealousDog/GILC">
               <el-dropdown-item>{{ $t("navbar.giteeFront") }}</el-dropdown-item>
             </a>
-						<a target="_blank" href="https://gitee.com/haoxr">
-							<el-dropdown-item>{{ $t("navbar.giteeBack") }}</el-dropdown-item>
-						</a>
+            <a target="_blank" href="https://gitee.com/yofchio/shixun">
+              <el-dropdown-item>{{ $t("navbar.giteeBack") }}</el-dropdown-item>
+            </a>
             <el-dropdown-item divided @click="logout">
               {{ $t("navbar.logout") }}
             </el-dropdown-item>
