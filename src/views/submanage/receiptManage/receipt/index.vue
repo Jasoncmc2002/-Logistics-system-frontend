@@ -4,35 +4,37 @@ defineOptions({
   name: "Receipt",
   inheritAttrs: false,
 });
+////////////////////////////////////////////////////////////////////////////////////////////////////////////---import---///////////////////////////////////////////////////////////////////////////////
 
 // 导入需要的api方法,需要用{}括起来（哪怕只引入一种方法）
-import { getTaskListByCriteria , submitReceipt } from "@/api/submanage";
+import { getTaskListByCriteria , submitReceipt , getGoodDetailAPI } from "@/api/submanage/receipt";
 import { getAllPostman } from "@/api/postman";
 import { getUUID } from "@/api/util"
 
 // 导入需要的数据类型，需要用{}括起来（哪怕只引入一种数据）
-import { TaskPageVO, TaskQuery, TaskType , ReceiptParams} from "@/api/submanage/types";
+import { TaskPageVO, TaskQuery, TaskType , ReceiptParams , GoodPaageVO , GoodQuery } from "@/api/submanage/receipt/types";
 import { PostmanForm, PostmanQuery } from "@/api/postman/types";
 
 // 导入时间选择器
 import { ElDatePicker } from "element-plus";
-import { forEach } from "lodash";
-import { registerVisual } from "echarts";
+////////////////////////////////////////////////////////////////////////////////////////////////////////////---声明前端固定使用的数据---///////////////////////////////////////////////////////////////////////////////
 
 const queryFormRef = ref(ElForm);
-const dataFormRef = ref(ElForm);
 
 const loading = ref(false);
 const ids = ref<number[]>([]);
 const total = ref(0);
 
-// 表格显示的数据
-const taskList = ref<TaskPageVO[]>([]);
+const goodLoading = ref(false);
+const goodTotal = ref(0);
 
-const dialog = reactive<DialogOption>({
+///////////////////////---弹窗--//////////////////////////
+const goodDialog = reactive<DialogOption>({
   visible: false,
 });
+////////////////////////////////////////////////////////////////////////////////////////////////////////////---前后端交互所需要的数据---///////////////////////////////////////////////////////////////////////////////
 
+///////////////////////---调用后端所需要的数据结构---//////////////////////////
 // 查询需要的数据
 const queryParams = reactive<TaskQuery>({
   pageNum: 1,
@@ -46,38 +48,56 @@ const queryParams = reactive<TaskQuery>({
 });
 
 // 回执详细信息相关数据
-
 var receiptParams = reactive<ReceiptParams>({})
 
-var postmanList = ref<PostmanForm[]>([]);
-
+// 查询所有快递员的query参数
 const queryPostmans = reactive<PostmanQuery>({
   pageNum: 1,
   pageSize: 10,
 });
 
+// 查询每个任务单对应商品详情时使用的查询参数
+const goodQuery = reactive<GoodQuery>({
+  pageNum: 1,
+  pageSize: 10
+})
+
+///////////////////////---渲染表格所需要的数据---//////////////////////////
+
+// 表格显示的数据
+const taskList = ref<TaskPageVO[]>([]);
+
+// 用于下拉框展示可供选择的所有快递员
+var postmanList = ref<PostmanForm[]>([]);
+
 // 下拉栏所需要的数据
 var taskTypeList = ref<any[]>([]);
 
+// 显示详情弹窗需要的数据
+const goodList = ref<GoodPaageVO[]>([])
+
+///////////////////////---格式要求设置---//////////////////////////
+
 // 新建相关格式要求设置
 const rules = reactive({
-  name: [{ required: true, message: "请输入字典类型名称", trigger: "blur" }],
-  code: [{ required: true, message: "请输入字典类型编码", trigger: "blur" }],
+  id: [{ required: true, message: "任务单号不得为空，请选择任务", trigger: "blur" }],
+  sign: [{ required: true, message: "请输入您的名字", trigger: "blur" }],
+  remark: [{ required: true, message: "请输入您的评价", trigger: "blur" }],
+  customerSatis: [{ required: true, message: "满分100分，在满意程度方面，您能打几分", trigger: "blur" , pattern: /([1-9]|[1-9][0-9]|100)/ }],
 });
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////---方法---///////////////////////////////////////////////////////////////////////////////
+///////////////////////---加载数据---//////////////////////////
 /**
  * 查询/也用作加载所有数据
  */
-function handleQuery() {
+ function handleQuery() {
   loading.value = true;
   getTaskListByCriteria(queryParams)
     .then(({ data }) => {
       taskList.value = data.list;
       total.value = data.total;
       dropDownBarDataRefresh();
-      console.log("打印加载到的所有任务类型");
-      console.log(taskTypeList);
-      console.log("打印加载到的所有任务类型结束");
     })
     .finally(() => {
       loading.value = false;
@@ -107,43 +127,13 @@ function resetQuery() {
 }
 
 /**
- * 选中任务单
- */
- function selectTask(row: { [key: string]: any }) {
-  receiptParams.id = row.id;
-  receiptParams.substation = row.substation;
-  receiptParams.taskType = row.taskType;
-  receiptParams.taskDate = row.taskDate;
-  receiptParams.customerName = row.customerName;
-  receiptParams.customerAddress = row.customerAddress;
-  receiptParams.customerPhone = row.mobilePhone;
-  receiptParams.goodSum = row.goodSum;
-  receiptParams.receiveName = row.receiveName;
-  receiptParams.address = row.address;
-  receiptParams.postman = row.postman;
-  receiptParams.endDate = row.endDate;
-  receiptParams.receiptId = row.receiptId;
-  receiptParams.replyClass = row.taskType;
-  receiptParams.taskStatus = row.taskStatus;
-  getUUID().then(({data}) => {
-    receiptParams.receiptId = data;
-  })
-}
-
-/**
  * 加载下拉栏所需要的数据
  */
-function dropDownBarDataRefresh() {
-  console.log("进入下拉栏数据加载方法");
-  console.log(taskList.value.length);
-
+ function dropDownBarDataRefresh() {
   for (var i = 0; i < taskList.value.length; i++) {
     var ex = false;
 
     for (var j = 0; j < taskTypeList.value?.length; j++) {
-      console.log(i);
-      console.log(taskList.value.at(i)?.taskType);
-      console.log(taskTypeList.value.at(j));
       if (taskList.value.at(i)?.taskType == taskTypeList.value.at(j)) {
         ex = true;
         break;
@@ -158,16 +148,32 @@ function dropDownBarDataRefresh() {
 }
 
 /**
+ * 加载对应任务的商品详情
+ */
+function getGoodDetail() {
+  getGoodDetailAPI(goodQuery).then(({ data }) => {
+    goodList.value = data.list;
+    goodDialog.title = "任务单详情",
+    goodDialog.visible = true;
+  });
+}
+
+
+///////////////////////---多选事件---//////////////////////////
+
+/**
  * checkbox change事件
  */
-function handleSelectionChange(selection: any) {
+ function handleSelectionChange(selection: any) {
   ids.value = selection.map((item: any) => item.id);
 }
+
+///////////////////////---按钮事件---//////////////////////////
 
 /**
  * 提交回执
  */
-function sendReceipt(){
+ function sendReceipt(){
     submitReceipt(receiptParams);
 }
 
@@ -192,11 +198,50 @@ function clearReceipt(){
   receiptParams.taskStatus = undefined;
 }
 
+
+/**
+ * 选中任务单
+ */
+ function selectTask(row: { [key: string]: any }) {
+  receiptParams.id = row.id;
+  receiptParams.substation = row.substation;
+  receiptParams.taskType = row.taskType;
+  receiptParams.taskDate = row.taskDate;
+  receiptParams.customerName = row.customerName;
+  receiptParams.customerAddress = row.customerAddress;
+  receiptParams.customerPhone = row.mobilePhone;
+  receiptParams.goodSum = row.goodSum;
+  receiptParams.receiveName = row.receiveName;
+  receiptParams.address = row.address;
+  receiptParams.postman = row.postman;
+  receiptParams.endDate = row.endDate;
+  receiptParams.receiptId = row.receiptId;
+  receiptParams.replyClass = row.taskType;
+  receiptParams.taskStatus = row.taskStatus;
+  getUUID().then(({data}) => {
+    receiptParams.receiptId = data;
+  })
+}
+
+/**
+ * 显示详情
+ */
+function showDetail(row: { [key: string]: any }){
+  goodQuery.orderId = row.orderId;
+  getGoodDetail();
+}
+///////////////////////---弹窗事件---//////////////////////////
+function closeGoodDialog(){
+  goodDialog.visible = false;
+}
+///////////////////////---挂载时自动渲染---//////////////////////////
+
 onMounted(() => {
   queryParams.taskStatus = "已领货"
   handleQuery();
   allPostman();
 });
+
 </script>
 
 <template>
@@ -216,17 +261,6 @@ onMounted(() => {
             >
             </el-option>
           </el-select>
-          <!-- <el-form-item label="状态" prop="status">
-              <el-select
-                v-model="queryParams.status"
-                placeholder="全部"
-                clearable
-                style="width: 200px"
-              >
-                <el-option label="启用" value="1" />
-                <el-option label="禁用" value="0" />
-              </el-select>
-            </el-form-item> -->
         </el-form-item>
         <el-form-item label="任务类型" prop="taskType">
           <el-select
@@ -246,7 +280,6 @@ onMounted(() => {
         <el-form-item label="时间界限：">
           <el-date-picker
             v-model="queryParams.startLine"
-            value-format="YYYY-MM-DD"
             placeholder="时间左界限"
             clearable
             style="width: 200px"
@@ -256,7 +289,6 @@ onMounted(() => {
         <el-form-item>
           <el-date-picker
             v-model="queryParams.endLine"
-            value-format="YYYY-MM-DD"
             placeholder="时间右界限"
             clearable
             style="width: 200px"
@@ -274,14 +306,14 @@ onMounted(() => {
     </div>
     <!-- 回执单详细信息录入栏 -->
     <el-card>
-      <el-form ref="queryFormRef" :model="receiptParams" :inline="true">
+      <el-form ref="queryFormRef" :model="receiptParams" :inline="true" :rules="rules">
         <!-- 搜索关键字 -->
         <!-- date picker的model报错是因为element-plus的版本问题，不影响正常使用  -->
         <el-form-item label="任务单号" prop="id" style="width: 300px;">
           <el-input
             v-model="receiptParams.id"
             placeholder=""
-            clearable
+            readonly="true"
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
@@ -290,7 +322,7 @@ onMounted(() => {
           <el-input
             v-model="receiptParams.substation"
             placeholder=""
-            clearable
+            readonly="true"
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
@@ -299,7 +331,7 @@ onMounted(() => {
           <el-input
             v-model="receiptParams.taskType"
             placeholder=""
-            clearable
+            readonly="true"
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
@@ -308,7 +340,7 @@ onMounted(() => {
           <el-input
             v-model="receiptParams.taskDate"
             placeholder=""
-            clearable
+            readonly="true"
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
@@ -317,7 +349,7 @@ onMounted(() => {
           <el-input
             v-model="receiptParams.customerName"
             placeholder=""
-            clearable
+            readonly="true"
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
@@ -326,7 +358,7 @@ onMounted(() => {
           <el-input
             v-model="receiptParams.customerAddress"
             placeholder=""
-            clearable
+            readonly="true"
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
@@ -335,7 +367,7 @@ onMounted(() => {
           <el-input
             v-model="receiptParams.customerPhone"
             placeholder=""
-            clearable
+            readonly="true"
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
@@ -344,7 +376,7 @@ onMounted(() => {
           <el-input
             v-model="receiptParams.goodSum"
             placeholder=""
-            clearable
+            readonly="true"
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
@@ -353,7 +385,7 @@ onMounted(() => {
           <el-input
             v-model="receiptParams.receiveName"
             placeholder=""
-            clearable
+            readonly="true"
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
@@ -362,7 +394,7 @@ onMounted(() => {
           <el-input
             v-model="receiptParams.address"
             placeholder=""
-            clearable
+            readonly="true"
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
@@ -371,7 +403,7 @@ onMounted(() => {
           <el-input
             v-model="receiptParams.postman"
             placeholder=""
-            clearable
+            readonly="true"
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
@@ -380,7 +412,7 @@ onMounted(() => {
           <el-input
             v-model="receiptParams.endDate"
             placeholder=""
-            clearable
+            readonly="true"
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
@@ -389,7 +421,7 @@ onMounted(() => {
           <el-input
             v-model="receiptParams.receiptId"
             placeholder=""
-            clearable
+            readonly="true"
             @keyup.enter="handleQuery"
             style="width: 200px"
           />
@@ -398,6 +430,15 @@ onMounted(() => {
           <el-input
             v-model="receiptParams.sign"
             placeholder=""
+            clearable
+            @keyup.enter="handleQuery"
+            style="width: 200px"
+          />
+        </el-form-item>
+        <el-form-item label="客户评价" prop="remark">
+          <el-input
+            v-model="receiptParams.remark"
+            placeholder="请输入你的感受"
             clearable
             @keyup.enter="handleQuery"
             style="width: 200px"
@@ -421,23 +462,9 @@ onMounted(() => {
         </el-form-item>
       </el-form>
     </el-card>
+    
     <!-- 任务单表单信息 -->
     <el-card shadow="never">
-      <!-- 表单上方按钮栏 -->
-      <!-- <template #header>
-        <el-button
-          v-hasPerm="['sys:dict_type:add']"
-          type="success"
-          @click="openDialog()"
-          ><i-ep-plus />新增</el-button
-        >
-        <el-button
-          type="danger"
-          :disabled="ids.length === 0"
-          @click="handleDelete()"
-          ><i-ep-delete />删除</el-button
-        >
-      </template> -->
       <!-- 表单开始位置 -->
       <!-- 
         v-loading = 是否加载完成表单
@@ -519,6 +546,15 @@ onMounted(() => {
         />
         <el-table-column label="" fixed="right" align="center" width="220">
               <template #default="scope">
+                
+                <el-button
+                  type="primary"
+                  size="small"
+                  link
+                  @click="showDetail(scope.row)"
+                  
+                  ><i-ep-edit />显示详情</el-button
+                >
                 <el-button
                   v-hasPerm="['sys:user:reset_pwd']"
                   type="primary"
@@ -528,6 +564,7 @@ onMounted(() => {
                   
                   ><i-ep-edit />选择</el-button
                 >
+                
               </template>
             </el-table-column>
       </el-table>
@@ -547,5 +584,80 @@ onMounted(() => {
         @pagination="handleQuery"
       />
     </el-card>
+
+
+    <!-- 表单弹窗 -->
+    <el-dialog
+      v-model="goodDialog.visible"
+      :title="goodDialog.title"
+      width="600px"
+      append-to-body
+      @close="closeGoodDialog"
+    >
+      <!-- 表单开始位置 -->
+      <!-- 
+        v-loading = 是否加载完成表单
+        :data = 动态绑定榜单数据
+        border = 展示的表格带有边框
+        @selection-change = 绑定多选时触发的函数
+       -->
+       <el-table
+        v-loading="goodLoading"
+        highlight-current-row
+        :data="goodList"
+        border
+        @selection-change="handleSelectionChange"
+      >
+        <!-- 
+        设置每一行的数据以及该数据的一些配置：
+        key = 没看懂在干什么
+        label = 每一列数据的名称
+        prop = 对应数据中的成员数据名称
+        下方给一个案列
+       -->
+        <!-- <el-table-column
+              key="id"
+              label="编号"
+              align="center"
+              prop="id"
+              width="100"
+            /> -->
+        <el-table-column
+          key="goodName"
+          label="商品名称"
+          align="center"
+          prop="goodName"
+          min-width="12%"
+        />
+        <el-table-column
+          key="goodNumber"
+          label="出库数量"
+          align="center"
+          prop="goodNumber"
+          min-width="12%"
+        />
+      </el-table>
+      <!-- 表单结束位置 -->
+
+      <!-- 
+        分页配置信息
+        total = 表格对应的数据的总数
+        page = 表格页数
+        limit = 每页表格显示的数据数量
+       -->
+      <pagination
+        v-if="total > 0"
+        v-model:total="goodTotal"
+        v-model:page="goodQuery.pageNum"
+        v-model:limit="goodQuery.pageSize"
+        @pagination="getGoodDetail()"
+      />
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="closeGoodDialog">确 定</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
   </div>
 </template>
