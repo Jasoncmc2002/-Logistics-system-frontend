@@ -238,15 +238,10 @@ function checkAll() {
   getCentralStationPage(queryParams1)
     .then(({ data }) => {
       userList1.value = data.list;
-      // for(var i=0;i<userList1.value.length;i++){
-      // if(userList1.value[i].vacancy==0){
-      // userList1.value.slice()
-      // }
-      // }
+
       userList1.value = userList1.value.filter(function (item) {
         return item.vacancy !== 0;
       });
-      // console.log(userList1.value);
       total.value = userList1.value.length;
       handleQuerySupply();
       handleQuerySecondaryCategory();
@@ -265,8 +260,13 @@ function addBuy() {
   // console.log(queryParams3);
   loading.value = true;
   addBuyList(queryParams3)
-    .then(({ data }) => {})
-
+    .then(({ data }) => {
+      if (data != null) {
+        ElMessage.success("批量新增进货单成功");
+      } else {
+        ElMessage.warning("输入进货量不正确");
+      }
+    })
     .finally(() => {
       loading.value = false;
     });
@@ -275,7 +275,13 @@ function addRegister() {
   // console.log(queryParams3);
   loading.value = true;
   addRegisterList(queryParams3)
-    .then(({ data }) => {})
+    .then(({ data }) => {
+      if (data != null) {
+        ElMessage.success("批量新增购货入库调拨单成功");
+      } else {
+        ElMessage.warning("输入进货量不正确");
+      }
+    })
 
     .finally(() => {
       loading.value = false;

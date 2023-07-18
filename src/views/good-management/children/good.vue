@@ -178,6 +178,12 @@ function resetForm1() {
 
 const handleSubmit1 = useThrottleFn(() => {
   CentralStationFormRef.value.validate((valid: any) => {
+    formData1.stock = null;
+    formData1.withdrawal = null;
+    formData1.waitAllo = null;
+    formData1.doneAllo = null;
+    formData1.warn = null;
+    formData1.max = null;
     if (valid) {
       const userId = formData1.id;
       loading.value = true;
@@ -313,13 +319,6 @@ onMounted(() => {
                   @click="openDialog1()"
                   ><i-ep-plus />新增</el-button
                 >
-                <!--                <el-button-->
-                <!--                  v-hasPerm="['sys:user:delete']"-->
-                <!--                  type="danger"-->
-                <!--                  :disabled="ids.length === 0"-->
-                <!--                  @click="handleDelete1()"-->
-                <!--                  ><i-ep-delete />删除</el-button-->
-                <!--                >-->
               </div>
             </div>
           </template>

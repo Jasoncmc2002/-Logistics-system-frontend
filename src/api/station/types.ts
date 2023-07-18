@@ -27,7 +27,7 @@ export interface StationInOutPageVO {
 export interface StationInOutForm {
   id?: number;
   stationClass?: number;
-  // stationClassName?:string;
+  stationClassName?: string;
   alloId?: number;
   stationId?: number;
   stationName?: string;

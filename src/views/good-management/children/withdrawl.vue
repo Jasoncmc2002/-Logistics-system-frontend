@@ -116,6 +116,11 @@ function withdrawal1() {
   loading.value = true;
   withdrawal(list)
     .then(({ data }) => {
+      if (data != null) {
+        ElMessage.success("中心退货记录批量增加成功");
+      } else {
+        ElMessage.warning("请检查退货数量");
+      }
       resetQuery1();
     })
 

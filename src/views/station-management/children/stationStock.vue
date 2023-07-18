@@ -105,20 +105,11 @@ function handleQuery1() {
     });
 }
 function handleQuery2() {
-  // console.log(ids.value);
-  // loading.value = true;
-  // for(var i=0;i<ids.value.length;i++){
-  // 	console.log(ids.value[i]);
-  // }
-  // console.log(queryParams3.max);
-  // console.log(queryParams3.warn);
   const queryParams4 = {
     idList: ids.value,
     max: queryParams3.max,
     warn: queryParams3.warn,
   };
-  // console.log(queryParams4);
-  // console.log(queryParams4.idList);
   updateCentralStationFormList(queryParams4)
     .then(({ data }) => {
       resetQuery1();
@@ -176,7 +167,6 @@ function resetQuery1() {
 
 function handleSelectionChange(selection: any) {
   ids.value = selection.map((item: any) => item.id);
-  // console.log(ids.value);
 }
 
 async function openDialog1(id?: number) {
