@@ -38,3 +38,10 @@ export function addCustomer(data: any) {
     data: data
   });
 }
+export function EditCustomer(data: any) {
+  return request({
+    url: '/customer/updateUser',
+    method: 'post',
+    data: data
+  });
+}

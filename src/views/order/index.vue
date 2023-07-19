@@ -42,7 +42,7 @@ import { useUserStore } from "@/store/modules/user";
 const userStore = useUserStore();
 // new api
 import { getOrderPage ,getGoodPage1} from "@/api/order";
-import { getCustomerPage,getCustomerForm ,addCustomer} from "@/api/customer";
+import { getCustomerPage,getCustomerForm ,addCustomer, EditCustomer} from "@/api/customer";
 
 
 /**
@@ -52,15 +52,15 @@ import { UserForm, UserQuery, UserPageVO } from "@/api/user/types";
 
 // new type
 
-import { GoodQuery,GoodPageVO,GoodForm,GoodQuery1, OrderForm, OrderPageVO, OrderQuery, judgeStock } from "@/api/order/types";
-import { getGoodPage ,CreatOrderfunction,judgeStokeMethod} from "@/api/order";
+import { GoodQuery,GoodPageVO,GoodForm,GoodQuery1, OrderForm, OrderPageVO, OrderQuery, judgeStock, } from "@/api/order/types";
+import { getGoodPage ,CreatOrderfunction,judgeStokeMethod,deleteCustomerFunction} from "@/api/order";
 
 import { CustomerQuery ,CustomerPageVO,CustomerForm} from "@/api/customer/types";
 
 import{getFirstCategoryPage,getSecondaryCategoryForm,getSecondaryCategoryPage,getFirstCategoryForm} from "@/api/good"
 
-import {CentralStationPageVO,CentralStationForm,CentralStationQuery } from "@/api/good/types";
-
+import {CentralStationQuery } from "@/api/good/types";
+import type { CreatOrder, userDelete } from "@/api/order/types";
 import {FirstCategoryPageVO,FirstCategoryForm,FirstCategoryQuery,SecondaryCategoryForm,SecondaryCategoryPageVO,SecondaryCategoryQuery } from "@/api/good/types";
 /**
  * 定义ElementUI组件
@@ -104,6 +104,9 @@ const totalGood= ref(0);
 const totalGood1= ref(0);
 
 const dialog = reactive<DialogOption>({
+	visible: false,
+});
+const editdialog = reactive<DialogOption>({
 	visible: false,
 });
 
@@ -167,6 +170,7 @@ const queryParamsjudgeStoke=reactive<judgeStock>({
 
 const userList = ref<UserPageVO[]>();
 const customerList=ref<CustomerPageVO[]>();
+var customerList1=ref<CustomerPageVO[]>();
 
 // new pagevo
 const orderList = ref<OrderPageVO[]>();
@@ -175,7 +179,8 @@ const goodList1 = ref<GoodPageVO[]>();
 const formData = reactive<UserForm>({
 	status: 1,
 });
-import type { CreatOrder } from "@/api/order/types";
+const userDeleteData= reactive<userDelete>({})
+
 const CreatOrderData=reactive<CreatOrder>({
 	Orders:{
 		goodSum:0,
@@ -420,8 +425,6 @@ function judgeStoke(){
 			loading.value = false;
 		});
 
-
-
 }
 
 
@@ -558,8 +561,9 @@ function displayOrderInfo(row: { [key: string]: any }) {
  * 打开用户弹窗
  */
 async function openDialog(userId?: number) {
-
+    
 	dialog.visible = true;
+	dialog.title="新增客户"
 	formDataCustomer.address="";
 	formDataCustomer.addressphone="";
 	formDataCustomer.email="";
@@ -571,6 +575,22 @@ async function openDialog(userId?: number) {
 	formDataCustomer.work="";
 }
 
+async function openEditCustomerDialog(row: { [key: string]: any }) {
+    
+	editdialog.visible = true;
+	editdialog.title="编辑客户信息"
+    
+	queryParamsCustomer.idcard=row.idcard;
+	queryParamsCustomer.mobilephone=row.mobilephone;
+	queryParamsCustomer.name=row.name;
+	getCustomerPage(queryParamsCustomer).then(({ data }) => {
+
+    Object.assign(formDataCustomer, data.list[0]);
+    
+
+});
+	
+}
 /**
  * 打开订单创建弹窗
  */
@@ -623,6 +643,10 @@ function closeDialog() {
 	dialog.visible = false;
 	//resetForm();
 }
+function closeEditDialog() {
+	editdialog.visible = false;
+	//resetForm();
+}
 
 function closeCreateOrderDialog() {
 	CreateOrderdialog.visible = false;
@@ -667,9 +691,48 @@ const handleSubmit = useThrottleFn(() => {
 		}
 	});
 }, 3000);
+/**
+ * 删除用户
+ */
+ function deleteCustomer(row: { [key: string]: any }) {
+
+	{   
+		loading.value = true;
+		userDeleteData.id=row.id;
+		deleteCustomerFunction(userDeleteData)
+			.then(() => {
 
 
+				ElMessage.success("删除客户成功");
+				
+                resetQuery();
+				handleQueryCustomer();
+				
+			})
+			.finally(() => (
+				
+			loading.value = false));
+	}
 
+}
+
+/**
+ * 编辑用户
+ */
+ function editCustomer() {
+
+	loading.value = true; 
+		EditCustomer(formDataCustomer)
+			.then(() => {
+			ElMessage.success("编辑用户成功");
+			closeEditDialog();
+			resetQuery();
+			handleQueryCustomer();
+		})
+		.finally(() => (loading.value = false));
+		
+
+}
 onMounted(() => {
 	handleQuerySecondaryCategory();
 	handleQueryFirstCategory();
@@ -796,7 +859,7 @@ onMounted(() => {
 				>
 				</el-table-column>
 
-				<el-table-column label="操作" fixed="right" width="100">
+				<el-table-column label="操作" fixed="right" width="300">
 					<template #default="scope">
 
 
@@ -806,6 +869,16 @@ onMounted(() => {
 								size="small"
 								@click="openCreateOrderDialog(scope.row)"
 						>创建订单</el-button>
+						<el-button
+								type="primary"
+								size="small"
+								@click="deleteCustomer(scope.row)"
+						><i-ep-delete />删除用户</el-button>
+						<el-button
+								type="primary"
+								size="small"
+								@click="openEditCustomerDialog(scope.row)"
+						><i-ep-delete />编辑用户</el-button>
 					</template>
 				</el-table-column>
 			</el-table>
@@ -953,7 +1026,7 @@ onMounted(() => {
 		<!-- </el-col> -->
 		<el-container>
 			<el-card>
-				<el-header>Header</el-header>
+				<el-header>商品信息</el-header>
 				<el-main>
 
 					<!--good表单开始-->
@@ -1122,6 +1195,93 @@ onMounted(() => {
 				<div class="dialog-footer">
 					<el-button type="primary" @click="handleSubmit">确 定</el-button>
 					<el-button @click="closeDialog">取 消</el-button>
+				</div>
+			</template>
+		</el-dialog>
+
+
+		<el-dialog
+				v-model="editdialog.visible"
+				:title="editdialog.title"
+				width="600px"
+				append-to-body
+				@close="closeEditDialog"
+		>
+			<!--记得写rules-->
+
+			<el-form
+					ref="CustomerFormRef"
+					:model="formDataCustomer"
+
+					:rules="rules"
+					label-width="80px"
+			>
+				<el-form-item label="用户名" prop="name">
+					<el-input
+							v-model="formDataCustomer.name"
+
+							placeholder="请输入用户名"
+					/>
+				</el-form-item>
+				<el-form-item label="身份证号码" prop="idcard">
+					<el-input
+							v-model="formDataCustomer.idcard"
+
+							placeholder="请输入身份证号码"
+					/>
+				</el-form-item>
+				<el-form-item label="地址" prop="address">
+					<el-input
+							v-model="formDataCustomer.address"
+
+							placeholder="请输入地址"
+					/>
+				</el-form-item>
+				<el-form-item label="固定电话号码" prop="addressphone">
+					<el-input
+							v-model="formDataCustomer.addressphone"
+
+							placeholder="请输入固定电话号码"
+					/>
+				</el-form-item>
+
+				<el-form-item label="手机号码" prop="mobilephone">
+					<el-input
+							v-model="formDataCustomer.mobilephone"
+							placeholder="请输入手机号码"
+							maxlength="11"
+					/>
+				</el-form-item>
+
+				<el-form-item label="工作单位" prop="work">
+					<el-input
+							v-model="formDataCustomer.work"
+
+							placeholder="请输入工作单位"
+					/>
+				</el-form-item>
+				<el-form-item label="邮编" prop="postcode">
+					<el-input
+							v-model="formDataCustomer.postcode"
+
+							placeholder="请输入邮编"
+					/>
+				</el-form-item>
+
+				<el-form-item label="邮箱" prop="email">
+					<el-input
+							v-model="formDataCustomer.email"
+							placeholder="请输入邮箱"
+							maxlength="50"
+					/>
+				</el-form-item>
+
+
+			</el-form>
+			<template #footer>
+				<div class="dialog-footer">
+					<el-button type="primary" @click="editCustomer">确 定</el-button>
+					<el-button @click="closeEditDialog">取 消</el-button>
 				</div>
 			</template>
 		</el-dialog>

@@ -230,3 +230,7 @@ export interface judgeStock{
    goodNumber?:number;
 
 }
+export interface userDelete{
+ id?:number;
+
+}
