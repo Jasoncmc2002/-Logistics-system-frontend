@@ -228,6 +228,24 @@ const rules = reactive({
 	],
 });
 
+const rulesOrder = reactive({
+	receiveName: [{ required: true, message: "用户名不能为空", trigger: "blur" }],
+	
+	customerAddress: [{ required: true, message: "送货地址不能为空", trigger: "blur" }],
+	isInvoice: [{ required: true, message: "是否选择发票不能为空", trigger: "blur" }],
+	substation: [{ required: true, message: "分站不能为空", trigger: "blur" }],
+	postcode: [{ required: true, message: "邮编不能为空", trigger: "blur" }],
+	deliveryDate: [{ required: true, message: "日期不能为空", trigger: "blur" }],
+	orderType: [{ required: true, message: "订单类型不能为空", trigger: "blur" }],
+	mobilephone: [
+		{   required:true,
+			pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
+			message: "请输入正确的手机号码",
+			trigger: "blur",
+		},
+	],
+	
+});
 const searchDeptName = ref();
 const deptList = ref<OptionType[]>();
 const roleList = ref<OptionType[]>();
@@ -410,7 +428,7 @@ function judgeStoke(){
 	loading.value = true;
 	judgeStokeMethod(queryParamsjudgeStoke)
 		.then(({ data }) => {
-			if(data.vacancy=0){
+			if(data.vacancy==0){
 
 				CreatOrderData.Orders.orderStatus="可分配";
 			}
@@ -925,7 +943,7 @@ onMounted(() => {
 								prop="creater"
 						/>
 						<el-table-column
-								label="货物数量"
+								label="货物总价"
 								width="80"
 								align="center"
 								prop="goodSum"
@@ -1293,6 +1311,7 @@ onMounted(() => {
 				v-model="CreateOrderdialog.visible"
 				:title="CreateOrderdialog.title"
 				width="1100px"
+				
 				append-to-body
 				@close="closeCreateOrderDialog"
 		>
@@ -1318,8 +1337,11 @@ onMounted(() => {
 								<el-button class="button" text></el-button>
 							</div>
 						</template>
-						<!--row1-->
-						<el-row >
+						<el-form
+						:rules="rulesOrder">
+
+												<!--row1-->
+												<el-row >
 							<el-col span="12">
 								<el-form-item label="用户名" prop="customer_name">
 									<el-input
@@ -1410,7 +1432,7 @@ onMounted(() => {
 
 						<el-row>
 							<el-col span="8">
-								<el-form-item label="订单类型" prop="order_type">
+								<el-form-item label="订单类型" prop="orderType">
 									<el-select
 											v-model="CreatOrderData.Orders.orderType"
 											class="m-2"
@@ -1444,7 +1466,7 @@ onMounted(() => {
 							</el-col>
 
 							<el-col span="12">
-								<el-form-item label="要求完成日期" prop="delivery_date">
+								<el-form-item label="要求完成日期" prop="deliveryDate">
 									<el-date-picker
 											v-model="CreatOrderData.Orders.deliveryDate"
 											type="datetime"
@@ -1458,7 +1480,7 @@ onMounted(() => {
 
 						<el-row>
 							<el-col span="12">
-								<el-form-item label="是否索要发票" prop="work">
+								<el-form-item label="是否索要发票" prop="isInvoice">
 									<el-radio-group
 											v-model="CreatOrderData.Orders.isInvoice"
 											class="ml-4"
@@ -1470,13 +1492,13 @@ onMounted(() => {
 							</el-col>
 
 							<el-col span="12">
-								<el-form-item label="送货地址" prop="work">
+								<el-form-item label="送货地址" prop="customerAddress">
 									<el-input v-model="CreatOrderData.Orders.customerAddress" />
 								</el-form-item>
 							</el-col>
 
 							<el-col span="12">
-								<el-form-item label="收件人邮编" prop="work">
+								<el-form-item label="收件人邮编" prop="postcode">
 									<el-input v-model="CreatOrderData.Orders.postcode" />
 								</el-form-item>
 							</el-col>
@@ -1490,6 +1512,8 @@ onMounted(() => {
 								</el-form-item>
 							</el-col>
 						</el-row>
+						</el-form>
+
 
 
 
