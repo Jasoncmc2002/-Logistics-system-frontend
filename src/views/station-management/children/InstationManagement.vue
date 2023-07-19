@@ -21,16 +21,6 @@ import {
   CentralStationQuery,
 } from "@/api/good/types";
 import {
-  insertSupplyForm,
-  deleteSupplyForm,
-  getSupplyPage,
-  getSupplyForm,
-  updateSupplyForm,
-} from "@/api/supply";
-
-import { SupplyPageVO, SupplyForm, SupplyQuery } from "@/api/supply/types";
-
-import {
   insertFirstCategoryForm,
   deleteFirstCategoryForm,
   getFirstCategoryPage,
@@ -38,7 +28,11 @@ import {
   updateFirstCategoryForm,
 } from "@/api/good";
 
-import { StationPageVO, StationForm, StationQuery } from "@/api/good/types";
+import {
+  FirstCategoryPageVO,
+  FirstCategoryForm,
+  FirstCategoryQuery,
+} from "@/api/good/types";
 
 import {
   insertSecondaryCategoryForm,
@@ -78,14 +72,14 @@ const userList1 = ref<CentralStationPageVO[]>();
 
 const formData1 = reactive<CentralStationForm>({});
 
-var supplyList = reactive<SupplyForm>({});
-var firstCategoryList = reactive<StationForm>({});
+var firstCategoryList = reactive<FirstCategoryForm>({});
 var secondaryCategoryList = reactive<SecondaryCategoryForm>({});
 
 var inStationList = reactive<number>({});
 const queryParams3 = reactive({
   list: inStationList,
   time: undefined,
+  supply: undefined,
 });
 // const supplyList=reactive({});
 // const firstCategoryList=reactive({});
@@ -102,7 +96,7 @@ function handleQuery1() {
     .then(({ data }) => {
       userList1.value = data.list;
       total.value = data.total;
-      handleQuerySupply();
+
       handleQuerySecondaryCategory();
       handleQueryFirstCategory();
     })
@@ -111,17 +105,7 @@ function handleQuery1() {
       loading.value = false;
     });
 }
-function handleQuerySupply() {
-  loading.value = true;
-  getSupplyPage(queryParams2)
-    .then(({ data }) => {
-      supplyList.value = data.list;
-    })
 
-    .finally(() => {
-      loading.value = false;
-    });
-}
 function handleQuerySecondaryCategory() {
   loading.value = true;
   getSecondaryCategoryPage(queryParams2)
@@ -210,10 +194,6 @@ const handleSubmit1 = useThrottleFn(() => {
   });
 }, 3000);
 
-/**
- * 删除用户
- */
-
 function handleDelete1(id?: number) {
   if (!id) {
     ElMessage.warning("请勾选删除项");
@@ -235,6 +215,7 @@ function handleDelete1(id?: number) {
 }
 function checkAll() {
   loading.value = true;
+  queryParams1.pageSize = 1000;
   getCentralStationPage(queryParams1)
     .then(({ data }) => {
       userList1.value = data.list;
@@ -243,7 +224,6 @@ function checkAll() {
         return item.vacancy !== 0;
       });
       total.value = userList1.value.length;
-      handleQuerySupply();
       handleQuerySecondaryCategory();
       handleQueryFirstCategory();
     })
@@ -266,6 +246,7 @@ function addBuy() {
       } else {
         ElMessage.warning("输入进货量不正确");
       }
+      resetQuery1();
     })
     .finally(() => {
       loading.value = false;
@@ -281,6 +262,7 @@ function addRegister() {
       } else {
         ElMessage.warning("输入进货量不正确");
       }
+      resetQuery1();
     })
 
     .finally(() => {
@@ -367,6 +349,13 @@ onMounted(() => {
                   type="datetime"
                   style="width: 200px"
                 />
+                &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                <el-input
+                  v-model="queryParams3.supply"
+                  placeholder="输入供应商"
+                  clearable
+                  style="width: 200px"
+                />
               </div>
             </div>
           </template>
@@ -445,95 +434,5 @@ onMounted(() => {
         </el-card>
       </el-col>
     </el-row>
-
-    <!--    &lt;!&ndash; 表单弹窗 &ndash;&gt;-->
-    <!--    <el-dialog-->
-    <!--      v-model="dialog.visible"-->
-    <!--      :title="dialog.title"-->
-    <!--      width="600px"-->
-    <!--      append-to-body-->
-    <!--      @close="closeDialog1"-->
-    <!--    >-->
-    <!--      <el-form-->
-    <!--        ref="CentralStationFormRef"-->
-    <!--        :model="formData1"-->
-    <!--        :rules="rules"-->
-    <!--        label-width="80px"-->
-    <!--      >-->
-    <!--        <el-form-item label="商品名称" prop="goodNname">-->
-    <!--          <el-input v-model="formData1.goodName" placeholder="请输入商品名" />-->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="一级分类" prop="goodClassId">-->
-    <!--          <el-select v-model="formData1.goodClassId" placeholder="请选择一级分类名">-->
-    <!--                <el-option-->
-    <!--                  v-for="item in firstCategoryList.value"-->
-    <!--                  :key="item.id"-->
-    <!--                  :label="item.fname"-->
-    <!--                  :value="item.id">-->
-    <!--                </el-option>-->
-    <!--            </el-select> -->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="二级分类" prop="goodSubclassId">-->
-    <!--          <el-select v-model="formData1.goodSubclassId" placeholder="请选择二级分类名">-->
-    <!--                <el-option-->
-    <!--                  v-for="item in secondaryCategoryList.value"-->
-    <!--                  :key="item.id"-->
-    <!--                  :label="item.sname"-->
-    <!--                  :value="item.id">-->
-    <!--                </el-option>-->
-    <!--            </el-select> -->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="计量单位" prop="goodUnit">-->
-    <!--          <el-input v-model="formData1.goodUnit" placeholder="请输入计量单位" />-->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="售价" prop="goodPrice">-->
-    <!--          <el-input v-model="formData1.goodPrice" placeholder="请输入售价" />-->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="商品折扣" prop="goodSale">-->
-    <!--          <el-input v-model="formData1.goodSale" placeholder="请输入折扣" />-->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="成本价" prop="goodCost">-->
-    <!--          <el-input v-model="formData1.goodCost" placeholder="请输入成本价" />-->
-    <!--        </el-form-item>-->
-    <!--         <el-form-item label="供应商" prop="supplyId">-->
-    <!--            <el-select v-model="formData1.supplyId" placeholder="请选择供应商">-->
-    <!--                <el-option-->
-    <!--                  v-for="item in supplyList.value"-->
-    <!--                  :key="item.id"-->
-    <!--                  :label="item.name"-->
-    <!--                  :value="item.id">-->
-    <!--                </el-option>-->
-    <!--            </el-select> -->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="保质期" prop="sellDate">-->
-    <!--           <el-input v-model="formData1.sellDate" placeholder="请输入保质期" />-->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="可否退货" prop="isReturn">-->
-    <!--          <el-radio-group v-model="formData1.isReturn">-->
-    <!--          <el-radio label="1">是</el-radio>-->
-    <!--          <el-radio label="0">否</el-radio>-->
-    <!--        </el-radio-group>-->
-    <!--        </el-form-item>-->
-    <!--        <el-form-item label="可否换货" prop="isChange">-->
-    <!--          <el-radio-group v-model="formData1.isChange">-->
-    <!--          <el-radio label="1">是</el-radio>-->
-    <!--          <el-radio label="0">否</el-radio>-->
-    <!--        </el-radio-group>-->
-    <!--        </el-form-item>-->
-    <!--        &lt;!&ndash; <el-form-item label="库存量" prop="stock">-->
-    <!--          <el-input v-model="formData1.stock" placeholder="请输入库存量" />-->
-    <!--        </el-form-item> &ndash;&gt;-->
-    <!--        <el-form-item label="备注" prop="remark">-->
-    <!--          <el-input v-model="formData1.remark" placeholder="请输入备注" />-->
-    <!--        </el-form-item>-->
-
-    <!--      </el-form>-->
-    <!--      <template #footer>-->
-    <!--        <div class="dialog-footer">-->
-    <!--          <el-button type="primary" @click="handleSubmit1">确 定</el-button>-->
-    <!--          <el-button @click="closeDialog1">取 消</el-button>-->
-    <!--        </div>-->
-    <!--      </template>-->
-    <!--    </el-dialog>-->
   </div>
 </template>

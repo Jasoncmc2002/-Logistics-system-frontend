@@ -112,6 +112,11 @@ function handleQuery2() {
   };
   updateCentralStationFormList(queryParams4)
     .then(({ data }) => {
+      if (data == null) {
+        ElMessage.warning("最大值必须大于警戒值");
+      } else {
+        ElMessage.success("批量设置成功");
+      }
       resetQuery1();
     })
     .finally(() => {

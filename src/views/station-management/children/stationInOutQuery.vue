@@ -185,10 +185,10 @@ onMounted(() => {
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="出库类型" prop="typeKeyword">
+            <el-form-item label="出入库类型" prop="typeKeyword">
               <el-input
                 v-model="queryParams1.typeKeyword"
-                placeholder="出库类型"
+                placeholder="出入库类型"
                 clearable
                 style="width: 200px"
               />
@@ -308,6 +308,13 @@ onMounted(() => {
               width="120"
               align="center"
               prop="type"
+            />
+            <el-table-column
+              label="库房级别"
+              key="stationClassName"
+              width="120"
+              align="center"
+              prop="stationClassName"
             />
             <el-table-column
               label="备注"
