@@ -129,14 +129,12 @@ function handleQueryFirstCategory() {
 }
 
 function resetQuery1() {
-  // CentralStationFormRef.value.resetFields();
-  // console.log("OK");
-
   queryParams3.time = null;
   queryParams1.keywords = null;
   queryParams1.goodClassId = null;
   queryParams1.goodSubclassId = null;
   queryParams1.supplyId = null;
+  queryParams1.pageSize = 10;
   queryParams1.pageNum = 1;
   handleQuery1();
 }
