@@ -319,10 +319,10 @@ onMounted(() => {
                 style="width: 200px"
               />
             </el-form-item>
-            <el-form-item label="预警值" prop="warn">
+            <el-form-item label="警戒值" prop="warn">
               <el-input
                 v-model="queryParams3.warn"
-                placeholder="输入预警值"
+                placeholder="输入警戒值"
                 clearable
                 style="width: 200px"
               />
