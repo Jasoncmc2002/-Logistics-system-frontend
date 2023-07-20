@@ -50,8 +50,8 @@ const dialog = reactive<DialogOption>({
 const queryParams = reactive<AutoQuery>({
   pageNum: 1,
   pageSize: 10,
-  endTime: new Date(2023, 10, 10, 10, 10),
-  startTime: new Date(2021, 10, 11, 10, 10),
+  endTime: new Date(2100, 10, 10, 10, 10),
+  startTime: new Date(2000, 10, 10, 10, 10),
   goodStatus: "缺货",
   orderType:""
 });
@@ -87,7 +87,7 @@ const submitData = ref<SubmitRequest>({});
 // 新建相关格式要求设置
 const rules = reactive({
   name: [{ required: true, message: "请输入字典类型名称", trigger: "blur" }],
-  code: [{ required: true, message: "请输入字典类型编码", trigger: "blur" }],
+  substation: [{ required: true, message: "请输入字典类型编码", trigger: "blur" }],
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////---方法---///////////////////////////////////////////////////////////////////////////////
@@ -152,10 +152,16 @@ function handleSelectionChange(selection: any) {
  * 对选定的表单进行自动调度操作
  */
  function autoDispatch(ids: number[]){
+  if(ids.length==0){
+    ElMessage.warning("请选择要调度的顶顶那");
+    return;
+  }
+
   // 根据ids调取弹窗所需要的表单数据,并且调用自动分配分站的api为每一条数据分配分站
   for(let i=0; i<orderList.value.length; i++){
     for(let j=0; j<ids.length; j++){ 
       if(orderList.value.at(i).id === ids[j]){
+        orderList.value.at(i).substationId = undefined;
         orderDialogList.value.push(orderList.value.at(i)); // 将每条记录加入dialog列表中 并且将dialog
       }
     }
@@ -190,23 +196,37 @@ function openDialog(){
  */
  function closeDialog() {
   dialog.visible = false;
+  orderDialogList.value=[];
 }
 
 /**
  * 提交调度信息
  */
 function submitAutoDispatch(){
+  if(requiredDateData.value.allocationDate == undefined || requiredDateData.value.deadline == undefined || requiredDateData.value.allocationDate == "" || requiredDateData.value.deadline == "" || requiredDateData.value.allocationDate == null || requiredDateData.value.deadline == null  ){
+    ElMessage.warning("请补全时间信息");
+    return;
+  }
   for (let i = 0; i < orderDialogList.value.length; i++){
+    if(orderDialogList.value.at(i).substationId == undefined){
+      ElMessage.warning("部分订单还没有手动分配分站");
+      return;
+    }
     orderDialogList.value.at(i).allocationDate = requiredDateData.value.allocationDate;
     orderDialogList.value.at(i).deadline = requiredDateData.value.deadline;
+
   }
   submitData.value.Orders = orderDialogList.value;
   submitData.value.allocationDate = requiredDateData.value.allocationDate;
   submitData.value.deadline = requiredDateData.value.deadline;
   submitData.value.creator = userStore.nickname;
-  submitDispatch(submitData.value);
-  clearDateData();
-  closeDialog();
+  submitDispatch(submitData.value)
+    .then(({ data }) =>{
+      ElMessage.success("手动调度成功！");
+      handleQuery();
+      clearDateData();
+      closeDialog();
+    });
 }
 
 /**
@@ -221,6 +241,7 @@ function clearDateData(){
 
 onMounted(() => {
   getStationList();
+  handleQuery();
 });
 
 </script>
@@ -274,7 +295,7 @@ onMounted(() => {
             ><i-ep-search />搜索</el-button
           >
           <el-button @click="resetQuery()"><i-ep-refresh />重置</el-button>
-          <el-button @click="autoDispatch(ids)"><i-ep-refresh />自动调度</el-button>
+          <el-button @click="autoDispatch(ids)"><i-ep-refresh />手动调度</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -423,6 +444,7 @@ onMounted(() => {
           highlight-current-row
           :data="orderDialogList"
           border
+          :rules="rules"
         >
           <!-- 
           设置每一行的数据以及该数据的一些配置：
@@ -481,7 +503,7 @@ onMounted(() => {
             prop="receiveName"
             min-width="12%"
           />
-          <el-table-column label="执行分站" fixed="right" width="220">
+          <el-table-column label="执行分站" fixed="right" width="220" prop="substation">
               <template #default="scope">
                 <el-select v-model="scope.row.substationId" clearable>
                   <el-option

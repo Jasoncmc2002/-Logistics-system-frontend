@@ -6,10 +6,10 @@ defineOptions({
 });
 
 // 导入需要的api方法,需要用{}括起来（哪怕只引入一种方法）
-import { getTaskListByCriteria } from "@/api/submanage";
+import { getTaskListByCriteria ,getAllSubstation } from "@/api/submanage";
 
 // 导入需要的数据类型，需要用{}括起来（哪怕只引入一种数据）
-import { TaskPageVO, TaskQuery, TaskType } from "@/api/submanage/types";
+import { TaskPageVO, TaskQuery, TaskType , SubstationInfo, StationQuery} from "@/api/submanage/types";
 
 // 导入时间选择器
 import { ElDatePicker } from "element-plus";
@@ -39,6 +39,16 @@ const taskList = ref<TaskPageVO[]>([]);
 const dialog = reactive<DialogOption>({
   visible: false,
 });
+
+// 所有分站
+const substationList = ref<SubstationInfo[]>([])
+
+
+const stationQuery = reactive<StationQuery>({
+    pageNum: 1,
+    pageSize: 100
+  });
+
 
 // 下拉栏所需要的数据
 var taskTypeList = ref<any[]>([]);
@@ -84,6 +94,18 @@ function resetQuery() {
 }
 
 /**
+ * 加载所有分站信息
+ */
+ function getStationList() {
+  getAllSubstation(stationQuery)
+    .then(({ data }) => {
+      substationList.value = data.list;
+    })
+    .finally()
+}
+
+
+/**
  * 加载下拉栏所需要的数据
  */
 function dropDownBarDataRefresh() {
@@ -119,6 +141,7 @@ function handleSelectionChange(selection: any) {
 
 onMounted(() => {
   handleQuery();
+  getStationList();
 });
 </script>
 
@@ -128,14 +151,16 @@ onMounted(() => {
       <el-form ref="queryFormRef" :model="queryParams" :inline="true">
         <!-- 搜索关键字 -->
         <!-- date picker的model报错是因为element-plus的版本问题，不影响正常使用  -->
-        <el-form-item label="关键字" prop="name">
-          <el-input
-            v-model="queryParams.substation"
-            placeholder="分站名称"
-            clearable
-            @keyup.enter="handleQuery"
-            style="width: 200px"
-          />
+        <el-form-item label="分站" prop="name">
+          <el-select v-model="queryParams.substation" clearable>
+            <el-option
+              v-for="item in substationList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.name"
+              >
+            </el-option>
+          </el-select>
 
           <!-- <el-form-item label="状态" prop="status">
               <el-select
@@ -182,7 +207,6 @@ onMounted(() => {
         <el-form-item>
           <el-date-picker
             v-model="queryParams.startLine"
-            value-format="YYYY-MM-DD"
             placeholder="时间左界限"
             clearable
             style="width: 200px"
@@ -192,7 +216,6 @@ onMounted(() => {
         <el-form-item>
           <el-date-picker
             v-model="queryParams.endLine"
-            value-format="YYYY-MM-DD"
             placeholder="时间右界限"
             clearable
             style="width: 200px"
@@ -315,13 +338,6 @@ onMounted(() => {
           label="商品总价值"
           align="center"
           prop="goodSum"
-          width="100"
-        />
-        <el-table-column
-          key="endDate"
-          label="送到日期"
-          align="center"
-          prop="endDate"
           width="100"
         />
         <el-table-column

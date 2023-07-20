@@ -2,7 +2,7 @@
 import request from "@/utils/request";
 import { AxiosPromise } from "axios";
 // 按照需求导入相应的数据类型或者需要的连表类型
-import { BuyQuery , BuyPageResult, InOutStation, AllocationQuery , AllocationPageResult, DetailQuery, DetailPageResult, CenterOutData, InOutQuery , SubInData , AllocationPageResultByID, AllocationData, AlloQuery, ReceiveQuery, GoodPageResult, ReceiveQueryResult, SubmitReceiveData} from "./types";
+import { BuyQuery , BuyPageResult, InOutStation, DefaultRespond ,AllocationQuery , AllocationPageResult, DetailQuery, DetailPageResult, CenterOutData, InOutQuery , SubInData , AllocationPageResultByID, AllocationData, AlloQuery, ReceiveQuery, GoodPageResult, ReceiveQueryResult, SubmitReceiveData} from "./types";
 import { pa } from "element-plus/es/locale";
 
 /**
@@ -69,8 +69,8 @@ export function getAllocationDataById(
  */
 export function submitCenterIn(
   inOut: InOutStation
-):void{
-  request({
+): AxiosPromise<DefaultRespond>{
+  return request({
     url: "/warehouse/centralcontroller/inCentral",
     method: "post",
     data: inOut
@@ -82,8 +82,8 @@ export function submitCenterIn(
  */
 export function submitCenterOut(
   centerOut: CenterOutData
-): void {
-  request({
+): AxiosPromise<DefaultRespond> {
+  return request({
     url: "/warehouse/centralcontroller/outCentral",
     method: "post",
     data: centerOut
@@ -95,8 +95,8 @@ export function submitCenterOut(
  */
 export function subInSubmit(
   param: SubInData
-): void{
-  request({
+): AxiosPromise<DefaultRespond>{
+  return request({
     url: "/warehouse/centralcontroller/inSubstation",
     method: "post",
     data: param
@@ -125,8 +125,8 @@ export function getGoodListByTaskId(
  */
 export function submitReceive(
   submitData: SubmitReceiveData
-): void{
-  request({
+): AxiosPromise<DefaultRespond>{
+  return request({
     url: "warehouse/centralcontroller/takeGoods",
     method: "post",
     data: submitData

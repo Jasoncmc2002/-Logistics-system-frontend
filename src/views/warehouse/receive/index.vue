@@ -64,8 +64,8 @@ const receiveData = ref<ReceiveData>({});
 
 // 新建相关格式要求设置
 const rules = reactive({
-  name: [{ required: true, message: "请输入字典类型名称", trigger: "blur" }],
-  code: [{ required: true, message: "请输入字典类型编码", trigger: "blur" }],
+  receiveName: [{ required: true, message: "请输入领货人姓名", trigger: "blur" }],
+  receiveDate: [{ required: true, message: "请选择领货日期", trigger: "blur" }],
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////---方法---///////////////////////////////////////////////////////////////////////////////
@@ -76,6 +76,10 @@ const rules = reactive({
  * 查询/也用作加载所有数据
  */
 function handleQuery() {
+  if(queryParams.taskId==undefined){
+    ElMessage.warning("请选择你要领货的任务单");
+    return;
+  }
   loading.value = true;
   getGoodListByTaskId(queryParams)
     .then(({ data }) => {
@@ -86,6 +90,7 @@ function handleQuery() {
     })
     .finally(() => {
       loading.value = false;
+      ElMessage.warning("没找到所需任务单");
     })
 }
 
@@ -121,7 +126,25 @@ function receiveCommit(){
   submitReceiveData.date = receiveData.value.receiveDate;
   submitReceiveData.stationName = receiveData.value.substation;
   submitReceiveData.stationId = receiveData.value.substationId;
-  submitReceive(submitReceiveData);
+  if(submitReceiveData.date == null || submitReceiveData.date == undefined || receiveData.value.receiveName == "" || receiveData.value.receiveName == undefined){
+    ElMessage.warning("请补全领货信息");
+    return;
+  }
+  for(let i = 0 ; i < goodList.value.length ; i++ ){
+    if(goodList.value.at(i).realNumber == undefined){
+      ElMessage.warning("部分商品领货数量未填写");
+      return;
+    }
+    if(goodList.value.at(i).goodNumber > goodList.value.at(i).realNumber){
+      ElMessage.warning("部分商品实际领货数量不足");
+      return;
+    }
+  }
+  submitReceive(submitReceiveData)
+  .then(({data})=>{
+    ElMessage.success("领货成功");
+    resetQuery();
+  });
 }
 
 /**
@@ -172,7 +195,7 @@ onMounted(() => {
 
     <!-- 领货详细信息录入栏 -->
     <el-card>
-      <el-form ref="queryFormRef" :model="receiveData" :inline="true">
+      <el-form ref="queryFormRef" :model="receiveData" :inline="true" :rules="rules">
         <!-- 搜索关键字 -->
         <!-- date picker的model报错是因为element-plus的版本问题，不影响正常使用  -->
         <el-form-item label="订单号" prop="orderId" style="width: 300px;">
@@ -182,6 +205,7 @@ onMounted(() => {
             clearable
             @keyup.enter="handleQuery"
             style="width: 200px"
+            readonly="true"
           />
         </el-form-item>
         <el-form-item label="任务分配日期" prop="taskDate" style="width: 300px;">
@@ -191,6 +215,7 @@ onMounted(() => {
             clearable
             @keyup.enter="handleQuery"
             style="width: 200px"
+            readonly="true"
           />
         </el-form-item>
         <el-form-item label="送货分站" prop="substation" style="width: 300px;">
@@ -200,6 +225,7 @@ onMounted(() => {
             clearable
             @keyup.enter="handleQuery"
             style="width: 200px"
+            readonly="true"
           />
         </el-form-item>
         <br>
@@ -210,6 +236,7 @@ onMounted(() => {
             clearable
             @keyup.enter="handleQuery"
             style="width: 200px"
+            readonly="true"
           />
         </el-form-item>
         <el-form-item label="任务类型" prop="taskType" style="width: 300px;">
@@ -219,6 +246,7 @@ onMounted(() => {
             clearable
             @keyup.enter="handleQuery"
             style="width: 200px"
+            readonly="true"
           />
         </el-form-item>
         <el-form-item label="领货人" prop="receiveName" style="width: 300px;">
@@ -319,7 +347,7 @@ onMounted(() => {
         <el-table-column label="实际领货数量" fixed="right" width="220">
               <template #default="scope">
                 <el-input 
-                v-model="scope.row.number"
+                v-model="scope.row.realNumber"
                 placeholder=""
                 clearable
                 style="min-width=12%">

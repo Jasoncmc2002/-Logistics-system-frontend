@@ -17,7 +17,6 @@ import { forEach } from "lodash";
 
 // 当前登录用户的用户信息
 import { useUserStore } from "@/store/modules/user";
-import { tr } from "element-plus/es/locale";
 const userStore = useUserStore();
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////---声明前端固定使用的数据---///////////////////////////////////////////////////////////////////////////////
 
@@ -49,8 +48,8 @@ const dialog = reactive<DialogOption>({
 const queryParams = reactive<AutoQuery>({
   pageNum: 1,
   pageSize: 10,
-  endTime: new Date(2023, 10, 10, 10, 10),
-  startTime: new Date(2021, 10, 11, 10, 10),
+  endTime: new Date(2100, 10, 10, 10, 10),
+  startTime: new Date(2000, 10, 10, 10, 10),
   goodStatus: "",
   orderType:""
 });
@@ -85,8 +84,6 @@ const substationList = ref<SubstationInfo[]>([])
 
 // 新建相关格式要求设置
 const rules = reactive({
-  name: [{ required: true, message: "请输入字典类型名称", trigger: "blur" }],
-  code: [{ required: true, message: "请输入字典类型编码", trigger: "blur" }],
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////---方法---///////////////////////////////////////////////////////////////////////////////
@@ -115,9 +112,9 @@ function handleQuery() {
  */
 function resetQuery() {
   queryFormRef.value.resetFields();
-  queryParams.orderType = undefined;
-  queryParams.startTime = undefined;
-  queryParams.endTime = undefined;
+  queryParams.orderType = "";
+  queryParams.startTime = new Date(2000, 10, 10, 10, 10);
+  queryParams.endTime = new Date(2100, 10, 10, 10, 10);
   queryParams.goodStatus = "";
   handleQuery();
 }
@@ -150,6 +147,10 @@ function handleSelectionChange(selection: any) {
  * 对选定的表单进行自动调度操作
  */
  function autoDispatch(ids: number[]){
+  if(ids.length==0){
+    ElMessage.warning("请选择你要自动调度的订单");
+    return;
+  }
   // 根据ids调取弹窗所需要的表单数据,并且调用自动分配分站的api为每一条数据分配分站
   for(let i=0; i<orderList.value.length; i++){
     for(let j=0; j<ids.length; j++){ 
@@ -187,7 +188,7 @@ function openDialog(){
  * 关闭弹窗
  */
  function closeDialog() {
-  orderDialogList.value = undefined;
+  orderDialogList.value = [];
   dialog.visible = false;
 }
 
@@ -195,6 +196,10 @@ function openDialog(){
  * 提交调度信息
  */
 function submitAutoDispatch(){
+  if(requiredDateData.value.allocationDate == undefined || requiredDateData.value.deadline == undefined || requiredDateData.value.allocationDate == "" || requiredDateData.value.deadline == "" || requiredDateData.value.allocationDate == null || requiredDateData.value.deadline == null  ){
+    ElMessage.warning("请补全时间信息");
+    return;
+  }
   for (let i = 0; i < orderDialogList.value.length; i++){
     orderDialogList.value.at(i).allocationDate = requiredDateData.value.allocationDate;
     orderDialogList.value.at(i).deadline = requiredDateData.value.deadline;
@@ -203,9 +208,14 @@ function submitAutoDispatch(){
   submitData.value.allocationDate = requiredDateData.value.allocationDate;
   submitData.value.deadline = requiredDateData.value.deadline;
   submitData.value.creator = userStore.nickname;
-  submitDispatch(submitData.value);
+  submitDispatch(submitData.value)
+  .then(({data})=>{
+    ElMessage.success("成功调度！");
+  });
   clearDateData();
   closeDialog();
+  resetQuery();
+  handleQuery();
 }
 
 /**
@@ -221,6 +231,7 @@ function clearDateData(){
 onMounted(() => {
   
   getStationList();
+  handleQuery();
 });
 
 </script>
@@ -440,10 +451,10 @@ onMounted(() => {
               /> -->
 
           <el-table-column
-            key="orderId"
+            key="id"
             label="订单号"
             align="center"
-            prop="orderId"
+            prop="id"
             min-width="12%"
           />
           <el-table-column

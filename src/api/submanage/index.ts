@@ -2,7 +2,7 @@
 import request from "@/utils/request";
 import { AxiosPromise } from "axios";
 // 按照需求导入相应的数据类型或者需要的连表类型
-import { TaskPageVO, TaskQuery, TaskPageResult , ReceiptParams } from "./types";
+import { TaskPageVO, TaskQuery, TaskPageResult , ReceiptParams , SubstationInfo , StationQuery} from "./types";
 import { pa } from "element-plus/es/locale";
 
 /**
@@ -41,5 +41,17 @@ export function submitReceipt(
     url: "/substation/receipt/receiptEntry",
     method: "post",
     data: param
+  })
+}
+
+
+/**
+ * 得到所有分站的名字和ID
+ */
+export function getAllSubstation(queryParams: StationQuery): AxiosPromise<SubListResult> {
+  return request({
+    url: "/distribute/station/getList",
+    method: "post",
+    data: queryParams
   })
 }

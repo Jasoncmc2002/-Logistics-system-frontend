@@ -47,7 +47,7 @@ export function getUserForm(userId: number): AxiosPromise<UserForm> {
  */
 export function addUser(data: any) {
   return request({
-    url: "/customer/addUser",
+    url: "/api/v1/users",
     method: "post",
     data: data,
   });

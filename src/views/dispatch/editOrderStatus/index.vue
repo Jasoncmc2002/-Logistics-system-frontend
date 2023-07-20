@@ -9,7 +9,7 @@ defineOptions({
 import { getOrderListByCriteria , submitChangeOrderStatus } from "@/api/dispatch/editOrderStatus"
 
 // 导入需要的数据类型，需要用{}括起来（哪怕只引入一种数据）
-import { EditOrderQuery , OrderPageVO } from "@/api/dispatch/editOrderStatus/types"
+import { EditOrderQuery , OrderPageVO , UpdateData} from "@/api/dispatch/editOrderStatus/types"
 
 // 导入时间选择器等插件
 import { ElDatePicker } from "element-plus";
@@ -46,7 +46,9 @@ const dialog = reactive<DialogOption>({
 // 查询参数
 const queryParams = reactive<EditOrderQuery>({
   pageNum: 1,
-  pageSize: 10
+  pageSize: 10,
+  endTime: new Date(2100, 10, 10, 10, 10),
+  startTime: new Date(2000, 10, 10, 10, 10),
 });
 
 // 要求出库日期以及要求配送日期
@@ -111,7 +113,17 @@ function handleSelectionChange(selection: any) {
 ///////////////////////---基础按钮事件---//////////////////////////
 
 function submit(row: { [key: string]: any }){
-  submitChangeOrderStatus(row.orderId);
+  const updateData = reactive<UpdateData>(
+    {
+      id: row.id,
+      orderStatus: "可分配"
+    }
+  );
+  submitChangeOrderStatus(updateData)
+  .then(({data})=>{
+    ElMessage.success("改变订单状态成功")
+    handleQuery();
+  });
 }
 
 ///////////////////////---弹窗相关事件---//////////////////////////
@@ -134,6 +146,7 @@ function openDialog(){
 ///////////////////////---挂载时自动渲染---//////////////////////////
 
 onMounted(() => {
+  handleQuery();
 });
 
 </script>
@@ -212,7 +225,7 @@ onMounted(() => {
           key="orderId"
           label="订单号"
           align="center"
-          prop="orderId"
+          prop="id"
           min-width="12%"
         />
         <el-table-column
@@ -226,7 +239,7 @@ onMounted(() => {
           key="address"
           label="地址"
           align="center"
-          prop="address"
+          prop="customerAddress"
           min-width="12%"
         />
         <el-table-column
@@ -240,14 +253,14 @@ onMounted(() => {
           key="phone"
           label="电话"
           align="center"
-          prop="phone"
+          prop="mobilephone"
           min-width="12%"
         />
         <el-table-column
           key="buyDate"
           label="订购日期"
           align="center"
-          prop="buyDate"
+          prop="orderDate"
           min-width="12%"
         />
         <el-table-column

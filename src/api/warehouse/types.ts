@@ -122,6 +122,11 @@ export type DetailPageResult = PageResult<DetailPageVO[]>;
  */
 export interface  InOutStation {
   /**
+   * buyId
+   */
+  buyId?: number;
+
+  /**
    * 货物id
    */
   goodId?: number;
@@ -153,6 +158,10 @@ export interface  InOutStation {
    * 商品名称
    */
   goodName?: string;
+  /**
+   * 应该购货数量
+   */
+  shouldNumber?: number;
 }
 
 /**
@@ -316,6 +325,12 @@ export interface AllocationData{
   
 }
 
+
+export interface DefaultRespond {
+  code?: string;
+  data?: any;
+  message?: string;
+}
 ///////////////////////////////领货///////////////////////////////////////
 /**
  * 领货查询

@@ -42,9 +42,12 @@ const dialog = reactive<DialogOption>({
 
 // 新建相关格式要求设置
 const rules = reactive({
-  name: [{ required: true, message: "请输入字典类型名称", trigger: "blur" }],
-  code: [{ required: true, message: "请输入字典类型编码", trigger: "blur" }],
+  signer: [{ required: true, message: "签收人员不得为空", trigger: "blur" }],
+  date: [{ required: true, message: "签收日期不得为空", trigger: "blur" }],
+  remark: [{ required: true, message: "备注不得为空", trigger: "blur" }],
+  number: [{ required: true, pattern: /^\d*\.?\d+$/,  message: "请输入大于零的数字", trigger: "blur" }],
 });
+
 
 /**
  * 查询/也用作加载所有数据
@@ -95,11 +98,25 @@ function handleSelectionChange(selection: any) {
  * 提交入库
  */
 function centerIn(){
-  submitCenterIn(inOutStation);
+  console.log("实际入库数量" + inOutStation.number + "应该入库数量" + inOutStation.shouldNumber);
+  if(inOutStation.number == undefined ||inOutStation.signer == "" || inOutStation.date == "" || inOutStation.remark == "" || inOutStation.signer == undefined || inOutStation.date == undefined || inOutStation.remark == undefined) {
+    ElMessage.warning("数据填写不完全");
+    return;
+  }
+  if(inOutStation.number <= inOutStation.shouldNumber){
+    ElMessage.warning("实际入库数量不足");
+    return;
+  }
+  submitCenterIn(inOutStation)
+    .then(({ data }) => {
+      ElMessage.success("中心库房入库成功!");
+    })
   clearCenterIn();
+  handleQuery();
 }
 
 function clearCenterIn(){
+  inOutStation.buyId = undefined;
   inOutStation.goodId = undefined;
   inOutStation.goodName = undefined;
   inOutStation.date = undefined;
@@ -108,12 +125,15 @@ function clearCenterIn(){
   inOutStation.remark = undefined;
   inOutStation.signer = undefined;
   inOutStation.supply = undefined;
+  inOutStation.shouldNumber = undefined;
 }
 
 function selectBuy(row: { [key: string]: any }){
+  inOutStation.buyId = row.buyId;
   inOutStation.goodId = row.centralGoodId;
   inOutStation.supply = row.supply;
   inOutStation.buyDate = row.buyDate;
+  inOutStation.shouldNumber = row.buyNumber;
 }
 
 function actualNumber(row: { [key: string]: any }){
@@ -121,7 +141,6 @@ function actualNumber(row: { [key: string]: any }){
 }
 
 onMounted(() => {
-  handleQuery();
 });
 </script>
 
@@ -132,10 +151,10 @@ onMounted(() => {
       <el-form ref="queryFormRef" :model="queryParams" :inline="true">
         <!-- 搜索关键字 -->
         <!-- date picker的model报错是因为element-plus的版本问题，不影响正常使用  -->
-        <el-form-item label="购货单号" prop="name">
+        <el-form-item label="购货单号" prop="id">
           <el-input
             v-model="queryParams.id"
-            placeholder=""
+            placeholder="如果为空则加载全部"
             clearable
             @keyup.enter="handleQuery"
             style="width: 200px"
@@ -152,9 +171,10 @@ onMounted(() => {
     </div>
     <!-- 购入单签收详细信息录入栏 -->
     <el-card>
-      <el-form ref="queryFormRef" :model="inOutStation" :inline="true">
+      <el-form ref="queryFormRef" :model="inOutStation" :inline="true" :rules="rules">
         <!-- 搜索关键字 -->
         <!-- date picker的model报错是因为element-plus的版本问题，不影响正常使用  -->
+        
         <el-form-item label="货物号码" prop="goodId" style="width: 300px;">
           <el-input
             v-model="inOutStation.goodId"
@@ -162,6 +182,7 @@ onMounted(() => {
             clearable
             @keyup.enter="handleQuery"
             style="width: 200px"
+            readonly="true"
           />
         </el-form-item>
         <el-form-item label="供应商源" prop="supply" style="width: 300px;">
@@ -171,6 +192,7 @@ onMounted(() => {
             clearable
             @keyup.enter="handleQuery"
             style="width: 200px"
+            readonly="true"
           />
         </el-form-item>
         <el-form-item label="购货日期" prop="buyDate" style="width: 300px;">
@@ -180,6 +202,7 @@ onMounted(() => {
             clearable
             @keyup.enter="handleQuery"
             style="width: 200px"
+            readonly="true"
           />
         </el-form-item>
         <br>
@@ -192,7 +215,7 @@ onMounted(() => {
             style="width: 200px"
           />
         </el-form-item>
-        <el-form-item label="签收日期" prop="buyDate" style="width: 300px;">
+        <el-form-item label="签收日期" prop="date" style="width: 300px;">
           <el-date-picker
             v-model="inOutStation.date"
             placeholder="购货日期"
@@ -210,11 +233,20 @@ onMounted(() => {
             style="width: 200px"
           />
         </el-form-item>
+        <el-form-item label="实际入库数量" prop="number" style="width: 300px;">
+          <el-input
+            v-model="inOutStation.number"
+            placeholder=""
+            clearable
+            @keyup.enter="handleQuery"
+            style="width: 200px"
+          />
+        </el-form-item>
         <br>
         <!-- 搜索按钮 -->
         <el-form-item>
           <el-button type="primary" @click="centerIn()"
-            ><i-ep-search />提交回执</el-button
+            ><i-ep-search />提交进货入库</el-button
           >
           <el-button @click="clearCenterIn()"><i-ep-refresh />清空</el-button>
         </el-form-item>
@@ -252,6 +284,13 @@ onMounted(() => {
             /> -->
 
         <el-table-column
+          key="buyId"
+          label="购货单号"
+          align="center"
+          prop="buyId"
+          min-width="12%"
+        />
+        <el-table-column
           key="goodName"
           label="商品名称"
           align="center"
@@ -286,30 +325,19 @@ onMounted(() => {
           prop="buyNumber"
           min-width="12%"
         />
-        <el-table-column label="实际入库数量" fixed="right" width="220">
-              <template #default="scope">
-                <el-input 
-                v-model="scope.row.number"
-                placeholder=""
-                clearable
-                @blur="actualNumber(scope.row)"
-                style="min-width=12%">
-                </el-input>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" fixed="right" width="220">
-              <template #default="scope">
-                <el-button
-                  v-hasPerm="['sys:user:delete']"
-                  type="primary"
-                  link
-                  size="small"
-                  @click="selectBuy(scope.row)"
-                  min-width="12%"
-                  ><i-ep-delete />选择</el-button
-                >
-              </template>
-            </el-table-column>
+        <el-table-column label="操作" fixed="right" width="220">
+          <template #default="scope">
+            <el-button
+              v-hasPerm="['sys:user:delete']"
+              type="primary"
+              link
+              size="small"
+              @click="selectBuy(scope.row)"
+              min-width="12%"
+              ><i-ep-delete />选择</el-button
+            >
+          </template>
+        </el-table-column>
       </el-table>
       <!-- 表单结束位置 -->
 

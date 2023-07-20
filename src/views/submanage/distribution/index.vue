@@ -235,7 +235,6 @@ onMounted(() => {
         <el-form-item>
           <el-date-picker
             v-model="queryParams.startLine"
-            value-format="YYYY-MM-DD"
             placeholder="时间左界限"
             clearable
             style="width: 200px"
@@ -245,7 +244,6 @@ onMounted(() => {
         <el-form-item>
           <el-date-picker
             v-model="queryParams.endLine"
-            value-format="YYYY-MM-DD"
             placeholder="时间右界限"
             clearable
             style="width: 200px"

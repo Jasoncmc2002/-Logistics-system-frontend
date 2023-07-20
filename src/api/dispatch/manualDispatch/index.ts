@@ -4,6 +4,7 @@ import { AxiosPromise } from "axios";
 // 按照需求导入相应的数据类型或者需要的连表类型
 import { AutoQuery , OrderPageResult , AutoResult, OrderPageVO, SubstationInfo, StationQuery, SubListResult, SubmitRequest } from "./types";
 import { pa } from "element-plus/es/locale";
+import { DefaultRespond } from "@/api/warehouse/types";
 
 /**
  * 按照参数查询订单信息列表
@@ -33,9 +34,9 @@ export function getAutoDispatch(): AxiosPromise<AutoResult> {
  */
 export function submitDispatch(
   orderList: SubmitRequest
-): void{
-  request({
-    url: "",
+): AxiosPromise<DefaultRespond>{
+  return request({
+    url: "/dispatch/insertTaskDispatchlist",
     method: "post",
     data: orderList
   })

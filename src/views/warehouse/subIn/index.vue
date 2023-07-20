@@ -42,7 +42,7 @@ const detailTotal = ref(0);
 const queryParams = reactive<InOutQuery>({
   pageNum: 1,
   pageSize: 10, 
-  alloType: 2,
+  alloType: 2
 });
 
 const alloParams = reactive<AlloQuery>({
@@ -80,14 +80,19 @@ const subInDialog = reactive<DialogOption>({
 
 // 新建相关格式要求设置
 const rules = reactive({
-  name: [{ required: true, message: "请输入字典类型名称", trigger: "blur" }],
-  code: [{ required: true, message: "请输入字典类型编码", trigger: "blur" }],
+  signer: [{ required: true, message: "请输入签收人姓名", trigger: "blur" }],
+  remark: [{ required: true, message: "请输入备注信息", trigger: "blur" }],
+  date: [{ required: true, message: "请选择签收日期", trigger: "blur" }],
 });
 
 /**
  * 查询/也用作加载所有数据
  */
 function handleQuery() {
+  if(queryParams.id == undefined ) {
+    ElMessage.warning("请选择要查询的条件");
+    return;
+  }
   loading.value = true;
   // getBuyListByCriteria(queryParams)
   //   .then(({ data }) => {
@@ -156,14 +161,26 @@ function handleQuery() {
  * 提交出库
  */
 function showSubIn(){
+  if(goodList.value == undefined || goodList.value == null || goodList.value.length == 0){
+    ElMessage.warning("请选择你要提交的验货单");
+    return;
+  }
+  for (let i = 0 ; i < goodList.value.length ; i++){
+    if(goodList.value.at(i).realNumber == undefined){
+      ElMessage.warning("请填写所有商品的实际入库数量!");
+      return;
+    }
+    if(goodList.value.at(i).goodNumber > goodList.value.at(i).realNumber){
+      ElMessage.warning("部分商品实际入库数量不足应入库数量!");
+      return;
+    }
+  }
   subInData.stationName = allocationData.inStationName;
   subInData.distributor = allocationData.distributors;
   subInData.goods = goodList.value;
   subInData.alloId = queryParams.id;
   subInData.stationId = allocationData.inStationId;
   subInData.taskId = allocationData.taskId;
-  console.log(subInData);
-  console.log(allocationData);
   subInDialog.title = "填写入库信息"
   subInDialog.visible = true;
 }
@@ -172,7 +189,11 @@ function showSubIn(){
  * 提交出库
  */
 function subIn(){
-  subInSubmit(subInData);
+  subInSubmit(subInData)
+    .then(({data}) => {
+      ElMessage.success("分站库房调拨入库成功!");
+      return;
+    })
   closeSubInDialog();
 }
 
@@ -370,6 +391,7 @@ onMounted(() => {
             placeholder=""
             clearable
             style="width: 500px"
+            readonly="true"
           />
         </el-form-item>
 
@@ -379,6 +401,7 @@ onMounted(() => {
             placeholder=""
             clearable
             style="width: 500px"
+            readonly="true"
           />
         </el-form-item>
         <el-form-item label="签收人" prop="signer" style="width: 300px;">
