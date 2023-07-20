@@ -5,8 +5,8 @@ defineOptions({
   inheritAttrs: false,
 });
 
-import { useUserStore } from "@/store/modules/user";
-import { useTransition, TransitionPresets } from "@vueuse/core";
+import {useUserStore} from "@/store/modules/user";
+import {TransitionPresets, useTransition} from "@vueuse/core";
 
 const userStore = useUserStore();
 
@@ -85,26 +85,26 @@ orderCount.value = 2000;
           </div>
 
           <div class="space-x-2 flex items-center justify-end">
-            <el-link
-              target="_blank"
-              type="danger"
-              href="https://blog.csdn.net/u013737132/article/details/130191394"
-              >💥官方从零到一文档</el-link
-            >
+<!--            <el-link-->
+<!--              target="_blank"-->
+<!--              type="danger"-->
+<!--              href="https://blog.csdn.net/u013737132/article/details/130191394"-->
+<!--              >💥官方从零到一文档</el-link-->
+<!--            >-->
             <el-divider direction="vertical" />
-            <el-link
-              target="_blank"
-              type="success"
-              href="https://gitee.com/youlaiorg"
-              >Gitee</el-link
-            >
-            <el-divider direction="vertical" />
-            <el-link
-              target="_blank"
-              type="primary"
-              href="https://github.com/youlaitech"
-              >GitHub
-            </el-link>
+<!--            <el-link-->
+<!--              target="_blank"-->
+<!--              type="success"-->
+<!--              href="https://gitee.com/youlaiorg"-->
+<!--              >Gitee</el-link-->
+<!--            >-->
+<!--            <el-divider direction="vertical" />-->
+<!--            <el-link-->
+<!--              target="_blank"-->
+<!--              type="primary"-->
+<!--              href="https://github.com/youlaitech"-->
+<!--              >GitHub-->
+<!--            </el-link>-->
           </div>
         </div>
       </el-card>

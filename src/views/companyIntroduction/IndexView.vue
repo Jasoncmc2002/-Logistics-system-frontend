@@ -74,7 +74,7 @@ function 	changeTab(index){
 						</div>
 					</div>
 					<div class="header-right">
-							<button  type="button"  ><router-link class="router" to="/index">立马使用</router-link></button>
+							<button  type="button"  ><router-link class="router" to="/login">立马使用</router-link></button>
 					</div>
 				</div>
 

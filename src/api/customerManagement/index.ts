@@ -1,40 +1,48 @@
 import request from "@/utils/request";
 import {AxiosPromise} from "axios";
-import {CustomerForm, CustomerQuery} from "./types";
+import {CentralStationForm, CustomerForm} from "./types";
 
-/**
- * 获取顾客表单详情
- *
- * @param userId
- */
-export function getCustomerForm(userId: number): AxiosPromise<CustomerForm> {
-  return request({
-    url: "/api/v1/users/" + userId + "/form",
-    method: "get",
-  });
-}
 
-/**
- * 获取顾客分页列表
- *
- * @param queryParams
- */
-export function getCustomerPage(queryParams: CustomerQuery): AxiosPromise<PageResult<CustomerForm[]>> {
-  return request({
-    url: "/customer/search",
-    method: "post",
-    data: queryParams,
-  });
-}
 /**
  * 添加用户
  *
  * @param data
  */
-export function addCustomer(data: any) {
+export function updateUser(data: CustomerForm ){
   return request({
-    url: '/customer/addUser',
+    url: '/customer/updateUser',
     method: 'post',
     data: data
   });
+}
+
+export function getCustomer(data: number ):  AxiosPromise<CustomerForm>{
+	return request({
+		url: '/customer/getUserByUserId',
+		method: 'post',
+		data: data
+	});
+}
+export function addCustomer(data: any) {
+	return request({
+		url: '/customer/addUser',
+		method: 'post',
+		data: data
+	});
+}
+
+
+export async function getAiliGood(
+		file: File,
+): AxiosPromise<CentralStationForm> {
+	const formData = new FormData();
+	formData.append("file", file);
+	return request({
+		url: "/financial/goodAili",
+		method: "post",
+		data: formData,
+		headers: {
+			"Content-Type": "multipart/form-data",
+		},
+	});
 }

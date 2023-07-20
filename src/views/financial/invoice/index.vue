@@ -14,28 +14,13 @@
 
 //TODO: inheritAttrs是干嘛的？
 
-import {
-  invoice,
-  invoicePageVO,
-  invoiceQuery,
-} from "@/api/financial/invoice/types";
+import {invoice, invoicePageVO, invoiceQuery,} from "@/api/financial/invoice/types";
 
 /**
  * 导入UI
  */
-import { FormInstance, FormRules, UploadFile } from "element-plus";
-
-import {
-  Check,
-  Delete,
-  Edit,
-  Message,
-  Search,
-  Star,
-} from "@element-plus/icons-vue";
-import { addInvoice, getInvoice } from "@/api/financial/invoice";
-import { SupplyQuery } from "@/api/financial/supply/types";
-import { getSupplyMoney } from "@/api/financial/supply";
+import {FormInstance, FormRules} from "element-plus";
+import {addInvoice, getInvoice} from "@/api/financial/invoice";
 
 /**
  * 定义ElementUI组件
@@ -334,7 +319,7 @@ onMounted(() => {
               >
               <el-button type="primary" @click="dialogFormVisible = true">
                 <i-ep-refresh />
-                表单管理</el-button
+                新增发票</el-button
               >
             </el-form-item>
           </el-form>

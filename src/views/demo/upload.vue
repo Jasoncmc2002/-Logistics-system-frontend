@@ -1,7 +1,5 @@
 <!-- 文件上传组件(单图+多图)示例 -->
 <script setup lang="ts">
-import SingleUpload from "@/components/Upload/SingleUpload.vue";
-import MultiUpload from "@/components/Upload/MultiUpload.vue";
 
 const singlePicUrl = ref(
   "https://oss.youlai.tech/youlai-boot/2023/05/20/2b6d8b49fa1047348a0a41cef5aaf69e.gif"
@@ -18,7 +16,7 @@ const multiPicUrls = ref([
 <template>
   <div class="app-container">
     <el-link
-      href="https://gitee.com/youlaiorg/vue3-element-admin/blob/master/src/views/demo/upload.vue"
+      href="https://gitee.com/JealousDog/GILC/master/src/views/demo/upload.vue"
       type="primary"
       target="_blank"
       class="mb-10"

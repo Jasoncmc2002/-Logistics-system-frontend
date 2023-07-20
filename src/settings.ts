@@ -42,7 +42,7 @@ interface DefaultSettings {
 }
 
 const defaultSettings: DefaultSettings = {
-  title: "vue3-element-admin",
+  title: "智慧物流系统",
   showSettings: true,
   tagsView: true,
   fixedHeader: false,

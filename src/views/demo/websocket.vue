@@ -1,17 +1,15 @@
 <!-- websocket 示例 -->
 <script setup lang="ts">
-import { sendToAll, sendToUser } from "@/api/websocket";
+import {sendToAll, sendToUser} from "@/api/websocket";
+import {useUserStore} from "@/store/modules/user";
+import {useWebSocket} from "@vueuse/core";
 
 const inputVal = ref("初始内容");
 
 const topicMsgs = ref<string[]>(["接收到一条主题消息"]); // 主题消息列表
 const p2pMsgs = ref<string[]>(["接收到一条点对线消息"]); // 点对点消息列表
 
-import { useUserStore } from "@/store/modules/user";
-
 const userId = useUserStore().userId;
-
-import { useWebSocket } from "@vueuse/core";
 
 const { data, status, close, send, open } = useWebSocket(
   "ws://localhost:8989/ws",
@@ -78,7 +76,7 @@ onMounted(() => {});
 <template>
   <div class="app-container">
     <el-link
-      href="https://gitee.com/youlaiorg/vue3-element-admin/blob/master/src/views/demo/websocket.vue"
+      href="https://gitee.com/JealousDog/GILC/blob/master/src/views/demo/websocket.vue"
       type="primary"
       target="_blank"
       class="mb-[20px]"

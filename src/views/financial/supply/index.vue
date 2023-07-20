@@ -17,21 +17,13 @@ defineOptions({
   inheritAttrs: false,
 });
 
+import type {FormInstance, FormRules} from "element-plus";
 /**
  * 导入UI
  */
-import { UploadFile } from "element-plus";
-import { getSupplyMoney, pay } from "@/api/financial/supply";
-import { supplyPageVO, SupplyQuery } from "@/api/financial/supply/types";
-import {
-  Check,
-  Delete,
-  Edit,
-  Message,
-  Search,
-  Star,
-} from "@element-plus/icons-vue";
-import type { FormInstance, FormRules } from "element-plus";
+import {getSupplyMoney} from "@/api/financial/supply";
+import {supplyPageVO, SupplyQuery} from "@/api/financial/supply/types";
+
 /**
  * 定义ElementUI组件
  */
@@ -195,7 +187,7 @@ function Alipay(row: { [key: string]: any }) {
         "http://localhost:8088/financial/alipay/pay?subject=" +
           row.goodName +
           "&traceNo=" +
-          "aasss" +
+          "sssss" +
           "_" +
           row.id +
           "&totalAmount=" +
