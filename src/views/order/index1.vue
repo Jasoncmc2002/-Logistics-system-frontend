@@ -47,12 +47,12 @@ import { getCustomerPage,getCustomerForm ,addCustomer} from "@/api/customer";
 /**
  * 导入API所需要的数据类型
  */
-import { UserForm, UserQuery, UserPageVO } from "@/api/user/types";
+import { UserForm, } from "@/api/user/types";
 
 // new type
 
 import { GoodQuery,GoodPageVO,GoodQuery1, OrderForm, OrderPageVO, OrderQuery,CancelOrder } from "@/api/order/types";
-import { getGoodPage ,EditOrderfunction,getOrderPageByCondition} from "@/api/order";
+import { getGoodPage ,EditOrderfunction,getOrderPageByCondition,judgeStokeMethod} from "@/api/order";
 
 import { CustomerQuery ,CustomerPageVO,CustomerForm} from "@/api/customer/types";
 
@@ -190,7 +190,7 @@ const goodList1 = ref<GoodPageVO[]>();
 const formData = reactive<UserForm>({
 	status: 1,
 });
-import type { CreatOrder,EditOrder } from "@/api/order/types";
+import type { CreatOrder,EditOrder, judgeStock } from "@/api/order/types";
 const CreatOrderData=reactive<CreatOrder>({
 	Orders:{
 		goodSum:0,
@@ -204,7 +204,10 @@ const EditOrderData=reactive<EditOrder>({
 const CancelOrderData=reactifyObject<CancelOrder>({
 
 })
+const queryParamsjudgeStoke=reactive<judgeStock>({
 
+
+})
 // new formData
 
 const formDataOrder = reactive<OrderForm>({
@@ -377,6 +380,26 @@ function handleQueryGood1() {
 		});
 }
 
+function judgeStoke(){
+	loading.value = true;
+	judgeStokeMethod(queryParamsjudgeStoke)
+		.then(({ data }) => {
+			if(data.vacancy=0){
+
+				CreatOrderData.Orders.orderStatus="可分配";
+			}
+			else{
+				CreatOrderData.Orders.orderStatus="缺货";
+			}
+
+
+		})
+		.finally(() => {
+
+			loading.value = false;
+		});
+
+}
 
 //将选中商品添加到数组中
 function AddtoGoodlist(row:any) {
@@ -389,6 +412,10 @@ function AddtoGoodlist(row:any) {
 		.then(({data})=>{
 
 			goodList.value=data.list;
+			queryParamsjudgeStoke.id=goodList.value[0].id;
+
+			queryParamsjudgeStoke.goodNumber=num1;
+			judgeStoke();
 			CreatOrderData.Orders.goodSum+=(goodList.value[0].goodPrice*num1);
 			console.log(goodList.value[0].goodPrice);
 
@@ -413,7 +440,6 @@ function AddtoGoodlist(row:any) {
 					isReturn:goodList.value[0].isReturn,
 					isChange:goodList.value[0].isChange,
 					
-
 				});
 
 
@@ -460,7 +486,41 @@ function AddtoUnSublist(row: { [key: string]: any },$index:any) {
 
 	}
 
+	function AddtoExchangelist(row: { [key: string]: any },$index:any) {
+	            queryParamsjudgeStoke.id=goodList1.value[$index].id;
 
+				queryParamsjudgeStoke.goodNumber=row.changeNumber;
+				judgeStoke();
+		//CreatOrderData.Orders.goodSum=0;
+		CreatOrderData.Orders.goodSum+=(goodList1.value[($index)].goodPrice*row.changeNumber);
+			
+			CreatOrderData.Goods.push(
+				{   id:goodList1.value[$index].id,
+					goodPrice:goodList1.value[$index].goodPrice,
+					goodClass:goodList1.value[$index].goodClass,
+					goodName:goodList1.value[$index].goodName,
+					goodSubclass:goodList1.value[$index].goodSubclass,
+					goodCost:goodList1.value[$index].goodCost,
+					goodFactory:goodList1.value[$index].goodFactory,
+					goodId:goodList1.value[$index].goodId,
+					keyId:CreatOrderData.Orders.customerId,
+					goodNumber:goodList1.value[$index].goodNumber,
+					changeNumber:row.changeNumber,
+					goodSale:goodList1.value[$index].goodSale,
+					goodUnit:goodList1.value[$index].goodUnit,
+					supply:goodList1.value[$index].supplyName,
+					remark:goodList1.value[$index].remark,
+					type:goodList1.value[$index].type,
+					isReturn:goodList1.value[$index].isReturn,
+					isChange:goodList1.value[$index].isChange,
+					
+					
+				});
+				console.log(CreatOrderData);	
+			
+					
+
+	}
 
 function handleQuerySecondaryCategory() {
 	loading.value = true;
@@ -2054,7 +2114,7 @@ onMounted(() => {
 						<el-table-column label="操作" fixed="right" width="150">
 							<template #default="scope">
 
-								<el-button type="primary" @click="AddtoUnSublist(scope.row,scope.$index)"
+								<el-button type="primary" @click="AddtoExchangelist(scope.row,scope.$index)"
 								>确定换货数量</el-button>
 
 							</template>

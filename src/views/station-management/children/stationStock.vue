@@ -112,6 +112,11 @@ function handleQuery2() {
   };
   updateCentralStationFormList(queryParams4)
     .then(({ data }) => {
+      if (data == null) {
+        ElMessage.warning("最大值必须大于警戒值");
+      } else {
+        ElMessage.success("批量设置成功");
+      }
       resetQuery1();
     })
     .finally(() => {
@@ -314,10 +319,10 @@ onMounted(() => {
                 style="width: 200px"
               />
             </el-form-item>
-            <el-form-item label="预警值" prop="warn">
+            <el-form-item label="警戒值" prop="warn">
               <el-input
                 v-model="queryParams3.warn"
-                placeholder="输入预警值"
+                placeholder="输入警戒值"
                 clearable
                 style="width: 200px"
               />

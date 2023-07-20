@@ -574,14 +574,14 @@ onMounted(() => {
         </el-form-item>
         <el-form-item label="可否退货" prop="isReturn">
           <el-radio-group v-model="formData1.isReturn">
-            <el-radio label="1">是</el-radio>
-            <el-radio label="0">否</el-radio>
+            <el-radio :label="1">是</el-radio>
+            <el-radio :label="0">否</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="可否换货" prop="isChange">
           <el-radio-group v-model="formData1.isChange">
-            <el-radio label="1">是</el-radio>
-            <el-radio label="0">否</el-radio>
+            <el-radio :label="1">是</el-radio>
+            <el-radio :label="0">否</el-radio>
           </el-radio-group>
         </el-form-item>
         <!-- <el-form-item label="库存量" prop="stock">

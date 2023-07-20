@@ -42,7 +42,7 @@ import { useUserStore } from "@/store/modules/user";
 const userStore = useUserStore();
 // new api
 import { getOrderPage ,getGoodPage1} from "@/api/order";
-import { getCustomerPage,getCustomerForm ,addCustomer} from "@/api/customer";
+import { getCustomerPage,getCustomerForm ,addCustomer, EditCustomer} from "@/api/customer";
 
 
 /**
@@ -52,15 +52,15 @@ import { UserForm, UserQuery, UserPageVO } from "@/api/user/types";
 
 // new type
 
-import { GoodQuery,GoodPageVO,GoodForm,GoodQuery1, OrderForm, OrderPageVO, OrderQuery, judgeStock } from "@/api/order/types";
-import { getGoodPage ,CreatOrderfunction,judgeStokeMethod} from "@/api/order";
+import { GoodQuery,GoodPageVO,GoodForm,GoodQuery1, OrderForm, OrderPageVO, OrderQuery, judgeStock, } from "@/api/order/types";
+import { getGoodPage ,CreatOrderfunction,judgeStokeMethod,deleteCustomerFunction} from "@/api/order";
 
 import { CustomerQuery ,CustomerPageVO,CustomerForm} from "@/api/customer/types";
 
 import{getFirstCategoryPage,getSecondaryCategoryForm,getSecondaryCategoryPage,getFirstCategoryForm} from "@/api/good"
 
-import {CentralStationPageVO,CentralStationForm,CentralStationQuery } from "@/api/good/types";
-
+import {CentralStationQuery } from "@/api/good/types";
+import type { CreatOrder, userDelete } from "@/api/order/types";
 import {FirstCategoryPageVO,FirstCategoryForm,FirstCategoryQuery,SecondaryCategoryForm,SecondaryCategoryPageVO,SecondaryCategoryQuery } from "@/api/good/types";
 /**
  * 定义ElementUI组件
@@ -69,6 +69,7 @@ import {FirstCategoryPageVO,FirstCategoryForm,FirstCategoryQuery,SecondaryCatego
 const queryFormRef = ref(ElForm); // 查询表单
 const userFormRef = ref(ElForm); // 用户表单
 const CustomerFormRef=ref(ElForm);
+const OrderFormRef=ref(ElForm);
 /**
  * ref本质也是reactive，ref(obj)等价于reactive({value: obj}) : 用于定义响应式变量
  * 定义所需变量
@@ -104,6 +105,9 @@ const totalGood= ref(0);
 const totalGood1= ref(0);
 
 const dialog = reactive<DialogOption>({
+	visible: false,
+});
+const editdialog = reactive<DialogOption>({
 	visible: false,
 });
 
@@ -167,6 +171,7 @@ const queryParamsjudgeStoke=reactive<judgeStock>({
 
 const userList = ref<UserPageVO[]>();
 const customerList=ref<CustomerPageVO[]>();
+var customerList1=ref<CustomerPageVO[]>();
 
 // new pagevo
 const orderList = ref<OrderPageVO[]>();
@@ -175,7 +180,8 @@ const goodList1 = ref<GoodPageVO[]>();
 const formData = reactive<UserForm>({
 	status: 1,
 });
-import type { CreatOrder } from "@/api/order/types";
+const userDeleteData= reactive<userDelete>({})
+
 const CreatOrderData=reactive<CreatOrder>({
 	Orders:{
 		goodSum:0,
@@ -223,6 +229,24 @@ const rules = reactive({
 	],
 });
 
+const rulesOrder = reactive({
+	receiveName: [{ required: true, message: "用户名不能为空", trigger: "blur" }],
+	
+	customerAddress: [{ required: true, message: "送货地址不能为空", trigger: "blur" }],
+	isInvoice: [{ required: true, message: "是否选择发票不能为空", trigger: "blur" }],
+	substation: [{ required: true, message: "分站不能为空", trigger: "blur" }],
+	postcode: [{ required: true, message: "邮编不能为空", trigger: "blur" }],
+	deliveryDate: [{ required: true, message: "日期不能为空", trigger: "blur" }],
+	orderType: [{ required: true, message: "订单类型不能为空", trigger: "blur" }],
+	mobilephone: [
+		{   required:true,
+			pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
+			message: "请输入正确的手机号码",
+			trigger: "blur",
+		},
+	],
+	
+});
 const searchDeptName = ref();
 const deptList = ref<OptionType[]>();
 const roleList = ref<OptionType[]>();
@@ -262,23 +286,28 @@ const SubstationOptions = [
 	{
 		value: '分站1',
 		label: '分站1',
+		substationId:'1',
+		substation:'东京分站',
 	},
 	{
 		value: '分站2',
 		label: '分站2',
+		substationId:'2',
+		substation:'沈阳分站',
 	},
 	{
 		value: '分站3',
 		label: '分站3',
+		substationId:'3',
+		substation:'广东分站',
 	},
 	{
 		value: '分站4',
 		label: '分站4',
+		substationId:'4',
+		substation:'长沙分站',
 	},
-	{
-		value: '分站5',
-		label: '分站5',
-	},
+	
 ];
 
 
@@ -405,7 +434,7 @@ function judgeStoke(){
 	loading.value = true;
 	judgeStokeMethod(queryParamsjudgeStoke)
 		.then(({ data }) => {
-			if(data.vacancy=0){
+			if(data.vacancy==0){
 
 				CreatOrderData.Orders.orderStatus="可分配";
 			}
@@ -419,8 +448,6 @@ function judgeStoke(){
 
 			loading.value = false;
 		});
-
-
 
 }
 
@@ -558,8 +585,9 @@ function displayOrderInfo(row: { [key: string]: any }) {
  * 打开用户弹窗
  */
 async function openDialog(userId?: number) {
-
+    
 	dialog.visible = true;
+	dialog.title="新增客户"
 	formDataCustomer.address="";
 	formDataCustomer.addressphone="";
 	formDataCustomer.email="";
@@ -571,6 +599,22 @@ async function openDialog(userId?: number) {
 	formDataCustomer.work="";
 }
 
+async function openEditCustomerDialog(row: { [key: string]: any }) {
+    
+	editdialog.visible = true;
+	editdialog.title="编辑客户信息"
+    
+	queryParamsCustomer.idcard=row.idcard;
+	queryParamsCustomer.mobilephone=row.mobilephone;
+	queryParamsCustomer.name=row.name;
+	getCustomerPage(queryParamsCustomer).then(({ data }) => {
+
+    Object.assign(formDataCustomer, data.list[0]);
+    
+
+});
+	
+}
 /**
  * 打开订单创建弹窗
  */
@@ -623,6 +667,10 @@ function closeDialog() {
 	dialog.visible = false;
 	//resetForm();
 }
+function closeEditDialog() {
+	editdialog.visible = false;
+	//resetForm();
+}
 
 function closeCreateOrderDialog() {
 	CreateOrderdialog.visible = false;
@@ -667,9 +715,48 @@ const handleSubmit = useThrottleFn(() => {
 		}
 	});
 }, 3000);
+/**
+ * 删除用户
+ */
+ function deleteCustomer(row: { [key: string]: any }) {
+
+	{   
+		loading.value = true;
+		userDeleteData.id=row.id;
+		deleteCustomerFunction(userDeleteData)
+			.then(() => {
 
 
+				ElMessage.success("删除客户成功");
+				
+                resetQuery();
+				handleQueryCustomer();
+				
+			})
+			.finally(() => (
+				
+			loading.value = false));
+	}
 
+}
+
+/**
+ * 编辑用户
+ */
+ function editCustomer() {
+
+	loading.value = true; 
+		EditCustomer(formDataCustomer)
+			.then(() => {
+			ElMessage.success("编辑用户成功");
+			closeEditDialog();
+			resetQuery();
+			handleQueryCustomer();
+		})
+		.finally(() => (loading.value = false));
+		
+
+}
 onMounted(() => {
 	handleQuerySecondaryCategory();
 	handleQueryFirstCategory();
@@ -796,7 +883,7 @@ onMounted(() => {
 				>
 				</el-table-column>
 
-				<el-table-column label="操作" fixed="right" width="100">
+				<el-table-column label="操作" fixed="right" width="300">
 					<template #default="scope">
 
 
@@ -806,6 +893,16 @@ onMounted(() => {
 								size="small"
 								@click="openCreateOrderDialog(scope.row)"
 						>创建订单</el-button>
+						<el-button
+								type="primary"
+								size="small"
+								@click="deleteCustomer(scope.row)"
+						><i-ep-delete />删除用户</el-button>
+						<el-button
+								type="primary"
+								size="small"
+								@click="openEditCustomerDialog(scope.row)"
+						><i-ep-delete />编辑用户</el-button>
 					</template>
 				</el-table-column>
 			</el-table>
@@ -852,7 +949,7 @@ onMounted(() => {
 								prop="creater"
 						/>
 						<el-table-column
-								label="货物数量"
+								label="货物总价"
 								width="80"
 								align="center"
 								prop="goodSum"
@@ -953,7 +1050,7 @@ onMounted(() => {
 		<!-- </el-col> -->
 		<el-container>
 			<el-card>
-				<el-header>Header</el-header>
+				<el-header>商品信息</el-header>
 				<el-main>
 
 					<!--good表单开始-->
@@ -1127,12 +1224,100 @@ onMounted(() => {
 		</el-dialog>
 
 
+		<el-dialog
+				v-model="editdialog.visible"
+				:title="editdialog.title"
+				width="600px"
+				append-to-body
+				@close="closeEditDialog"
+		>
+			<!--记得写rules-->
+
+			<el-form
+					ref="CustomerFormRef"
+					:model="formDataCustomer"
+
+					:rules="rules"
+					label-width="80px"
+			>
+				<el-form-item label="用户名" prop="name">
+					<el-input
+							v-model="formDataCustomer.name"
+
+							placeholder="请输入用户名"
+					/>
+				</el-form-item>
+				<el-form-item label="身份证号码" prop="idcard">
+					<el-input
+							v-model="formDataCustomer.idcard"
+
+							placeholder="请输入身份证号码"
+					/>
+				</el-form-item>
+				<el-form-item label="地址" prop="address">
+					<el-input
+							v-model="formDataCustomer.address"
+
+							placeholder="请输入地址"
+					/>
+				</el-form-item>
+				<el-form-item label="固定电话号码" prop="addressphone">
+					<el-input
+							v-model="formDataCustomer.addressphone"
+
+							placeholder="请输入固定电话号码"
+					/>
+				</el-form-item>
+
+				<el-form-item label="手机号码" prop="mobilephone">
+					<el-input
+							v-model="formDataCustomer.mobilephone"
+							placeholder="请输入手机号码"
+							maxlength="11"
+					/>
+				</el-form-item>
+
+				<el-form-item label="工作单位" prop="work">
+					<el-input
+							v-model="formDataCustomer.work"
+
+							placeholder="请输入工作单位"
+					/>
+				</el-form-item>
+				<el-form-item label="邮编" prop="postcode">
+					<el-input
+							v-model="formDataCustomer.postcode"
+
+							placeholder="请输入邮编"
+					/>
+				</el-form-item>
+
+				<el-form-item label="邮箱" prop="email">
+					<el-input
+							v-model="formDataCustomer.email"
+							placeholder="请输入邮箱"
+							maxlength="50"
+					/>
+				</el-form-item>
+
+
+			</el-form>
+			<template #footer>
+				<div class="dialog-footer">
+					<el-button type="primary" @click="editCustomer">确 定</el-button>
+					<el-button @click="closeEditDialog">取 消</el-button>
+				</div>
+			</template>
+		</el-dialog>
+
+
 
 		<!-- 表单弹窗2-create-order -->
 		<el-dialog
 				v-model="CreateOrderdialog.visible"
 				:title="CreateOrderdialog.title"
 				width="1100px"
+				
 				append-to-body
 				@close="closeCreateOrderDialog"
 		>
@@ -1158,8 +1343,13 @@ onMounted(() => {
 								<el-button class="button" text></el-button>
 							</div>
 						</template>
-						<!--row1-->
-						<el-row >
+						<el-form
+						:rules="rulesOrder"
+						ref="OrderFormRef"
+						:model="CreatOrderData.Orders">
+
+												<!--row1-->
+												<el-row >
 							<el-col span="12">
 								<el-form-item label="用户名" prop="customer_name">
 									<el-input
@@ -1250,7 +1440,7 @@ onMounted(() => {
 
 						<el-row>
 							<el-col span="8">
-								<el-form-item label="订单类型" prop="order_type">
+								<el-form-item label="订单类型" prop="orderType">
 									<el-select
 											v-model="CreatOrderData.Orders.orderType"
 											class="m-2"
@@ -1276,15 +1466,15 @@ onMounted(() => {
 										<el-option
 												v-for="item in SubstationOptions"
 												:key="item.value"
-												:label="item.label"
-												:value="item.value"
+												:label="item.substation"
+												:value="item.substation"
 										/>
 									</el-select>
 								</el-form-item>
 							</el-col>
 
 							<el-col span="12">
-								<el-form-item label="要求完成日期" prop="delivery_date">
+								<el-form-item label="要求完成日期" prop="deliveryDate">
 									<el-date-picker
 											v-model="CreatOrderData.Orders.deliveryDate"
 											type="datetime"
@@ -1298,7 +1488,7 @@ onMounted(() => {
 
 						<el-row>
 							<el-col span="12">
-								<el-form-item label="是否索要发票" prop="work">
+								<el-form-item label="是否索要发票" prop="isInvoice">
 									<el-radio-group
 											v-model="CreatOrderData.Orders.isInvoice"
 											class="ml-4"
@@ -1310,13 +1500,13 @@ onMounted(() => {
 							</el-col>
 
 							<el-col span="12">
-								<el-form-item label="送货地址" prop="work">
+								<el-form-item label="送货地址" prop="customerAddress">
 									<el-input v-model="CreatOrderData.Orders.customerAddress" />
 								</el-form-item>
 							</el-col>
 
 							<el-col span="12">
-								<el-form-item label="收件人邮编" prop="work">
+								<el-form-item label="收件人邮编" prop="postcode">
 									<el-input v-model="CreatOrderData.Orders.postcode" />
 								</el-form-item>
 							</el-col>
@@ -1330,6 +1520,8 @@ onMounted(() => {
 								</el-form-item>
 							</el-col>
 						</el-row>
+						</el-form>
+
 
 
 

@@ -12,6 +12,7 @@ import {
   EditOrder,
   CancelOrder,
   judgeStock,
+  userDelete,
 } from "./types";
 import { CentralStationQuery } from "@/api/good/types";
 /**
@@ -114,6 +115,15 @@ export function getOrderPageByCondition(
 ): AxiosPromise<PageResult<OrderPageVO[]>> {
 	return request({
 		url: "/customer/getOrdersByCriteria",
+		method: "post",
+		data: queryParams,
+	});
+}
+export function deleteCustomerFunction(
+	queryParams: userDelete
+) {
+	return request({
+		url: "/customer/delectUserByid",
 		method: "post",
 		data: queryParams,
 	});
