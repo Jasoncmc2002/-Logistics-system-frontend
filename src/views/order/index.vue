@@ -69,6 +69,7 @@ import {FirstCategoryPageVO,FirstCategoryForm,FirstCategoryQuery,SecondaryCatego
 const queryFormRef = ref(ElForm); // 查询表单
 const userFormRef = ref(ElForm); // 用户表单
 const CustomerFormRef=ref(ElForm);
+const OrderFormRef=ref(ElForm);
 /**
  * ref本质也是reactive，ref(obj)等价于reactive({value: obj}) : 用于定义响应式变量
  * 定义所需变量
@@ -1338,7 +1339,9 @@ onMounted(() => {
 							</div>
 						</template>
 						<el-form
-						:rules="rulesOrder">
+						:rules="rulesOrder"
+						ref="OrderFormRef"
+						:model="CreatOrderData.Orders">
 
 												<!--row1-->
 												<el-row >
