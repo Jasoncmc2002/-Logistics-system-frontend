@@ -694,6 +694,7 @@ function openSalesReturndialog(row: { [key: string]: any }) {
 	CreatOrderData.Orders.postcode=row.postcode;
 	CreatOrderData.Orders.isInvoice=row.isInvoice;
 	CreatOrderData.Orders.orderType="退货";
+	CreatOrderData.Orders.orderStatus="可分配";
 	CreatOrderData.Orders.substation=row.substation;
 
 	queryParamsGood.keyId=row.id;
@@ -783,10 +784,13 @@ function handleAddOrderGood(){
 
 				ElMessage.success("新增下单成功");
 				closeAddGooddialog();
+				
 
 				
 			})
-			.finally(() => (loading.value = false));
+			.finally(() => (
+				
+				loading.value = false));
 	}
 }
 
