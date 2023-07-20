@@ -286,23 +286,28 @@ const SubstationOptions = [
 	{
 		value: '分站1',
 		label: '分站1',
+		substationId:'1',
+		substation:'东京分站',
 	},
 	{
 		value: '分站2',
 		label: '分站2',
+		substationId:'2',
+		substation:'沈阳分站',
 	},
 	{
 		value: '分站3',
 		label: '分站3',
+		substationId:'3',
+		substation:'广东分站',
 	},
 	{
 		value: '分站4',
 		label: '分站4',
+		substationId:'4',
+		substation:'长沙分站',
 	},
-	{
-		value: '分站5',
-		label: '分站5',
-	},
+	
 ];
 
 
@@ -1461,8 +1466,8 @@ onMounted(() => {
 										<el-option
 												v-for="item in SubstationOptions"
 												:key="item.value"
-												:label="item.label"
-												:value="item.value"
+												:label="item.substation"
+												:value="item.substation"
 										/>
 									</el-select>
 								</el-form-item>
