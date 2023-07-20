@@ -66,6 +66,26 @@ export interface TaskPageVO {
   taskDate?: string|Date;
 }
 
+/**
+ * 用于存放分站信息
+ */
+export interface SubstationInfo{
+  /**
+   * 分站名称
+   */
+  name?: string;
+  /**
+   * 分站ID
+   */
+  id?: number;
+}
+
+
+export interface StationQuery extends PageQuery {
+
+}
+
+
 // Query请求用的数据结构
 export interface TaskQuery extends PageQuery {
   /**

@@ -54,3 +54,7 @@ export interface OrderPageVO { //
 export type OrderPageResult = PageResult<OrderPageVO[]>;
 
 ////////////////////////////---other---//////////////////////////////////
+export interface UpdateData {
+  id?: string;
+  orderStatus?: string;
+}

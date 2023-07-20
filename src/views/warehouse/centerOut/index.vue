@@ -30,8 +30,8 @@ const detailTotal = ref(0);
 const queryParams = reactive<AllocationQuery>({
   pageNum: 1,
   pageSize: 10, 
-  endTime: new Date(2023, 10, 10, 10, 10),
-  startTime: new Date(2021, 10, 11, 10, 10),  
+  endTime: new Date(2100, 10, 10, 10, 10),
+  startTime: new Date(2000, 10, 10, 10, 10),  
   alloType: 1,
   id: ""
 });
@@ -64,8 +64,10 @@ const centerOutDialog = reactive<DialogOption>({
 
 // 新建相关格式要求设置
 const rules = reactive({
-  name: [{ required: true, message: "请输入字典类型名称", trigger: "blur" }],
-  code: [{ required: true, message: "请输入字典类型编码", trigger: "blur" }],
+  distributor: [{ required: true, message: "请输入字典类型名称", trigger: "blur" }],
+  signer: [{ required: true, message: "请输入字典类型编码", trigger: "blur" }],
+  remark: [{ required: true, message: "请输入字典类型编码", trigger: "blur" }],
+  date: [{ required: true, message: "请输入字典类型编码", trigger: "blur" }],
 });
 
 /**
@@ -144,7 +146,16 @@ function showCenterOut(row: { [key: string]: any }){
  * 提交出库
  */
 function centerOut(){
-  submitCenterOut(centerOutData);
+  if(centerOutData.distributor == undefined || centerOutData.signer == undefined || centerOutData.date == undefined || centerOutData.remark == undefined ||centerOutData.distributor == "" || centerOutData.signer == "" || centerOutData.date == "" || centerOutData.remark == ""){
+    ElMessage.warning("数据填写不完全!");
+    return;
+  }
+  submitCenterOut(centerOutData)
+  .then(({data}) => {
+    closeCenterOutDialog();
+    ElMessage.success("中心库房调拨出库成功!");
+    handleQuery();
+  });
 }
 
 
